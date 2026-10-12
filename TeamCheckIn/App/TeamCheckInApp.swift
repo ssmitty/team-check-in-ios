@@ -1,16 +1,14 @@
 // TeamCheckInApp.swift
-// Purpose: Wire the session-only prototype's injected state into SwiftUI.
+// Purpose: Wire the configured live account or local demo state into SwiftUI.
 import SwiftUI
 
-/// Entry point for the native demo app.
+/// Entry point for the native teammate app.
 @main
 struct TeamCheckInApp: App {
-    @State private var store = TeamStore()
     var body: some Scene {
         WindowGroup {
-            RootView(store: store)
+            AppEntryView()
                 .tint(.teal)
-                .onOpenURL { url in Task { await store.join(invite: url.absoluteString) } }
         }
     }
 }

@@ -50,7 +50,7 @@ Acceptance:
 
 Evidence: `docs/PRODUCT_SPEC.md`, `docs/SCREEN_FLOWS.md`, `docs/DESIGN_SYSTEM.md`, and `docs/DEPENDENCIES.md` cover the deliverables and acceptance criteria. These are specifications, not implemented features.
 
-Next action: Begin Phase 2 with the native SwiftUI demo scaffold and meaningful state/service tests.
+Next action: Finish Phase 2 interactive and accessibility review while completing integration verification for phases 3 and 4.
 
 ## Phase 2: Build the local iPhone prototype
 
@@ -70,7 +70,7 @@ Acceptance:
 
 ## Phase 3: Connect accounts, teams, and schedules
 
-Status: Not started.
+Status: In progress. Native account/team/schedule screens, Keychain session handling, migrations, and access controls are implemented. Local API tests verified shared schedules and denied member/outsider operations. Hosted two-account native integration and account persistence on device remain pending.
 
 Deliverables:
 - A simple sign-in flow and secure session persistence.
@@ -89,7 +89,7 @@ Dependencies: Supabase development project access for hosted integration. Local 
 
 ## Phase 4: Implement private paired check-ins
 
-Status: Not started.
+Status: In progress. Worker, atomic assignment persistence, pair/trio RLS, timed check-in and encouragement RPCs, and native connection screens are implemented. Local integration verified concurrent generation, previous partners, a trio, private reads, retries, and cancellation before later service outages. Final recheck and hosted native integration remain pending.
 
 Deliverables:
 - Server-side pairing generation with injectable randomness for testing.
@@ -178,7 +178,7 @@ Dependencies: User decision on retention and final name, Apple signing/distribut
 ## Current prerequisites
 
 - Xcode 26.3 is installed and selected. First-launch checks pass; SwiftUI compilation for an iOS 17 simulator target passed during setup. Simulator runtime installation is complete, but successful device startup and interactive app verification remain outstanding.
-- Supabase development access has not been established.
+- A local Supabase development stack was exercised through OrbStack. Hosted development project selection is pending, and local services became intermittently unavailable during final verification.
 - Apple push/signing access and physical-device testing have not been established.
 - Local scheduled development requires the Mac to remain on and the desktop app running.
 

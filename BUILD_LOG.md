@@ -143,3 +143,33 @@ Final synchronization and review:
 - GitHub private visibility was verified in the signed-in `ssmitty` browser session.
 - Draft PR creation is blocked by connector reauthentication and a stalled browser comparison page. `docs/PROTOTYPE_REVIEW.md` contains the concrete review path and ready description; no PR URL is claimed.
 - Final observed disk availability was about 22 GiB, sufficient for the current source and builds but worth monitoring before more runtime downloads.
+
+## October 12, 2026: Phases 2, 3, and 4 advanced
+
+Implemented:
+- Kept the existing labeled demo and added configured account mode with email account creation/sign-in, HTTPS REST services, injectable transport, and device-only Keychain session storage.
+- Added token restoration/renewal, local secret cleanup on sign-out, pending invite input through sign-in, live team creation/joining, server-owned captain controls, shared schedules, and private connection screens.
+- Added three tracked Supabase migrations for teams/invites/schedules, private responses/encouragement, and atomic worker commits. Every application table has RLS and explicit grants. Clients cannot change roles or invent assignments.
+- Moved the pairing algorithm to the Edge Function shared directory and kept Node tests against the same implementation. The worker verifies Auth identity, uses an eligible-roster/previous-assignment snapshot, and commits under team/game locks with retry and coverage validation.
+- Added opt-out persistence before opening, frozen assignments, authoritative submission windows, and cancellation checks. Automatic generation/push remains phase 6; current generation is invoked by a player during the open window.
+- Wired ignored local xcconfig settings into the native target. Missing config uses the demo; invalid config is visible. Public configuration rejects secret/service credentials.
+- Added local Auth/PostgREST integration checks, eight pgTAP access-contract assertions, generated database types, and backend CI setup. Added setup and verification instructions in docs/BACKEND_SETUP.md.
+
+Verified:
+- Native generic iOS Simulator scheme build passed with the account/team/check-in sources. No Swift compiler warnings or errors; the tool emits its expected AppIntents metadata skip warning because this app has no AppIntents dependency.
+- Fifteen Swift tests passed, including six new session/invitation/configuration tests and three live-state privacy/draft tests.
+- Eight Node pairing behavior tests passed against the worker's canonical algorithm.
+- Local migrations applied successfully. An ambiguous SQL aggregate in the initial atomic commit was corrected before the passing integration runs.
+- The expanded local integration suite passed with seven synthetic accounts: shared schedules, unauthorized schedule/role/invite operations, invalid/revoked invitations, pair-only responses against an outside captain, session refresh, duplicate submission, concurrent worker generation, previous-partner avoidance, opt-outs, an odd roster with one trio, and cancellation.
+- Eight database grant/RLS assertions passed after final RPC validation changes. Updated atomic functions and invite locking applied locally; generated TypeScript types were produced.
+
+Limitations and failures:
+- The final integration reruns failed with connection timeouts when local services became unavailable. Request and CLI discovery timeouts were added. The strengthened null-input rejection assertion has not passed in a complete final run; do not report the final integration suite as green.
+- Simulator boot was observed, but installation/UI control timed out. The dedicated device was shut down to reduce resource pressure. Phase 2's full flow, large-text, dark-mode, and VoiceOver checks remain pending.
+- Native secure-session behavior is covered using injected storage tests; actual Keychain/relaunch and the complete two-account native flow have not been exercised.
+- Hosted project selection is pending. Existing projects were not modified, and no hosted migration/function deployment, purchase, push setup, or app distribution occurred.
+- GitHub connector still requires reauthentication for PR creation. SSH commits/pushes continue through ssmitty. Remote CI has not been verified.
+- Disk availability was about 17 GiB late in this run after local services and builds. No personal files or OrbStack volumes were deleted.
+
+Next action:
+- Restore reliable local services and rerun migrations/access/integration checks on a clean isolated instance. Select the dedicated HTTPS Supabase development project, then verify native accounts, invite joining, shared schedules, persisted private check-ins, and Keychain relaunch with two players and an outside captain. Finish Phase 2 accessibility review before marking phases complete.

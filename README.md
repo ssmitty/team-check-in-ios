@@ -2,7 +2,7 @@
 
 Purpose: Build a simple native iPhone app that helps student athletes connect privately before games. One hour before a game, teammates receive an invitation to share how they feel and find each other at warmups.
 
-Current status: The native SwiftUI prototype builds and its six core behavior tests pass. It includes demo team entry, captain schedule editing, private check-in forms, optional photo selection, teammate responses, and warmup request demonstrations. Team Check-in is a temporary working title.
+Current status: The native prototype and configured account mode build. Fifteen Swift behavior tests and eight pairing tests pass. A local Supabase integration run verified accounts, schedules, pair/trio persistence, and privacy; later rechecks timed out when local services became unavailable. Eight database access-contract assertions passed. Hosted native integration and full simulator/accessibility review remain pending. Team Check-in is a temporary working title.
 
 ## Features
 
@@ -25,7 +25,7 @@ See [screen flows](docs/SCREEN_FLOWS.md) and [interface conventions](docs/DESIGN
 
 - Swift 6 and SwiftUI, initially targeting iOS 17 or newer.
 - Main-actor view models and protocol-based service injection.
-- Supabase Auth, Postgres, and private Storage planned for real integration.
+- Supabase Auth and Postgres for prepared account/team/check-in persistence; private Storage remains a later phase.
 - Injected mock services for the first local prototype.
 
 ## Getting started
@@ -57,7 +57,7 @@ Regenerate the project after adding Swift app files:
 python3 scripts/generate_xcode_project.py
 ```
 
-Backend integration will use a configured Supabase URL and publishable key. Privileged credentials belong only in trusted server configuration; never put them in the app or repository.
+Configured account mode uses a Supabase host and publishable key from ignored `Config.xcconfig`. See [backend setup](docs/BACKEND_SETUP.md) for local services, migrations, tests, and the pending hosted configuration. Privileged credentials belong only in trusted server configuration; never put them in the app or repository.
 
 ## Architecture and project files
 
@@ -77,7 +77,7 @@ Run portable core tests:
 swift test
 ```
 
-Six tests passed for submission boundaries, captain authorization, invalid invitations, failed-save draft preservation, individual trio acknowledgments, and private state cleanup. The package tests run on macOS and do not establish iPhone UI or backend policy correctness. A GitHub Actions workflow is included; remote CI results must be checked separately.
+Fifteen tests cover prototype boundaries, invalid invitations, secure session renewal, logout failures, failed-save draft preservation, assignment changes, and private state cleanup. The package tests run on macOS; actual Keychain behavior and the complete iPhone account flow need device/simulator verification. A GitHub Actions workflow is included; remote CI results must be checked separately.
 
 The prepared server pairing module has eight passing Node tests:
 
@@ -85,15 +85,15 @@ The prepared server pairing module has eight passing Node tests:
 node --test backend/pairing.test.mjs
 ```
 
-See [pairing module](backend/README.md) for exact and bounded-search behavior. It is not yet deployed, persisted, or connected to the app's sample assignments.
+See [pairing module](backend/README.md) for exact and bounded-search behavior. The worker and database persistence have been exercised locally; hosted deployment remains pending. Mock assignments stay separate from account mode.
 
 Swift formatting uses Xcode's bundled `swift-format` and `.swift-format` configuration.
 
 ## Roadmap and known limitations
 
-Next: complete simulator flow and accessibility review, then connect real accounts and schedules. Later phases add server-persisted assignments, private photo upload, camera capture, push notifications, and a small team pilot.
+Next: restore reliable local services, repeat the complete integration suite, select the HTTPS development project, and exercise two accounts through the native screens. Finish simulator flow and accessibility review. Later phases add private photo upload, camera capture, warmup persistence, push notifications, and a small team pilot.
 
-Real sharing, access policies, notifications, and camera capture are not implemented yet. The Supabase connector is available, but a development project for this app has not been selected. Apple signing/push access, physical-device checks, retention policy, and final naming are needed before a real pilot.
+Team and assignment access policies are implemented and tested locally. Hosted sharing, notifications, camera capture, private photo upload, and warmup persistence remain unverified or unimplemented. The Supabase connector is available, but a development project for this app has not been selected. Apple signing/push access, physical-device checks, retention policy, and final naming are needed before a real pilot.
 
 ## Scheduled work
 
@@ -101,7 +101,7 @@ The starting cadence is nightly at 2:00 AM Eastern in the existing chat. Each ru
 
 ## Version control
 
-Project commits use the personal `ssmitty` account. Meaningful completed changes receive small commits after relevant checks, with private GitHub synchronization after a secrets scan. See [Git workflow](docs/GIT_WORKFLOW.md). Local backend settings belong in ignored `Config.xcconfig`; `Config.example.xcconfig` contains placeholders and is not wired to an app target yet.
+Project commits use the personal `ssmitty` account. Meaningful completed changes receive small commits after relevant checks, with private GitHub synchronization after a secrets scan. See [Git workflow](docs/GIT_WORKFLOW.md). Local backend settings belong in ignored `Config.xcconfig`; `Config.example.xcconfig` contains placeholders; the app target includes ignored `Config.xcconfig` through `BuildConfig.xcconfig`.
 
 ## License
 

@@ -1,0 +1,3 @@
+// BuildConfig.xcconfig
+// Purpose: Include optional local backend configuration without committing credentials.
+#include? "Config.xcconfig"

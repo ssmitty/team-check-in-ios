@@ -27,7 +27,8 @@ def main() -> None:
         objects.append(f"{key} = {{ {contents} }};")
         return key
 
-    references, builds = [], []
+    config_ref = add("Config.xcconfig", 'isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = BuildConfig.xcconfig; sourceTree = "<group>";')
+    references, builds = [config_ref], []
     for path in sources:
         relative = path.relative_to(root).as_posix()
         ref = add(relative, f'isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = {json.dumps(relative)}; sourceTree = "<group>";')
@@ -45,7 +46,7 @@ def main() -> None:
         project_configs.append(add("project:" + configuration,
             f'isa = XCBuildConfiguration; name = {configuration}; buildSettings = {{ SDKROOT = iphoneos; IPHONEOS_DEPLOYMENT_TARGET = 17.0; CLANG_ENABLE_MODULES = YES; }};'))
         app_configs.append(add("app:" + configuration,
-            f'isa = XCBuildConfiguration; name = {configuration}; buildSettings = {{ PRODUCT_NAME = TeamCheckIn; PRODUCT_BUNDLE_IDENTIFIER = dev.ssmitty.TeamCheckIn; INFOPLIST_FILE = TeamCheckIn/Resources/Info.plist; SWIFT_VERSION = 6.0; SWIFT_STRICT_CONCURRENCY = complete; SWIFT_OPTIMIZATION_LEVEL = "' + ('-Onone' if configuration == 'Debug' else '-O') + '"; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; TARGETED_DEVICE_FAMILY = 1; CODE_SIGN_STYLE = Automatic; ENABLE_PREVIEWS = YES; };'))
+            f'isa = XCBuildConfiguration; name = {configuration}; baseConfigurationReference = {config_ref}; buildSettings = {{ PRODUCT_NAME = TeamCheckIn; PRODUCT_BUNDLE_IDENTIFIER = dev.ssmitty.TeamCheckIn; INFOPLIST_FILE = TeamCheckIn/Resources/Info.plist; SWIFT_VERSION = 6.0; SWIFT_STRICT_CONCURRENCY = complete; SWIFT_OPTIMIZATION_LEVEL = "' + ('-Onone' if configuration == 'Debug' else '-O') + '"; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; TARGETED_DEVICE_FAMILY = 1; CODE_SIGN_STYLE = Automatic; ENABLE_PREVIEWS = YES; };'))
     project_config = add("projectConfigs", 'isa = XCConfigurationList; buildConfigurations = (' + ','.join(project_configs) + ',); defaultConfigurationName = Release;')
     app_config = add("appConfigs", 'isa = XCConfigurationList; buildConfigurations = (' + ','.join(app_configs) + ',); defaultConfigurationName = Release;')
     target = add("appTarget", f'isa = PBXNativeTarget; buildConfigurationList = {app_config}; buildPhases = ({source_phase},{frameworks},{resources},); buildRules = (); dependencies = (); name = TeamCheckIn; productName = TeamCheckIn; productReference = {product}; productType = "com.apple.product-type.application";')
