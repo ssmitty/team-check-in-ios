@@ -54,7 +54,7 @@ Next action: Begin Phase 2 with the native SwiftUI demo scaffold and meaningful 
 
 ## Phase 2: Build the local iPhone prototype
 
-Status: Not started.
+Status: In progress. Native SwiftUI app implemented; simulator builds and six core tests pass. Sample-team entry was exercised on the simulator. Full interactive flow, larger text, dark-mode, and VoiceOver review remain outstanding after simulator responsiveness issues during component installation.
 
 Deliverables:
 - An Xcode project with feature-based folders and injected mock services.

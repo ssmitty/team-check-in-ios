@@ -96,3 +96,35 @@ Next action:
 - The GitHub connector requires reauthentication. The private repository creation form is prepared in Chrome under `ssmitty` as `team-check-in-ios`; browser interaction became unavailable before creation could be verified.
 - Staged the planning baseline and supplied project skills. Whitespace checks and a targeted credential-pattern scan passed. Generated files and real local configuration are ignored.
 - Remote creation and synchronization must be verified before reporting the project as backed up to GitHub. Local development and commits can proceed independently.
+
+## October 11, 2026: Native prototype implemented
+
+Repository:
+- Verified `ssmitty/team-check-in-ios` exists and SSH access works through the personal account.
+- Merged its MIT license initialization and pushed the planning baseline to main.
+- Began implementation on `feature/swiftui-prototype`; author and committer remain `ssmitty`.
+
+Implemented:
+- Native SwiftUI entry, Today/Team navigation, captain schedule editing and cancellation, and sample invite handling.
+- Typed feelings, support preferences, game windows, and pair/trio response models.
+- Injected service/clock state with clear session-only mock behavior, validation errors, waiting/empty/closed/failure scenarios, and draft preservation.
+- Optional system photo selection with a local preview and removal, plus warmup requests and per-teammate simulated acknowledgment.
+- Stable project generation, a shared Xcode scheme, Swift formatting configuration, and a CI workflow.
+
+Verified:
+- Six Swift core behavior tests passed.
+- Direct simulator SDK app build and the standard generic simulator scheme build passed.
+- App installed and launched on Team Check-in Prototype; welcome and sample-team entry were inspected.
+- A layout adjustment moved the demo banner above navigation after its bottom placement obscured tabs. The adjusted build passes; complete UI review is pending.
+
+Storage and setup:
+- Removed the completed 2.11 GiB Xcode installer after confirming Xcode was installed.
+- Removed a runtime thought redundant, then restored it when Xcode's platform readiness required it. The iOS 26.2 and 26.3.1 runtime images are now installed. First-launch component update reports success.
+- Available space was about 23 GiB after restoration, versus 18 GiB at the start. Project source and OrbStack data were preserved.
+- Simulator responsiveness was interrupted during component restoration; later bounded startup/install checks did not complete. UI checks are not marked passed on that basis.
+
+Remaining:
+- Phase 2 remains in progress pending complete flow, dark-mode, larger-text, and VoiceOver checks.
+- Camera capture, real photo upload, real auth/team sharing, backend policies, and push delivery are not implemented.
+- A Supabase development project choice is pending. Existing connected projects are older/inactive and were not modified.
+- Next: finish UI review and integrate a dedicated backend after project selection.

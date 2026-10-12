@@ -1,0 +1,15 @@
+# ci.yml
+# Purpose: Compile the simulator app and run portable core behavior tests.
+name: Build and test
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  swift:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Core behavior tests
+        run: swift test
+      - name: Simulator app build
+        run: xcodebuild -project TeamCheckIn.xcodeproj -scheme TeamCheckIn -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build

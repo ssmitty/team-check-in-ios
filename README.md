@@ -2,11 +2,11 @@
 
 Purpose: Build a simple native iPhone app that helps student athletes connect privately before games. One hour before a game, teammates receive an invitation to share how they feel and find each other at warmups.
 
-Current status: Phase 1 is complete. The product specification and screen flows are ready; an app scaffold has not been created yet. Team Check-in is a temporary working title.
+Current status: The native SwiftUI prototype builds and its six core behavior tests pass. It includes demo team entry, captain schedule editing, private check-in forms, optional photo selection, teammate responses, and warmup request demonstrations. Team Check-in is a temporary working title.
 
 ## Features
 
-Planned first-version features:
+First-version scope:
 
 - Join through a team invite link.
 - Captain-managed game schedules.
@@ -30,7 +30,7 @@ See [screen flows](docs/SCREEN_FLOWS.md) and [interface conventions](docs/DESIGN
 
 ## Getting started
 
-Xcode 26.3 is installed on the current development Mac and selected for command-line work. No runnable app project exists yet.
+Xcode 26.3 is installed on the current development Mac. The app targets iOS 17 or newer and uses demo data without credentials. Open `TeamCheckIn.xcodeproj`, select an installed iPhone simulator, and run the TeamCheckIn scheme.
 
 Verify the local tools:
 
@@ -41,7 +41,21 @@ xcodebuild -checkFirstLaunchStatus
 xcrun simctl list runtimes
 ```
 
-These commands were checked during setup and planning. Simulator startup has not yet been verified successfully. Exact build/run instructions and a backend config example will be added with the corresponding implementation.
+Build from the project directory:
+
+```sh
+xcodebuild -project TeamCheckIn.xcodeproj -scheme TeamCheckIn -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+```
+
+This build passed locally. The app also installed and launched on the dedicated iOS 26.2 simulator, where welcome and sample-team entry were inspected. Component installation subsequently interrupted simulator responsiveness, so complete flow and accessibility checks are still pending.
+
+The sample invitation is `teamcheckin://join/demo`. Today includes reproducible demo scenarios; Team includes a Captain demo toggle. Warmup acknowledgments can be simulated explicitly. Photos stay in memory, and session data resets when the app relaunches.
+
+Regenerate the project after adding Swift app files:
+
+```sh
+python3 scripts/generate_xcode_project.py
+```
 
 Backend integration will use a configured Supabase URL and publishable key. Privileged credentials belong only in trusted server configuration; never put them in the app or repository.
 
@@ -57,15 +71,21 @@ Backend integration will use a configured Supabase URL and publishable key. Priv
 
 ## Testing
 
-No app test target exists yet. Phase 1 documents passed checks for required feature coverage, file references, and style. Xcode setup passed a minimal SwiftUI/Observation compiler check; this does not constitute an app build or device test.
+Run portable core tests:
 
-Phase 2 will add meaningful tests for view-model state, scheduling validation, and mock service failures, plus interactive simulator checks when startup works.
+```sh
+swift test
+```
+
+Six tests passed for submission boundaries, captain authorization, invalid invitations, failed-save draft preservation, individual trio acknowledgments, and private state cleanup. The package tests run on macOS and do not establish iPhone UI or backend policy correctness. A GitHub Actions workflow is included; remote CI results must be checked separately.
+
+Swift formatting uses Xcode's bundled `swift-format` and `.swift-format` configuration.
 
 ## Roadmap and known limitations
 
-Next: create the mock SwiftUI prototype. Later phases connect real accounts and schedules, paired check-ins, photos and warmup requests, push notifications, and a small team pilot.
+Next: complete simulator flow and accessibility review, then connect real accounts and schedules. Later phases add server-persisted assignments, private photo upload, camera capture, push notifications, and a small team pilot.
 
-Real sharing, access policies, notifications, and camera behavior are not implemented yet. Supabase development access, Apple signing/push access, physical-device checks, retention policy, and final naming are needed before a real pilot.
+Real sharing, access policies, notifications, and camera capture are not implemented yet. The Supabase connector is available, but a development project for this app has not been selected. Apple signing/push access, physical-device checks, retention policy, and final naming are needed before a real pilot.
 
 ## Scheduled work
 
@@ -77,4 +97,4 @@ Project commits use the personal `ssmitty` account. Meaningful completed changes
 
 ## License
 
-License selection is pending user authorization. This local project has not been published or distributed.
+The GitHub repository was initialized with the [MIT License](LICENSE). The app has not been distributed to testers or the App Store.

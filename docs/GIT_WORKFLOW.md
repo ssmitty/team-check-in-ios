@@ -28,4 +28,4 @@ If authentication or network access is unavailable, retain local commits and not
 
 Maintain the README, setup examples, and tests alongside changes. Add executable CI when a real app project and test target exist. Do not add a build badge or claim CI success before it runs. Backend configuration examples must use placeholders and exclude privileged server credentials.
 
-The license remains undecided. A private GitHub repository does not grant permission to publish or distribute this app.
+The remote repository was initialized with MIT licensing. Private GitHub synchronization does not authorize App Store distribution or changes to production services.
