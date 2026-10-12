@@ -1,0 +1,27 @@
+# Place at .github/workflows/ci.yml
+# Builds and tests an Apple platform project on every push and pull request.
+# Adjust the scheme, destination, and Xcode version to match the project.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create placeholder config
+        run: cp Config.example.xcconfig Config.xcconfig
+
+      - name: Build and test
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -scheme ProjectName \
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            | xcpretty

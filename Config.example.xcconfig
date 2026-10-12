@@ -1,0 +1,9 @@
+// Config.example.xcconfig
+// Purpose: Document planned public backend configuration without credentials.
+// Notes: The app is not scaffolded yet, so these fields are not wired to a target.
+
+SUPABASE_HOST = your-project.supabase.co
+SUPABASE_PUBLISHABLE_KEY = replace_with_project_publishable_key
+
+// Copy to Config.xcconfig when integration starts. That file is ignored by Git.
+// Privileged service credentials and Apple signing keys belong outside the app.

@@ -1,0 +1,48 @@
+# .gitignore
+# Purpose: Keep generated files, local settings, and credentials out of Git.
+
+# macOS
+.DS_Store
+
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xccheckout
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+*.xcarchive
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Packages/
+
+# CocoaPods and Carthage
+Pods/
+Carthage/Build/
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+Config.xcconfig
+*.p12
+*.mobileprovision
+*.pem
+*.key
+GoogleService-Info.plist
+
+# Supabase local state
+supabase/.branches/
+supabase/.temp/
+
+# Editor and tooling
+.idea/
+.vscode/
+node_modules/
+__pycache__/

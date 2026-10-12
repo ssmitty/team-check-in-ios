@@ -1,0 +1,40 @@
+# macOS
+.DS_Store
+
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xccheckout
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Packages/
+
+# CocoaPods and Carthage
+Pods/
+Carthage/Build/
+
+# Secrets and local config (never commit these)
+.env
+.env.*
+!.env.example
+Config.xcconfig
+*.p12
+*.mobileprovision
+GoogleService-Info.plist
+
+# Supabase local state
+supabase/.branches/
+supabase/.temp/
+
+# Editor
+.idea/
+.vscode/
