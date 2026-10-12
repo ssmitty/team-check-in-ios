@@ -128,3 +128,12 @@ Remaining:
 - Camera capture, real photo upload, real auth/team sharing, backend policies, and push delivery are not implemented.
 - A Supabase development project choice is pending. Existing connected projects are older/inactive and were not modified.
 - Next: finish UI review and integrate a dedicated backend after project selection.
+
+## October 11, 2026: Server pairing prepared
+
+- Implemented a server-side pairing module with injected test randomness and cryptographic randomness by default.
+- Enforces complete unique membership, pairs plus one trio for an odd roster, and previous-partner scoring including all relationships in a preceding trio.
+- Finds minimum-repeat assignments exactly for up to 18 players; larger rosters use bounded random attempts and report whether optimality is known.
+- Eight Node tests passed, covering rosters from two through forty, small/empty rosters, unavoidable repeats, previous trios, invalid inputs, and deterministic test behavior.
+- Added pairing tests to CI and documented that authorization, event locking, atomic persistence, and deployment remain unimplemented.
+- Native prototype milestone `c2c892a` was pushed to `feature/swiftui-prototype` through `ssmitty`. This pairing change is a separate coherent commit.

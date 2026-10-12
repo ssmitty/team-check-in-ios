@@ -79,6 +79,14 @@ swift test
 
 Six tests passed for submission boundaries, captain authorization, invalid invitations, failed-save draft preservation, individual trio acknowledgments, and private state cleanup. The package tests run on macOS and do not establish iPhone UI or backend policy correctness. A GitHub Actions workflow is included; remote CI results must be checked separately.
 
+The prepared server pairing module has eight passing Node tests:
+
+```sh
+node --test backend/pairing.test.mjs
+```
+
+See [pairing module](backend/README.md) for exact and bounded-search behavior. It is not yet deployed, persisted, or connected to the app's sample assignments.
+
 Swift formatting uses Xcode's bundled `swift-format` and `.swift-format` configuration.
 
 ## Roadmap and known limitations
