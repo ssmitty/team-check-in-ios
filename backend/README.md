@@ -1,15 +1,21 @@
-# Server pairing module
+# Server pairing and integration checks
 
-Purpose: Prepare the assignment algorithm independently of hosted backend access.
+Purpose: Verify the trusted pairing algorithm and local account/access behavior.
 
-Run tests with Node.js 22 or newer:
+The canonical algorithm lives in `supabase/functions/_shared/pairing.mjs`; `backend/pairing.mjs` re-exports it for Node tests. Cryptographic randomness is the default. Tests inject a deterministic source. Every eligible player occurs exactly once, with pairs and one trio for an odd roster. Fewer than two eligible players yields no assignment.
+
+Previous groups count all relationships, including each pair in a preceding trio. Rosters up to 18 use an exact minimum-repeat search. Larger rosters try up to 512 shuffled arrangements and report whether optimality is known. This bounded search can still repeat a previous partner even when another arrangement would avoid it.
 
 ```sh
 node --test backend/pairing.test.mjs
 ```
 
-The server module takes already-authorized eligible member IDs and the previous event's groups. It shuffles the roster with cryptographic randomness, forms pairs or one trio, and counts repeated teammate relationships.
+The Edge Function verifies the caller, retrieves a restricted server snapshot, runs this algorithm, and atomically persists assignments. It retries changed snapshots. RLS exposes only the caller's pair or trio, with no captain override. Automatic scheduling is a later phase.
 
-For up to 18 players it finds a matching with the minimum repeated relationships. Larger rosters use up to 512 randomized attempts and return whether optimality is known; a zero-repeat result is optimal. This bounds server work instead of promising an exhaustive search for an arbitrarily large roster.
+With the local stack and function server running:
 
-The module is not deployed or connected to the app. Its caller still needs membership authorization, an event lock, atomic persistence, retry-safe assignment reuse, and scheduling. The SwiftUI prototype uses supplied sample assignments, not this server module.
+```sh
+node --test backend/integration.test.mjs
+```
+
+See [backend setup](../docs/BACKEND_SETUP.md) for requirements, test fixtures, native configuration, and verification limits.

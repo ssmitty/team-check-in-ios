@@ -1,0 +1,2 @@
+-- seed.sql
+-- Purpose: Leave development accounts to the integration tests, with no private player data.

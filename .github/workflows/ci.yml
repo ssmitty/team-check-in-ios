@@ -18,3 +18,28 @@ jobs:
         run: node --test backend/pairing.test.mjs
       - name: Simulator app build
         run: xcodebuild -project TeamCheckIn.xcodeproj -scheme TeamCheckIn -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.20.3
+      - name: Start isolated local backend
+        run: supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,realtime,storage-api > /tmp/backend-start.log 2>&1
+      - name: Check database access contract
+        run: supabase test db
+      - name: Start pairing worker
+        run: |
+          supabase functions serve generate-pairings > /tmp/pairing-worker.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if rg -q 'Serving functions' /tmp/pairing-worker.log; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Exercise accounts and private persistence
+        run: node --test backend/integration.test.mjs
