@@ -72,4 +72,61 @@ struct TeamStoreTests {
         #expect(store.teamName == nil && store.note.isEmpty && store.photoData == nil)
         #expect(store.teammates.isEmpty)
     }
+    @Test func earlierGameClearsDraftPhotoAndConnectionActions() async throws {
+        let store = TeamStore(now: { date })
+        store.createTeam(name: "Test team")
+        store.feeling = .nervous
+        store.support = .encouragement
+        store.note = "Private draft for first game"
+        store.photoData = Data([1, 2, 3])
+        await store.share()
+        store.requestWarmup()
+        let partner = try #require(store.teammates.first)
+        store.encourage(id: partner.id, text: "I've got you")
+        store.simulateAcknowledgment(id: partner.id)
+        let earlier = Game(
+            id: UUID(), title: "Earlier game", startsAt: date.addingTimeInterval(600),
+            location: "Warmups", timeZoneIdentifier: "UTC")
+        await store.saveGame(earlier)
+        #expect(store.game?.id == earlier.id)
+        #expect(store.feeling == nil && store.support == nil && store.note.isEmpty)
+        #expect(store.photoData == nil && !store.isShared && !store.warmupRequested)
+        #expect(store.teammates.allSatisfy { $0.encouragement == nil && !$0.hasAcknowledgedWarmup })
+    }
+
+    @Test func cancellationDoesNotCarrySkippedStateIntoNextGame() async throws {
+        let store = TeamStore(now: { date })
+        store.createTeam(name: "Test team")
+        let first = try #require(store.game)
+        let later = Game(
+            id: UUID(), title: "Later game", startsAt: date.addingTimeInterval(3000),
+            location: "Warmups", timeZoneIdentifier: "UTC")
+        await store.saveGame(later)
+        store.skip()
+        store.cancelGame(id: first.id)
+        #expect(store.game?.id == later.id)
+        #expect(!store.isSkipped)
+        #expect(store.canCheckIn)
+    }
+
+    @Test func clockChangeCannotSubmitPreviousGamesDraft() async throws {
+        var clock = date
+        let store = TeamStore(now: { clock })
+        store.createTeam(name: "Test team")
+        let later = Game(
+            id: UUID(), title: "Later game", startsAt: date.addingTimeInterval(5000),
+            location: "Warmups", timeZoneIdentifier: "UTC")
+        await store.saveGame(later)
+        store.feeling = .calm
+        store.support = .conversation
+        store.note = "Old draft"
+        clock = date.addingTimeInterval(2400)
+        #expect(store.game?.id == later.id)
+        #expect(!store.canCheckIn)
+        await store.share()
+        #expect(!store.isShared && store.note.isEmpty)
+        #expect(store.errorMessage != nil)
+        #expect(store.canCheckIn)
+    }
+
 }

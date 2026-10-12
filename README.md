@@ -2,7 +2,7 @@
 
 Purpose: Build a simple native iPhone app that helps student athletes connect privately before games. One hour before a game, teammates receive an invitation to share how they feel and find each other at warmups.
 
-Current status: The native prototype and configured account mode build. Fifteen Swift behavior tests and eight pairing tests pass. A local Supabase integration run verified accounts, schedules, pair/trio persistence, and privacy; later rechecks timed out when local services became unavailable. Eight database access-contract assertions passed. Hosted native integration and full simulator/accessibility review remain pending. Team Check-in is a temporary working title.
+Current status: The native prototype and configured account mode build. Eighteen Swift behavior tests and eight pairing tests pass. A local Supabase integration run verified accounts, schedules, pair/trio persistence, and privacy; later rechecks timed out when local services became unavailable. Eight database access-contract assertions passed. Hosted native integration and full simulator/accessibility review remain pending. Team Check-in is a temporary working title.
 
 ## Features
 
@@ -77,7 +77,7 @@ Run portable core tests:
 swift test
 ```
 
-Fifteen tests cover prototype boundaries, invalid invitations, secure session renewal, logout failures, failed-save draft preservation, assignment changes, and private state cleanup. The package tests run on macOS; actual Keychain behavior and the complete iPhone account flow need device/simulator verification. A GitHub Actions workflow is included; remote CI results must be checked separately.
+Eighteen tests cover prototype boundaries, invalid invitations, secure session renewal, logout failures, failed-save draft preservation, assignment changes, game cancellation/rollover, and private state cleanup. The package tests run on macOS; actual Keychain behavior and the complete iPhone account flow need device/simulator verification. A GitHub Actions workflow is included; remote CI results must be checked separately.
 
 The prepared server pairing module has eight passing Node tests:
 

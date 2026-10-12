@@ -21,6 +21,7 @@ final class TeamStore {
     var photoData: Data?
     var errorMessage: String?
     private(set) var scenario: DemoScenario = .ready
+    private var draftGameID: UUID?
     private let service: any TeamServicing
     private let now: () -> Date
 
@@ -30,8 +31,15 @@ final class TeamStore {
         self.now = now
     }
 
-    var game: Game? { games.first(where: { !$0.isCanceled }) }
-    var canCheckIn: Bool { game?.isOpen(at: now()) == true && !teammates.isEmpty && !isSkipped }
+    /// Selects the next active event; the closed demo deliberately retains its sample event.
+    var game: Game? {
+        games.first { !$0.isCanceled && $0.startsAt > now() }
+            ?? (scenario == .closed ? games.first { !$0.isCanceled } : nil)
+    }
+    var canCheckIn: Bool {
+        game?.id == draftGameID && game?.isOpen(at: now()) == true
+            && !teammates.isEmpty && !isSkipped
+    }
 
     /// Joins a validated demo invitation without discarding a failed draft.
     func join(invite: String) async {
@@ -55,13 +63,7 @@ final class TeamStore {
     /// Replaces sample content with a reproducible scenario and clears private drafts.
     func loadScenario(_ value: DemoScenario) {
         scenario = value
-        feeling = nil
-        support = nil
-        note = ""
-        photoData = nil
-        isShared = false
-        isSkipped = false
-        warmupRequested = false
+        clearPrivateDraft()
         errorMessage = nil
         if let mock = service as? MockTeamService { mock.shouldFail = value == .failure }
         games =
@@ -85,6 +87,7 @@ final class TeamStore {
                     note: value == .waiting ? "" : "A little nervous, but excited to play together."
                 )
             ]
+        draftGameID = game?.id
         if value == .trio {
             teammates.append(
                 TeammateResponse(
@@ -93,10 +96,22 @@ final class TeamStore {
         }
     }
 
+    /// Clears content when a schedule or clock change selects a different event.
+    func refreshCurrentGame() {
+        guard draftGameID != game?.id else { return }
+        clearPrivateDraft()
+        draftGameID = game?.id
+    }
+
     /// Shares the draft only after the injected service confirms success.
     func share() async {
         guard let game, !isSkipped, !teammates.isEmpty else {
             errorMessage = "There isn't an available teammate check-in today."
+            return
+        }
+        guard draftGameID == game.id else {
+            refreshCurrentGame()
+            errorMessage = "The next game changed. Start a fresh check-in for this game."
             return
         }
         await perform {
@@ -124,6 +139,7 @@ final class TeamStore {
                 self.games.append(game)
             }
             self.games.sort { $0.startsAt < $1.startsAt }
+            self.refreshCurrentGame()
         }
     }
 
@@ -131,7 +147,7 @@ final class TeamStore {
     func cancelGame(id: UUID) {
         guard isCaptain, let index = games.firstIndex(where: { $0.id == id }) else { return }
         games[index].isCanceled = true
-        warmupRequested = false
+        refreshCurrentGame()
     }
 
     /// Adds encouragement to the selected sample teammate's response.
@@ -156,15 +172,24 @@ final class TeamStore {
         teamName = nil
         games = []
         teammates = []
-        photoData = nil
+        clearPrivateDraft()
+        draftGameID = nil
+        isCaptain = false
+        errorMessage = nil
+    }
+
+    private func clearPrivateDraft() {
         feeling = nil
         support = nil
         note = ""
+        photoData = nil
         isShared = false
         isSkipped = false
         warmupRequested = false
-        isCaptain = false
-        errorMessage = nil
+        for index in teammates.indices {
+            teammates[index].encouragement = nil
+            teammates[index].hasAcknowledgedWarmup = false
+        }
     }
 
     private func perform(_ action: () async throws -> Void) async {

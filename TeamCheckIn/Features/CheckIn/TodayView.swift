@@ -35,6 +35,7 @@ struct TodayView: View {
             }
         }
         .navigationTitle(store.teamName ?? "Today")
+        .onAppear { store.refreshCurrentGame() }
     }
 
     @ViewBuilder private func checkInContent(game: Game) -> some View {

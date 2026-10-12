@@ -173,3 +173,22 @@ Limitations and failures:
 
 Next action:
 - Restore reliable local services and rerun migrations/access/integration checks on a clean isolated instance. Select the dedicated HTTPS Supabase development project, then verify native accounts, invite joining, shared schedules, persisted private check-ins, and Keychain relaunch with two players and an outside captain. Finish Phase 2 accessibility review before marking phases complete.
+
+## October 12, 2026, 2 AM: Prototype drafts scoped to their game
+
+Completed:
+- Continued Phase 2 by fixing a schedule-transition defect in the local demo. A new earlier game, cancellation, or clock rollover could previously retain the preceding game's note, photo, shared/skipped state, or warmup acknowledgments.
+- Bound drafts to their game, selected future active games instead of expired entries, and cleared private draft/actions when the selected event changes. The explicit closed-window demo remains available.
+- Added a submission guard against sending an old draft after a clock rollover, plus refresh on return to Today.
+- Added three behavior tests for an earlier game, cancellation after skipping, and clock rollover. Updated the README's test count.
+
+Verified:
+- All 18 Swift behavior tests passed.
+- Generic iOS Simulator scheme build passed with the change.
+- Dedicated simulator boot, installation, and app launch completed successfully in bounded checks. Native UI inspection through the computer-use tool still timed out; full flow, large-text, dark-mode, and VoiceOver review are not marked passed.
+- Docker health discovery timed out after 12 seconds. Hosted project choice and the previously recorded final integration recheck remain outstanding; no backend configuration or services were changed in this run.
+- Whitespace, style, and credential-pattern scans of changed files and full Git history passed. No credentials, generated build output, or player data are included.
+- Available disk space was about 12 GiB at the start. No storage cleanup or new runtime download was performed.
+
+Next action:
+- Complete simulator interaction/accessibility review when UI automation is responsive. Restore local backend health and repeat integration checks, then verify native account mode against the user-selected HTTPS development project. Phases 2, 3, and 4 remain in progress.
