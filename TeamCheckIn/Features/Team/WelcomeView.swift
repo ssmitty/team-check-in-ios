@@ -9,34 +9,59 @@ struct WelcomeView: View {
     @State private var name = ""
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
-                    Image(systemName: "person.2.circle.fill").font(.system(size: 52))
-                        .foregroundStyle(.teal)
-                        .accessibilityHidden(true)
-                    Text("Go into the game together").font(.title).bold()
-                    Text("A small check-in with a teammate before you play.").foregroundStyle(
-                        .primary)
-                }
-                TitledSection("Join a sample team") {
-                    TextField("Invitation link", text: $invite).textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                    Text("Demo team: Delaware Athletics").font(.footnote)
-                    Button {
-                        Task { await store.join(invite: invite) }
-                    } label: {
-                        Text("Join demo team").frame(
-                            maxWidth: .infinity, minHeight: 44, alignment: .leading
-                        )
-                        .contentShape(Rectangle())
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Image(systemName: "person.2.circle.fill").font(.system(size: 52))
+                            .foregroundStyle(.teal)
+                            .accessibilityHidden(true)
+                        Text("Go into the game together").font(.title).bold()
+                            .accessibilityAddTraits(.isHeader)
+                        Text("A small check-in with a teammate before you play.").foregroundStyle(
+                            .primary)
                     }
-                    .disabled(store.isBusy)
-                }
-                TitledSection("Create a team as captain") {
-                    TextField("Team name", text: $name)
-                    Button("Create demo team") { store.createTeam(name: name) }
-                }
-                if store.isBusy { ProgressView("Joining team") }
+                    GroupBox {
+                        VStack(alignment: .leading, spacing: 12) {
+                            TextField("Invitation link", text: $invite, axis: .vertical)
+                                .lineLimit(1...4)
+                                .textInputAutocapitalization(
+                                    .never
+                                )
+                                .autocorrectionDisabled()
+                            Text("Demo team: Delaware Athletics").font(.body)
+                                .foregroundStyle(Color(uiColor: .label))
+                            Button {
+                                Task { await store.join(invite: invite) }
+                            } label: {
+                                Text("Join demo team").frame(
+                                    maxWidth: .infinity, minHeight: 44, alignment: .leading
+                                )
+                                .contentShape(Rectangle())
+                            }
+                            .disabled(store.isBusy)
+                            .buttonStyle(.plain)
+                            .foregroundStyle(AppAccent.color)
+                        }
+                    } label: {
+                        Text("Join a sample team").font(.headline).accessibilityAddTraits(.isHeader)
+                    }
+                    GroupBox {
+                        VStack(alignment: .leading, spacing: 12) {
+                            TextField("Team name", text: $name, axis: .vertical).lineLimit(1...3)
+                            Button {
+                                store.createTeam(name: name)
+                            } label: {
+                                Text("Create demo team").frame(
+                                    maxWidth: .infinity, minHeight: 44, alignment: .leading
+                                ).contentShape(Rectangle())
+                            }.buttonStyle(.plain).foregroundStyle(AppAccent.color)
+                        }
+                    } label: {
+                        Text("Create a team as captain").font(.headline).accessibilityAddTraits(
+                            .isHeader)
+                    }
+                    if store.isBusy { ProgressView("Joining team") }
+                }.textFieldStyle(.roundedBorder).padding()
             }
             .navigationTitle("Team Check-in")
         }

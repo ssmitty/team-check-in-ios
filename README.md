@@ -2,7 +2,7 @@
 
 Purpose: Build a simple native iPhone app that helps student athletes connect privately before games. One hour before a game, teammates receive an invitation to share how they feel and find each other at warmups.
 
-Current status: The native demo and configured account mode build. Forty-six portable behavior tests pass, alongside real local Swift service integration, 22 Node unit tests, backend integration, and 20 database access assertions. Private photos, warmup acknowledgment, scheduling/push preparation, captain transfer, and account deletion are implemented locally. Three focused simulator UI flows pass, including largest-text dark mode and captain add/edit/cancel. The full accessibility audit still reports partial Dynamic Type support; VoiceOver/manual review remains pending. Hosted setup, physical-device checks, and Apple push delivery remain pending. Team Check-in is a temporary working title.
+Current status: The native demo and configured account mode build. Forty-six portable behavior tests pass, alongside real local Swift service integration, 22 Node unit tests, backend integration, and 20 database access assertions. Private photos, warmup acknowledgment, scheduling/push preparation, captain transfer, and account deletion are implemented locally. Three focused simulator UI flows pass, including largest-text dark mode and captain add/edit/cancel. The welcome accessibility audit and all six native simulator checks pass; manual VoiceOver review remains pending. Hosted setup, physical-device checks, and Apple push delivery remain pending. Team Check-in is a temporary working title.
 
 ## Features
 
@@ -19,7 +19,9 @@ Captain status does not grant access to other pairings' responses or photos.
 
 ## Screens and design
 
-See [screen flows](docs/SCREEN_FLOWS.md) and [interface conventions](docs/DESIGN_SYSTEM.md). Screenshots will be added when a running prototype can be captured and verified.
+See [screen flows](docs/SCREEN_FLOWS.md) and [interface conventions](docs/DESIGN_SYSTEM.md). The image below is an actual verified simulator capture of the labeled demo welcome screen.
+
+<img src="docs/images/welcome-simulator.png" alt="Verified simulator welcome screen with sample team entry" width="300">
 
 ## Tech stack
 
@@ -102,6 +104,14 @@ python3 scripts/run_native_platform_tests.py
 ```
 
 The runner keeps generated files outside the project folder, where file-provider attributes caused an ad-hoc signing failure. It uses synthetic data and clears its own isolated Keychain entry. No Apple account is needed for this simulator signature. See [native review](docs/PROTOTYPE_REVIEW.md) for the distinction between passing focused flow checks and the outstanding full accessibility audit.
+
+Run the same real API suite inside a signed iOS simulator app with actual Keychain storage:
+
+```sh
+python3 scripts/run_ios_backend_integration.py --simulator-id YOUR_SIMULATOR_ID
+```
+
+This opt-in suite passed using seven synthetic accounts, private pair/trio data, binary photos, warmups, restored native sessions, and own-account deletion. The test-only loopback adapter does not change the shipped app's HTTPS/ATS settings. Native account screens, hosted TLS, and physical-device behavior remain separate checks.
 
 Swift formatting uses Xcode's bundled `swift-format` and `.swift-format` configuration.
 

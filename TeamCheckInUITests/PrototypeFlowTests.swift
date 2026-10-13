@@ -24,8 +24,8 @@ final class PrototypeFlowTests: XCTestCase {
         let captain = app.switches["Captain demo"]
         tap(captain.switches.firstMatch, in: app)
         XCTAssertEqual(captain.value as? String, "1")
-        app.collectionViews.firstMatch.swipeDown()
-        app.collectionViews.firstMatch.swipeDown()
+        scrollView(in: app).swipeDown()
+        scrollView(in: app).swipeDown()
         tap(app.buttons["Add game"], in: app)
         let title = app.textFields["Opponent or game title"]
         tap(title, in: app)
@@ -82,7 +82,7 @@ final class PrototypeFlowTests: XCTestCase {
         let shared = app.staticTexts["Check-in shared in demo"]
         for _ in 0..<5 {
             if shared.exists { break }
-            app.collectionViews.firstMatch.swipeUp()
+            scrollView(in: app).swipeUp()
         }
         XCTAssertTrue(shared.waitForExistence(timeout: 5))
     }
@@ -97,11 +97,17 @@ final class PrototypeFlowTests: XCTestCase {
     }
 
     @MainActor
+    private func scrollView(in app: XCUIApplication) -> XCUIElement {
+        if app.collectionViews.firstMatch.exists { return app.collectionViews.firstMatch }
+        return app.scrollViews.firstMatch
+    }
+
+    @MainActor
     private func tap(_ element: XCUIElement, in app: XCUIApplication) {
         _ = element.waitForExistence(timeout: 3)
         for _ in 0..<10 {
             if element.exists && element.isHittable { break }
-            app.collectionViews.firstMatch.swipeUp()
+            scrollView(in: app).swipeUp()
         }
         if !element.exists {
             let tree = XCTAttachment(string: app.debugDescription)

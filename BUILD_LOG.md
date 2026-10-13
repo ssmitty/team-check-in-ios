@@ -453,3 +453,20 @@ Implemented and verified:
 
 Remaining:
 - This verifies actual iOS service/session integration with Keychain and a real local backend. It does not verify account-screen gestures, physical-device lock behavior, hosted TLS, camera permissions, APNs delivery, or hosted activation. No migration, production service, or distribution changed; phase acceptance remains qualified by those outstanding checks.
+
+## October 13, 2026, overnight: Welcome accessibility and full native review
+
+Implemented:
+- Replaced the demo welcome Form headings with native GroupBox sections in a ScrollView, using semantic headings and full-row actions. This removed the partial Dynamic Type finding without filtering the audit.
+- Made invitation/team-name fields wrap with bounded line counts. The audit identified real clipping in the original single-line invitation field; bounded vertical fields also avoid excess blank growth during audit size changes.
+- Increased the sample-team caption to body text with explicit system label color. An intermediate full run reported contrast failure on that caption despite a clear black-on-light screenshot; the final caption/layout changes passed the complete sequence. No audit findings are ignored.
+- Updated the native test driver to optionally include UI flows and the welcome audit, and enabled that full review in Mac CI. Added an actual inspected simulator screenshot to the README; it shows demo data only.
+
+Verified:
+- The final driver run passed all six native checks in one sequence: captain add/edit/cancel, largest-text dark-mode check-in, normal no-photo check-in/warmup acknowledgment, all-category welcome accessibility audit, actual Keychain contract, and JPEG bounds/metadata-removal contract. The backend Swift Testing suite was intentionally disabled in this default run; its separate real iOS integration passed as recorded above.
+- Final evidence: /tmp/team-check-in-native-build/Logs/Test/Test-TeamCheckIn-2026.10.13_06-54-19--0400.xcresult, six executed XCTest tests, zero failures. Earlier failed contrast/clipping attempts remain recorded; the successful default runner did not skip the welcome audit.
+- The Release simulator app build passed after the final layout changes. Swift formatting, script compilation, and whitespace checks passed. The final welcome screenshot was visually inspected, and generated build output remains excluded from Git.
+
+Remaining:
+- Automated welcome audit success does not prove all screens or VoiceOver gestures on a device. Manual VoiceOver/native account screens, physical camera/permissions/lock-state behavior, hosted HTTPS/backend/timers, signed APNs delivery, retention/name selection, and authenticated inspection of newest CI remain required. No phase was marked complete by substituting these automated checks for outstanding acceptance.
+- Disk availability was about 11 GiB near the end of review. No runtime downloads, personal file deletion, OrbStack volume changes, hosted activation, distribution, or PR merge occurred. Restore the same automation to daily 2 AM Eastern and deliver the concise morning report at or after 8 AM Eastern.

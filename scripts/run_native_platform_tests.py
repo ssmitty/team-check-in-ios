@@ -42,19 +42,22 @@ def main():
     """Run the app-hosted Apple API contracts with signing and a bounded test duration."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--simulator-id")
+    parser.add_argument("--include-ui", action="store_true", help="Also run demo flows and the unsuppressed welcome accessibility audit.")
     parser.add_argument("--derived-data", type=Path, default=Path(tempfile.gettempdir()) / "team-check-in-native-build")
     arguments = parser.parse_args()
     device = select_simulator(arguments.simulator_id)
     root = Path(__file__).resolve().parent.parent
     derived = arguments.derived_data
     print("Native platform tests on " + device["name"], flush=True)
-    subprocess.run([
+    command = [
         "xcodebuild", "-project", "TeamCheckIn.xcodeproj", "-scheme", "TeamCheckIn",
         "-destination", "platform=iOS Simulator,id=" + device["udid"],
         "-derivedDataPath", str(derived), "-parallel-testing-enabled", "NO",
         "CODE_SIGNING_ALLOWED=YES", "CODE_SIGN_IDENTITY=-", "test",
-        "-only-testing:TeamCheckInNativeTests",
-    ], cwd=root, check=True, timeout=420)
+    ]
+    if not arguments.include_ui:
+        command.append("-only-testing:TeamCheckInNativeTests")
+    subprocess.run(command, cwd=root, check=True, timeout=420)
 
 
 if __name__ == "__main__":
