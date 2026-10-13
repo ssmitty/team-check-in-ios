@@ -15,6 +15,9 @@ final class LiveTeamStore {
     private(set) var hasRestored = false
     var errorMessage: String?
     var infoMessage: String?
+    private(set) var selectedGameID: UUID?
+    private(set) var pendingGameID: UUID?
+    var showsRoutedGame = false
     var selectedTeamID: UUID?
     var inviteLink: String?
     var pendingInvite = ""
@@ -29,7 +32,10 @@ final class LiveTeamStore {
         snapshot.roster.contains { $0.user_id == userID && $0.role == "captain" }
     }
     var game: LiveGame? {
-        snapshot.games.first { !$0.is_canceled && ($0.start ?? .distantPast) > now() }
+        if let selectedGameID {
+            return snapshot.games.first { $0.id == selectedGameID && !$0.is_canceled }
+        }
+        return snapshot.games.first { !$0.is_canceled && ($0.start ?? .distantPast) > now() }
     }
     var assignmentID: UUID? {
         snapshot.connections.first { $0.game_id == game?.id && $0.user_id == userID }?.assignment_id
@@ -41,6 +47,14 @@ final class LiveTeamStore {
         return snapshot.roster.filter { ids.contains($0.user_id) }
     }
 
+    var isGameUpcoming: Bool {
+        guard let game, let start = game.start else { return false }
+        return !game.is_canceled && start > now()
+    }
+    var isGameWindowOpen: Bool {
+        guard isGameUpcoming, let start = game?.start else { return false }
+        return now() >= start.addingTimeInterval(-3600)
+    }
     var isConnectionOpen: Bool {
         guard let start = game?.start, assignmentID != nil else { return false }
         return now() >= start.addingTimeInterval(-3600) && now() < start
@@ -75,6 +89,20 @@ final class LiveTeamStore {
         }
     }
     func refresh() async { await perform { try await self.reload() } }
+    /// Keeps a game route through sign-in and validates membership during the next load.
+    func receive(_ route: AppRoute) async {
+        switch route {
+        case .invite(let token): pendingInvite = token
+        case .game(let id):
+            pendingGameID = id
+            if userID != nil { await refresh() }
+        }
+    }
+    /// Returns the home screen to the next event without retaining another event's draft.
+    func finishGameRoute() async {
+        selectedGameID = nil
+        await refresh()
+    }
     func create(name: String, displayName: String) async {
         await perform {
             try await self.service.create(name: name, displayName: displayName);
@@ -150,6 +178,7 @@ final class LiveTeamStore {
     private func reload() async throws {
         snapshot = try await service.load(teamID: selectedTeamID)
         selectedTeamID = team?.id
+        while pendingGameID != nil { try await resolveGameRoute() }
         if draftAssignmentID != assignmentID {
             draftAssignmentID = assignmentID
             let own = snapshot.responses.first {
@@ -158,7 +187,32 @@ final class LiveTeamStore {
             feeling = own?.feeling; support = own?.support; note = own?.note ?? ""
         }
     }
+    private func resolveGameRoute() async throws {
+        guard let id = pendingGameID else { return }
+        let routedTeamID = try await service.teamID(forGame: id)
+        guard pendingGameID == id else { return }
+        guard let teamID = routedTeamID else {
+            pendingGameID = nil
+            infoMessage = "This game is unavailable for your account."
+            return
+        }
+        let routed = try await service.load(teamID: teamID)
+        guard pendingGameID == id else { return }
+        guard let game = routed.games.first(where: { $0.id == id }), !game.is_canceled,
+            let start = game.start, start > now()
+        else {
+            pendingGameID = nil
+            infoMessage = "This game has ended or was canceled. Check your team's schedule."
+            return
+        }
+        snapshot = routed
+        selectedTeamID = teamID
+        selectedGameID = id
+        pendingGameID = nil
+        showsRoutedGame = true
+    }
     private func clear() {
+        selectedGameID = nil; pendingGameID = nil; showsRoutedGame = false
         userID = nil; snapshot = LiveSnapshot(); selectedTeamID = nil; inviteLink = nil
         feeling = nil; support = nil; note = ""; draftAssignmentID = nil; infoMessage = nil
     }

@@ -10,7 +10,7 @@ Previous groups count all relationships, including each pair in a preceding trio
 node --test backend/pairing.test.mjs
 ```
 
-The Edge Function verifies the caller, retrieves a restricted server snapshot, runs this algorithm, and atomically persists assignments. It retries changed snapshots. RLS exposes only the caller's pair or trio, with no captain override. Automatic scheduling is a later phase.
+The Edge Function verifies the caller, retrieves a restricted server snapshot, runs this algorithm, and atomically persists assignments. It retries changed snapshots. RLS exposes only the caller's pair or trio, with no captain override. The server-only due-event worker now generates assignments from leased opening jobs in local tests. A hosted timer and APNs delivery worker remain pending.
 
 With the local stack and function server running:
 

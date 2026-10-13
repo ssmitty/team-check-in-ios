@@ -18,6 +18,9 @@ struct LiveRootView: View {
                     LiveDashboardView(store: store)
                 }
             }
+            .navigationDestination(isPresented: $store.showsRoutedGame) {
+                LiveRoutedGameView(store: store)
+            }
             .safeAreaInset(edge: .bottom) {
                 if store.isBusy { ProgressView("Updating").padding().background(.regularMaterial) }
             }
@@ -39,7 +42,13 @@ struct LiveRootView: View {
             }
         }
         .task { await store.restore() }
-        .onOpenURL { store.pendingInvite = $0.absoluteString }
+        .onOpenURL { url in
+            guard let route = AppRoute.parse(url) else { return }
+            Task { await store.receive(route) }
+        }
+        .onChange(of: store.showsRoutedGame) { _, isShowing in
+            if !isShowing { Task { await store.finishGameRoute() } }
+        }
     }
 }
 #Preview { LiveRootView(store: LiveTeamStore(service: PreviewLiveService())) }

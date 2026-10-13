@@ -10,6 +10,7 @@ protocol LiveTeamServicing {
     func authenticate(email: String, password: String, create: Bool) async throws -> Bool
     func signOut() async throws
     func load(teamID: UUID?) async throws -> LiveSnapshot
+    func teamID(forGame gameID: UUID) async throws -> UUID?
     func create(name: String, displayName: String) async throws
     func join(token: String, displayName: String) async throws
     func invite(teamID: UUID) async throws -> String
@@ -54,6 +55,11 @@ struct LiveTeamService: LiveTeamServicing {
         value.photos = try await read(
             "check_in_photos?select=assignment_id,user_id,photo_id,is_ready")
         return value
+    }
+    /// Finds a route's team through the caller's RLS-scoped game read.
+    func teamID(forGame gameID: UUID) async throws -> UUID? {
+        let games: [LiveGame] = try await read("games?select=*&id=eq.\(gameID)&limit=1")
+        return games.first?.team_id
     }
     func create(name: String, displayName: String) async throws {
         _ = try await rpc("create_team", ["p_name": name, "p_display_name": displayName])

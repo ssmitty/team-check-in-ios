@@ -9,10 +9,15 @@ private final class ScriptedLiveService: LiveTeamServicing {
     var userID: UUID? = UUID()
     var snapshot = LiveSnapshot()
     var failSave = false
+    var onGameLookup: (() async -> Void)?
     func restore() async throws {}
     func authenticate(email: String, password: String, create: Bool) async throws -> Bool { true }
     func signOut() async throws { userID = nil }
     func load(teamID: UUID?) async throws -> LiveSnapshot { snapshot }
+    func teamID(forGame gameID: UUID) async throws -> UUID? {
+        if let onGameLookup { await onGameLookup() }
+        return snapshot.games.first { $0.id == gameID }?.team_id
+    }
     func create(name: String, displayName: String) async throws {}
     func join(token: String, displayName: String) async throws {}
     func invite(teamID: UUID) async throws -> String { "" }
@@ -73,4 +78,73 @@ struct LiveTeamStoreTests {
         #expect(store.note.isEmpty)
         #expect(store.draftAssignmentID == nil)
     }
+    @Test func routeWaitsForSignInThenOpensRequestedGame() async {
+        let service = ScriptedLiveService(); service.prepare()
+        let userID = service.userID
+        let target = service.snapshot.games[0]
+        service.userID = nil
+        let store = LiveTeamStore(service: service)
+        await store.receive(.game(target.id))
+        #expect(store.pendingGameID == target.id)
+        #expect(!store.showsRoutedGame)
+        service.userID = userID
+        await store.restore()
+        #expect(store.game?.id == target.id)
+        #expect(store.pendingGameID == nil)
+        #expect(store.showsRoutedGame)
+    }
+    @Test func outsiderAndCanceledRoutesNeverOpenAnotherEvent() async {
+        let service = ScriptedLiveService(); service.prepare()
+        let store = LiveTeamStore(service: service); await store.restore()
+        await store.receive(.game(UUID()))
+        #expect(!store.showsRoutedGame)
+        #expect(store.infoMessage?.contains("unavailable") == true)
+        service.snapshot.games[0].is_canceled = true
+        await store.receive(.game(service.snapshot.games[0].id))
+        #expect(!store.showsRoutedGame)
+        #expect(store.selectedGameID == nil)
+    }
+    @Test func routingToAnotherAssignmentClearsPrivateDraft() async {
+        let service = ScriptedLiveService(); service.prepare()
+        let store = LiveTeamStore(service: service); await store.restore()
+        store.note = "Earlier private draft"
+        let earlier = service.snapshot.games[0]
+        service.prepare()
+        let target = service.snapshot.games[0]
+        service.snapshot.games.insert(earlier, at: 0)
+        await store.receive(.game(target.id))
+        #expect(store.game?.id == target.id)
+        #expect(store.note.isEmpty)
+        await store.signOut()
+        #expect(store.selectedGameID == nil)
+        #expect(!store.showsRoutedGame)
+    }
+
+    @Test func latestTapWinsWhenLookupIsAlreadyInFlight() async {
+        let service = ScriptedLiveService(); service.prepare()
+        let first = service.snapshot.games[0]
+        service.prepare()
+        let second = service.snapshot.games[0]
+        service.snapshot.games.insert(first, at: 0)
+        let store = LiveTeamStore(service: service); await store.restore()
+        service.onGameLookup = {
+            service.onGameLookup = nil
+            await store.receive(.game(second.id))
+        }
+        await store.receive(.game(first.id))
+        #expect(store.game?.id == second.id)
+        #expect(store.pendingGameID == nil)
+        #expect(store.showsRoutedGame)
+    }
+    @Test func expiredNotificationDoesNotOpenNextGame() async {
+        let service = ScriptedLiveService(); service.prepare()
+        let target = service.snapshot.games[0]
+        let store = LiveTeamStore(service: service, now: { Date.now.addingTimeInterval(7200) })
+        await store.restore()
+        await store.receive(.game(target.id))
+        #expect(!store.showsRoutedGame)
+        #expect(store.selectedGameID == nil)
+        #expect(store.infoMessage?.contains("ended") == true)
+    }
+
 }

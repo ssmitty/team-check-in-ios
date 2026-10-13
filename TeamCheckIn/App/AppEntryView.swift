@@ -4,10 +4,12 @@ import SwiftUI
 
 /// Configuration failures remain visible instead of silently joining a demo team.
 struct AppEntryView: View {
+    let routes: NotificationRouteInbox
     @State private var live: LiveTeamStore?
     @State private var demo = TeamStore()
     @State private var configurationError: String?
-    init() {
+    init(routes: NotificationRouteInbox = NotificationRouteInbox()) {
+        self.routes = routes
         do {
             if let config = try BackendConfiguration.load() {
                 let client = BackendClient(
@@ -26,6 +28,11 @@ struct AppEntryView: View {
                 description: Text(configurationError))
         } else if let live {
             LiveRootView(store: live)
+                .task(id: routes.gameID) {
+                    guard let id = routes.gameID else { return }
+                    await live.receive(.game(id))
+                    routes.consume(id)
+                }
         } else {
             RootView(store: demo)
                 .onOpenURL { url in Task { await demo.join(invite: url.absoluteString) } }

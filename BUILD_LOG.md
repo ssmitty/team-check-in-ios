@@ -280,3 +280,26 @@ Limitations:
 
 Next action:
 - Finish notification registration/navigation and a delivery adapter with mock verification; implement the account deletion/captain-transfer workflow and retention preparation. Review real CI once authenticated access is available, and finish native/accessibility/physical-device checks before pilot review.
+
+## October 12, 2026, overnight: Notification routes and delivery adapter
+
+Completed:
+- Added strict, separate invitation/game URL parsing and a launch-installed notification delegate. Only a UUID event identifier enters the route inbox; account restoration retains a tap through sign-in.
+- Added a caller-scoped backend lookup for the event's team and explicit selected-event state. Inaccessible, expired, or canceled routes do not open another event. Later taps win during an in-flight lookup. Switching connections clears private drafts, and sign-out clears route state.
+- Added an event destination with waiting/refresh and unavailable states. Its timing derives from the injected live clock.
+- Added a server-only Node HTTP/2 APNs adapter with sandbox/production allowlisting, neutral prepared requests, stable request identity, expiration before connection, a bounded timeout/response size, and safe classifications for temporary, device-token, and provider failures.
+- Included the adapter's offline transport tests in CI and updated setup/limitations documentation. No Apple network request or hosted change was made.
+
+Verified:
+- All 29 Swift tests passed, including exact route validation, inbox consumption, sign-in retention, outsider/canceled/expired routes, later-tap ordering, assignment draft cleanup, and sign-out cleanup.
+- The simulator app build passed with the launch delegate and routed screens. The only build-tool warning was skipped App Intents metadata extraction because this app has no App Intents dependency.
+- All 17 Node tests passed. Five new offline adapter tests covered exact HTTP/2 request shaping, acceptance versus device delivery, expiration, temporary/token/provider classifications, network error, hanging response timeout, endpoint validation, and oversized response handling.
+- The complete local account/private-persistence regression suite passed again in about four seconds, and all ten pgTAP access-contract assertions passed.
+- Intended-file and full-history credential-pattern scans, dash style checks, whitespace checks, and focused diff review passed before synchronization.
+- This establishes compilation and injected state/transport behavior. Actual iOS notification taps, native two-account access, and real APNs acceptance/delivery remain unverified.
+- Disk availability was about 16 GiB; no personal files, runtime downloads, or OrbStack volumes were changed.
+
+Remaining and next:
+- The Mac lock and GitHub connector authentication still prevent interactive accessibility review and fresh remote CI inspection. No phase acceptance status changed.
+- Implement permission and device-token registration/revocation, leased delivery orchestration, and self-service account deletion/captain transfer. The HTTP/2 Node adapter is not wired into the Edge runtime or outbox; runtime compatibility and physical-device delivery need verification.
+- Continue overnight independent work; hosted project choice, Apple credentials, physical-device verification, and retention decisions remain the same known prerequisites.
