@@ -2,7 +2,7 @@
 -- Purpose: Check table isolation and privileged RPC grants independently of application code.
 begin;
 create extension if not exists pgtap with schema extensions;
-select extensions.plan(8);
+select extensions.plan(10);
 select extensions.is((select count(*)::integer from pg_class c join pg_namespace n on n.oid = c.relnamespace
     where n.nspname = 'public' and c.relname in ('teams','team_members','team_invites','games',
         'game_opt_outs','assignments','assignment_members','check_ins','encouragements',
@@ -15,5 +15,7 @@ select extensions.ok(not has_table_privilege('authenticated', 'public.assignment
 select extensions.ok(not has_function_privilege('authenticated', 'public.commit_pairings(uuid,uuid,jsonb,jsonb)', 'execute'), 'Only worker can commit pairs');
 select extensions.ok(not has_function_privilege('anon', 'public.create_team(text,text)', 'execute'), 'Team creation requires auth');
 select extensions.ok(has_function_privilege('authenticated', 'public.submit_check_in(uuid,text,text,text)', 'execute'), 'Players may call protected submission');
+select extensions.ok(not has_function_privilege('authenticated', 'public.claim_check_in_jobs(integer)', 'execute'), 'Players cannot claim server jobs');
+select extensions.ok(not has_table_privilege('authenticated', 'private.push_outbox', 'select'), 'Push outbox is server-only');
 select * from extensions.finish();
 rollback;

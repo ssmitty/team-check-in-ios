@@ -2,7 +2,7 @@
 
 Purpose: Build a simple native iPhone app that helps student athletes connect privately before games. One hour before a game, teammates receive an invitation to share how they feel and find each other at warmups.
 
-Current status: The native prototype and configured account mode build. Twenty-one Swift behavior tests and eight pairing tests pass. The complete local Supabase integration suite verifies accounts, schedules, pair/trio persistence, and privacy. A malformed-snapshot timeout was traced to an inappropriate serialization error code and fixed with a bounded HTTP conflict response. Eight database access-contract assertions passed. Hosted native integration and full simulator/accessibility review remain pending. Team Check-in is a temporary working title.
+Current status: The native prototype and configured account mode build. Twenty-one Swift behavior tests and eight pairing tests pass. The complete local Supabase integration suite verifies accounts, schedules, pair/trio persistence, and privacy. A malformed-snapshot timeout was traced to an inappropriate serialization error code and fixed with a bounded HTTP conflict response. Ten database access-contract assertions passed. Hosted native integration and full simulator/accessibility review remain pending. Team Check-in is a temporary working title.
 
 ## Features
 
@@ -91,7 +91,7 @@ Swift formatting uses Xcode's bundled `swift-format` and `.swift-format` configu
 
 ## Roadmap and known limitations
 
-Next: restore reliable local services, repeat the complete integration suite, select the HTTPS development project, and exercise two accounts through the native screens. Finish simulator flow and accessibility review. Private photo upload and warmup persistence are implemented and tested locally. Camera capture is prepared and builds, but requires physical-device verification. Next are reliable scheduling, push integration, and a small team pilot.
+Next: restore reliable local services, repeat the complete integration suite, select the HTTPS development project, and exercise two accounts through the native screens. Finish simulator flow and accessibility review. Private photo upload and warmup persistence are implemented and tested locally. Camera capture is prepared and builds, but requires physical-device verification. Leased server opening jobs and orphan photo cleanup are prepared and tested locally. Next are hosted timing, push delivery, account deletion, and a small team pilot.
 
 Team and assignment access policies are implemented and tested locally. Hosted native sharing and photo/warmup integration remain unverified. Push delivery, physical camera checks, and pilot readiness remain outstanding. The Supabase connector is available, but a development project for this app has not been selected. Apple signing/push access, physical-device checks, retention policy, and final naming are needed before a real pilot.
 

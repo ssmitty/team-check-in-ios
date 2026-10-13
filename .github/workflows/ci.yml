@@ -14,8 +14,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Server pairing tests
-        run: node --test backend/pairing.test.mjs
+      - name: Server pairing and push preparation tests
+        run: node --test backend/pairing.test.mjs backend/apns.test.mjs
       - name: Simulator app build
         run: xcodebuild -project TeamCheckIn.xcodeproj -scheme TeamCheckIn -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
   backend:
@@ -35,7 +35,7 @@ jobs:
         run: supabase test db
       - name: Start pairing worker
         run: |
-          supabase functions serve generate-pairings > /tmp/pairing-worker.log 2>&1 &
+          supabase functions serve > /tmp/pairing-worker.log 2>&1 &
           for attempt in $(seq 1 120); do
             if grep -q 'Serving functions' /tmp/pairing-worker.log; then exit 0; fi
             sleep 1

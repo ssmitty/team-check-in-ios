@@ -254,3 +254,29 @@ Remaining:
 - Simulator interaction, large text, dark mode, and VoiceOver verification remain pending. Hosted project choice and physical iPhone camera/account/photo/push verification are unavailable, so no phase is marked complete.
 - Photo replacement/abandonment may leave inaccessible orphaned storage objects; implement trusted cleanup and account deletion before pilot readiness.
 - Next: verify this change's remote CI, then prepare server scheduling/push behavior and pilot deletion/retention workflows while native/hosted access remains pending.
+
+## October 12, 2026, overnight: Server jobs, push preparation, and cleanup
+
+Completed:
+- Continued independent work beyond the photo/warmup milestone. Added schedule revisions and a private leased opening-job queue. Game changes invalidate leases/pending notifications; cancellation prevents completion.
+- Added a server-authorized due-event worker that generates pairings without an app request, retries bounded snapshot conflicts, and atomically queues one private notification record per assigned user. This prepares hosted timing; it is not an installed recurring timer or push delivery.
+- Added neutral APNs payload/header preparation and offline ES256 provider token signing with injected time. No Apple key was supplied, no network push was attempted, and no notification is marked sent by this preparation module.
+- Added trusted orphan-photo cleanup for unreferenced objects older than 24 hours, using Storage API deletion rather than deleting metadata alone. Current references, including pending reservations, are retained.
+- Extracted bounded shared server RPC calls and updated the local/CI function server to serve all prepared endpoints.
+- Added notification setup and pilot readiness guides, including unresolved account deletion, retention, signing, hosted timer, and physical-device requirements.
+
+Verified:
+- Both new migrations applied locally. The full local integration suite passed with additional early/due job, concurrent-claim, expired lease, stale completion, duplicate outbox, cancellation, and server-only endpoint checks.
+- Cleanup tests verified an aged abandoned object is deleted while an aged currently referenced object remains accessible to its partner. Players cannot list cleanup candidates or invoke cleanup.
+- All ten pgTAP access-contract assertions passed. Twelve Node tests passed: eight pairing tests and four new APNs privacy/expiration/signature/validation tests using an ephemeral key.
+- No Swift code changed after the previously verified photo/camera build. The latest native build and 21 Swift tests remain the recorded native evidence.
+- Credential-pattern/style/whitespace scans and a focused diff review passed before synchronization. Generated schema inspection remains ignored.
+
+Limitations:
+- Attempted remote CI inspection for the photo/warmup change, but the Mac is locked and computer use cannot unlock it. The GitHub connector still requires reauthentication. Remote CI for new overnight commits is unverified; the earlier repair's CI success is not substituted for these checks.
+- Do not wake the sleeping user for the known UI/access constraints. Continue independent source/tests in subsequent overnight runs. No phase acceptance is marked complete from prepared code alone.
+- Hosted recurring scheduling, device-token registration, notification permission/navigation, APNs delivery, self-service account deletion, and device/accessibility verification remain outstanding. Orphan cleanup is not a full retention policy.
+- Disk availability was about 18 GiB late in this session after the Mac locked and swap pressure subsided. No personal files or OrbStack volumes were deleted.
+
+Next action:
+- Finish notification registration/navigation and a delivery adapter with mock verification; implement the account deletion/captain-transfer workflow and retention preparation. Review real CI once authenticated access is available, and finish native/accessibility/physical-device checks before pilot review.

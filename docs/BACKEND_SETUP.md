@@ -9,7 +9,7 @@ Requirements: Docker-compatible runtime (OrbStack works), Supabase CLI 2.20.3 or
 ```sh
 supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,realtime
 supabase migration up --local
-supabase functions serve generate-pairings
+supabase functions serve
 ```
 
 Keep the function server running in one terminal. In another:
@@ -48,7 +48,7 @@ Private photos and warmup requests are implemented locally. Photos use a private
 
 Warmup requests and per-recipient acknowledgments are protected by the same assignment access/window checks. Duplicate requests and acknowledgments are safe to retry; one acknowledgment in a trio does not acknowledge the other player.
 
-Changing or abandoning a reservation can leave an inaccessible private object. Server cleanup for orphaned objects and account deletion must be completed before the pilot. These policies enforce access; they are not a complete retention/deletion workflow.
+Changing or abandoning a reservation can leave an inaccessible private object. Trusted orphan cleanup is implemented and tested locally; account deletion and retention decisions remain pilot prerequisites. Cleanup removes only unreferenced objects older than 24 hours and retains current/pending photo references. This is not a complete account retention/deletion workflow.
 
 Generate schema types for inspection without committing generated output:
 

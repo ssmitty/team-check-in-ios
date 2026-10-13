@@ -3,20 +3,15 @@
  * Purpose: Authenticate a player and atomically persist server-generated assignments.
  * Notes: Service credentials stay in this function. Clients receive no other assignments.
  */
+import { serverRpc } from '../_shared/serverRpc.ts';
 import { makeAssignments } from '../_shared/pairing.mjs';
 
 const baseURL = Deno.env.get('SUPABASE_URL');
 const serverKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-async function rpc(name: string, payload: unknown) {
-  const response = await fetch(`${baseURL}/rest/v1/rpc/${name}`, {
-    method: 'POST',
-    headers: { apikey: serverKey!, Authorization: `Bearer ${serverKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-  const result = await response.json();
-  if (!response.ok) throw Object.assign(new Error('Pairing operation failed'), { code: result.code });
-  return result;
+async function rpc(name: string, body: unknown) {
+  if (!baseURL || !serverKey) throw new Error('Service unavailable');
+  return await serverRpc(baseURL, serverKey, name, body);
 }
 
 Deno.serve(async (request: Request) => {

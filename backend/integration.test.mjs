@@ -133,6 +133,29 @@ test('local accounts, captain enforcement, retry safety, and pair privacy', asyn
   await rpc('remove_photo', author.token, { p_assignment: assignment });
   assert.ok((await storage(downloadPath, partner.token)).status >= 400);
   assert.equal((await rows('check_in_photos', partner.token)).length, 0);
+  // Abandoned reservations can be cleaned without deleting a currently referenced photo.
+  const orphanID = randomUUID();
+  const orphanPath = await rpc('prepare_photo', author.token, { p_assignment: assignment, p_photo: orphanID });
+  assert.ok((await storage('object/check-in-photos/' + orphanPath, author.token, pixel, 'POST')).status < 300);
+  await rpc('remove_photo', author.token, { p_assignment: assignment });
+  const activeID = randomUUID();
+  const activePath = await rpc('prepare_photo', author.token, { p_assignment: assignment, p_photo: activeID });
+  assert.ok((await storage('object/check-in-photos/' + activePath, author.token, pixel, 'POST')).status < 300);
+  await rpc('publish_photo', author.token, { p_assignment: assignment, p_photo: activeID });
+  execFileSync('psql', ['postgresql://postgres:postgres@127.0.0.1:54322/postgres', '-v', 'ON_ERROR_STOP=1', '-c',
+    `update storage.objects set created_at = now() - interval '2 days' where bucket_id='check-in-photos' and name in ('${orphanPath}','${activePath}')`], { stdio: 'ignore', timeout: 10000 });
+  assert.ok((await request('/rest/v1/rpc/list_orphan_photos', author.token, { p_limit: 100 })).status >= 400);
+  const orphans = await rpc('list_orphan_photos', config.SERVICE_ROLE_KEY, { p_limit: 100 });
+  assert.ok(orphans.includes(orphanPath) && !orphans.includes(activePath));
+  assert.equal((await request('/functions/v1/cleanup-orphan-photos', author.token, {})).status, 403);
+  const cleanup = await request('/functions/v1/cleanup-orphan-photos', config.SERVICE_ROLE_KEY, {});
+  assert.equal(cleanup.status, 200, JSON.stringify(cleanup.data));
+  assert.ok((await storage('object/authenticated/check-in-photos/' + orphanPath, config.SERVICE_ROLE_KEY)).status >= 400);
+  assert.equal((await storage('object/authenticated/check-in-photos/' + activePath, partner.token)).status, 200);
+  assert.ok((await storage('object/check-in-photos', author.token,
+    JSON.stringify({ prefixes: [activePath] }), 'DELETE', 'application/json')).status < 300);
+  await rpc('remove_photo', author.token, { p_assignment: assignment });
+
   await rpc('request_warmup', author.token, { p_assignment: assignment });
   await rpc('request_warmup', author.token, { p_assignment: assignment });
   await rpc('acknowledge_warmup', partner.token, { p_assignment: assignment, p_requester: author.id });
@@ -189,4 +212,40 @@ test('local accounts, captain enforcement, retry safety, and pair privacy', asyn
   assert.ok((await request('/rest/v1/rpc/request_warmup', author.token, { p_assignment: assignment })).status >= 400);
   assert.ok((await request('/rest/v1/rpc/acknowledge_warmup', partner.token,
     { p_assignment: assignment, p_requester: author.id })).status >= 400);
+  // A trusted timer can open connections without an app calling the pairing endpoint.
+  const scheduledGame = randomUUID();
+  const scheduledArgs = { ...gameArgs, p_id: scheduledGame, p_starts_at: new Date(Date.now() + 7200000).toISOString() };
+  await rpc('save_game', captain.token, scheduledArgs);
+  assert.ok((await request('/rest/v1/rpc/claim_check_in_jobs', captain.token, { p_limit: 20 })).status >= 400);
+  let earlyClaims = await rpc('claim_check_in_jobs', config.SERVICE_ROLE_KEY, { p_limit: 20 });
+  assert.ok(!earlyClaims.some(job => job.game_id === scheduledGame));
+  execFileSync('psql', ['postgresql://postgres:postgres@127.0.0.1:54322/postgres', '-v', 'ON_ERROR_STOP=1', '-c',
+    `update public.games set starts_at = now() + interval '10 minutes' where id = '${scheduledGame}'`], { stdio: 'ignore', timeout: 10000 });
+  const claims = (await Promise.all([
+    rpc('claim_check_in_jobs', config.SERVICE_ROLE_KEY, { p_limit: 20 }),
+    rpc('claim_check_in_jobs', config.SERVICE_ROLE_KEY, { p_limit: 20 }),
+  ])).flat().filter(job => job.game_id === scheduledGame);
+  assert.equal(claims.length, 1);
+  const leased = claims[0];
+  assert.equal(await rpc('complete_check_in_job', config.SERVICE_ROLE_KEY,
+    { p_game: scheduledGame, p_revision: leased.revision, p_lease: leased.lease_id }), false);
+  execFileSync('psql', ['postgresql://postgres:postgres@127.0.0.1:54322/postgres', '-v', 'ON_ERROR_STOP=1', '-c',
+    `update private.check_in_jobs set lease_until = now() - interval '1 second' where game_id = '${scheduledGame}'`], { stdio: 'ignore', timeout: 10000 });
+  const timer = await request('/functions/v1/process-due-events', config.SERVICE_ROLE_KEY, {});
+  assert.equal(timer.status, 200, JSON.stringify(timer.data));
+  assert.equal((await rows('assignment_members', config.SERVICE_ROLE_KEY, `&game_id=eq.${scheduledGame}`)).length, 6);
+  assert.equal(await rpc('complete_check_in_job', config.SERVICE_ROLE_KEY,
+    { p_game: scheduledGame, p_revision: leased.revision, p_lease: leased.lease_id }), false);
+  assert.equal((await request('/functions/v1/process-due-events', captain.token, {})).status, 403);
+  const retryTimer = await request('/functions/v1/process-due-events', config.SERVICE_ROLE_KEY, {});
+  assert.equal(retryTimer.status, 200);
+  assert.equal((await rows('assignment_members', config.SERVICE_ROLE_KEY, `&game_id=eq.${scheduledGame}`)).length, 6);
+  const outboxCount = execFileSync('psql', ['postgresql://postgres:postgres@127.0.0.1:54322/postgres', '-Atc',
+    `select count(*) from private.push_outbox where game_id = '${scheduledGame}'`], { encoding: 'utf8', timeout: 10000 }).trim();
+  assert.equal(outboxCount, '6');
+  await rpc('save_game', captain.token, { ...scheduledArgs, p_is_canceled: true });
+  const pendingPushes = execFileSync('psql', ['postgresql://postgres:postgres@127.0.0.1:54322/postgres', '-Atc',
+    `select count(*) from private.push_outbox where game_id = '${scheduledGame}' and state = 'pending'`], { encoding: 'utf8', timeout: 10000 }).trim();
+  assert.equal(pendingPushes, '0');
+
 });
