@@ -369,3 +369,23 @@ Verified:
 Next:
 - Review actual remote CI when authenticated access becomes available. Finish simulator accessibility/account checks and physical camera/push/deletion checks; confirm the retention/name and hosting decisions before a pilot.
 - Verify deletion response-loss ambiguity on a device: server completion can precede a lost response, and retry may find the Auth account already unavailable. The app must not claim complete provider-backup deletion or recall of already downloaded images.
+
+## October 13, 2026, overnight: Participation and live window review
+
+Completed:
+- Reviewed the native connection flow and found two source-level gaps: no live pre-opening opt-out control, and clock-derived state did not cause a visible refresh when an event opened or ended.
+- Added private caller-only participation reads and the existing protected opt-out RPC to the native service. The connection section distinguishes waiting, skipped, opening, ready, unavailable, closed, and no-game states. Participation can be reversed before opening; it never silently changes an existing assignment.
+- Added an observable presentation clock with local updates every 15 seconds and on foregrounding. It clears a prior assignment's draft when the current connection rolls over. Actions recheck the clock and assignment before sharing/encouragement/warmup writes; closed controls stop offering writes while the server remains authoritative.
+- Extracted connection derivation into a focused store extension. Added photo selection cancellation/assignment guards and a camera permission return guard so a delayed result cannot populate a newer connection's draft or open capture for a closed connection.
+- Continued simulator review through supported simctl commands. The existing dedicated simulator booted, the current app installed/launched, and opening the demo URL produced the system Open confirmation. Local screenshots show the welcome view behind that dialog and a dark/accessibility-size system dialog. The first immediate capture was black; later frames rendered.
+
+Verified:
+- All 46 Swift tests passed, with new clock rollover, expired-action, unavailable-versus-opening, and pre-opening participation checks. The native simulator build passed after the presentation/photo changes.
+- The complete local private-persistence integration suite passed with additional opt-out retry/reversal and outside-captain read-denial assertions. No database schema changed for participation.
+- Intended-file/full-history credential-pattern scans, style/whitespace checks, and a focused diff review passed before synchronization.
+- Screenshots are in ignored .build/ui-review. They do not establish full interactive navigation, underlying large-text layout, or VoiceOver behavior because the URL confirmation was not interactively accepted. No native live-account sharing or physical-camera claim is made from these frames.
+- Returned the dedicated simulator to light/standard text settings and shut it down after the limited capture review. No new runtime was downloaded. Disk availability was about 13 GiB; personal files and OrbStack volumes were preserved.
+
+Remaining and next:
+- Verify the actual Swift service against the isolated backend with real synthetic Auth/REST/Storage responses, using test-only transport injection while preserving the shipped HTTPS configuration. Continue simulator interaction/accessibility review once UI access is available, then actual hosted/device verification.
+- Remote CI authentication, hosted project selection, Apple signing/APNs/device checks, and retention/name decisions remain unresolved. No phase acceptance status changed from this source review or limited capture.

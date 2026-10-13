@@ -77,7 +77,7 @@ Run portable core tests:
 swift test
 ```
 
-Forty-two tests cover prototype boundaries, invalid invitations, secure session renewal, logout failures, failed-save draft preservation, assignment changes, game cancellation/rollover, photo upload retry/draft cleanup, private state cleanup, strict game routes, queued notification taps, account-scoped event navigation, optional permission, device registration retries, sign-out races, and confirmed/partial account cleanup. The package tests run on macOS; actual Keychain behavior and the complete iPhone account flow need device/simulator verification. The [verified CI run](https://github.com/ssmitty/team-check-in-ios/actions/runs/38334707131) passed the native build, core/pairing tests, and backend integration for repair commit `5867b09`.
+Forty-six tests cover prototype boundaries, invalid invitations, secure session renewal, logout failures, failed-save draft preservation, assignment changes, game cancellation/rollover, photo upload retry/draft cleanup, private state cleanup, strict game routes, queued notification taps, account-scoped event navigation, optional permission, device registration retries, sign-out races, and confirmed/partial account cleanup, private participation choices, and live clock boundaries. The package tests run on macOS; actual Keychain behavior and the complete iPhone account flow need device/simulator verification. The [verified CI run](https://github.com/ssmitty/team-check-in-ios/actions/runs/38334707131) passed the native build, core/pairing tests, and backend integration for repair commit `5867b09`.
 
 The server pairing and APNs preparation modules have 22 passing Node tests:
 

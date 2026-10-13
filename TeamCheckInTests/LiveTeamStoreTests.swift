@@ -8,6 +8,7 @@ import Testing
 private final class ScriptedLiveService: LiveTeamServicing {
     var userID: UUID? = UUID()
     var snapshot = LiveSnapshot()
+    var participationWrites = 0
     var failSave = false
     var deletionCompletes = false
     var onGameLookup: (() async -> Void)?
@@ -28,6 +29,11 @@ private final class ScriptedLiveService: LiveTeamServicing {
     func join(token: String, displayName: String) async throws {}
     func invite(teamID: UUID) async throws -> String { "" }
     func save(game: LiveGame) async throws {}
+    func setParticipation(gameID: UUID, isOptedOut: Bool) async throws {
+        participationWrites += 1
+        snapshot.optOuts.removeAll { $0.game_id == gameID }
+        if isOptedOut { snapshot.optOuts.append(LiveOptOut(game_id: gameID, user_id: userID!)) }
+    }
     func generate(gameID: UUID) async throws {}
     func share(assignmentID: UUID, feeling: Feeling, support: SupportPreference, note: String)
         async throws
@@ -189,6 +195,66 @@ struct LiveTeamStoreTests {
         #expect(store.snapshot.responses.isEmpty)
         #expect(device.systemStops == 1)
         #expect(store.infoMessage == "Your account has been deleted.")
+    }
+
+    @Test func clockRolloverClearsDraftWithoutNetworkRefresh() async {
+        let service = ScriptedLiveService(); service.prepare()
+        var clock = Date.now
+        let store = LiveTeamStore(service: service, now: { clock })
+        await store.restore()
+        store.note = "Earlier event draft"; store.feeling = .nervous
+        clock = clock.addingTimeInterval(7200)
+        store.refreshPresentation()
+        #expect(store.game == nil)
+        #expect(store.note.isEmpty)
+        #expect(store.feeling == nil)
+        #expect(!store.isConnectionOpen)
+    }
+    @Test func unavailablePairingIsDistinctFromPendingGeneration() async {
+        let service = ScriptedLiveService(); service.prepare()
+        service.snapshot.connections = []
+        let store = LiveTeamStore(service: service); await store.restore()
+        #expect(store.connectionState == .unavailable)
+        let old = service.snapshot.games[0]
+        service.snapshot.games[0] = LiveGame(
+            id: old.id, team_id: old.team_id, title: old.title,
+            starts_at: old.starts_at, location: old.location,
+            time_zone_identifier: old.time_zone_identifier,
+            is_canceled: false, assignments_generated_at: nil)
+        await store.refresh()
+        #expect(store.connectionState == .needsPairing)
+    }
+    @Test func privateParticipationCanChangeOnlyBeforeOpening() async {
+        let service = ScriptedLiveService(); service.prepare()
+        var clock = Date.now
+        let old = service.snapshot.games[0]
+        service.snapshot.games[0] = LiveGame(
+            id: old.id, team_id: old.team_id, title: old.title,
+            starts_at: ISO8601DateFormatter().string(from: clock.addingTimeInterval(7200)),
+            location: old.location, time_zone_identifier: old.time_zone_identifier,
+            is_canceled: false, assignments_generated_at: nil)
+        let store = LiveTeamStore(service: service, now: { clock }); await store.restore()
+        #expect(store.connectionState == .waiting)
+        await store.setParticipation(isOptedOut: true)
+        #expect(store.connectionState == .skipped)
+        await store.setParticipation(isOptedOut: false)
+        #expect(store.connectionState == .waiting)
+        clock = clock.addingTimeInterval(3601)
+        await store.setParticipation(isOptedOut: true)
+        #expect(service.participationWrites == 2)
+        #expect(!store.isOptedOut)
+        #expect(store.errorMessage != nil)
+    }
+    @Test func expiredActionCannotSubmitAnEarlierPrivateDraft() async {
+        let service = ScriptedLiveService(); service.prepare()
+        var clock = Date.now
+        let store = LiveTeamStore(service: service, now: { clock }); await store.restore()
+        store.feeling = .nervous; store.support = .encouragement; store.note = "Old draft"
+        clock = clock.addingTimeInterval(7200)
+        await store.share()
+        #expect(store.note.isEmpty)
+        #expect(store.infoMessage == nil)
+        #expect(store.errorMessage?.contains("closed") == true)
     }
 
 }

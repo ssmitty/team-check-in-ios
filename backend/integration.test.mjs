@@ -184,6 +184,12 @@ test('local accounts, captain enforcement, retry safety, and pair privacy', asyn
   const future = randomUUID();
   await rpc('save_game', captain.token, { ...gameArgs, p_id: future, p_starts_at: new Date(Date.now() + 7200000).toISOString() });
   await rpc('set_game_opt_out', users[5].token, { p_game: future, p_opt_out: true });
+  await rpc('set_game_opt_out', users[5].token, { p_game: future, p_opt_out: true });
+  assert.equal((await rows('game_opt_outs', users[5].token, '&game_id=eq.' + future)).length, 1);
+  assert.equal((await rows('game_opt_outs', captain.token, '&game_id=eq.' + future)).length, 0, 'Captain cannot inspect another player participation choice');
+  await rpc('set_game_opt_out', users[5].token, { p_game: future, p_opt_out: false });
+  assert.equal((await rows('game_opt_outs', users[5].token, '&game_id=eq.' + future)).length, 0);
+  await rpc('set_game_opt_out', users[5].token, { p_game: future, p_opt_out: true });
   assert.ok((await request('/functions/v1/generate-pairings', captain.token, { game_id: future })).status >= 400);
   // Only the test admin advances this synthetic event into its open window.
   execFileSync('psql', ['postgresql://postgres:postgres@127.0.0.1:54322/postgres', '-v', 'ON_ERROR_STOP=1', '-c',

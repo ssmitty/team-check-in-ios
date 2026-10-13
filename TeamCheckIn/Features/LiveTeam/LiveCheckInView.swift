@@ -8,6 +8,9 @@ struct LiveCheckInView: View {
     @Environment(\.dismiss) private var dismiss
     var body: some View {
         Form {
+            if !store.isConnectionOpen {
+                Section { Text("This check-in is closed. Return to your team's schedule.") }
+            }
             Section("How are you feeling?") {
                 Picker("Feeling", selection: $store.feeling) {
                     Text("Choose a feeling").tag(Optional<Feeling>.none)
@@ -22,7 +25,8 @@ struct LiveCheckInView: View {
                 Text("\(store.note.count) / 280 characters").font(.footnote)
                 Button("Share check-in") { Task { await store.share() } }
                     .disabled(
-                        store.isBusy || store.feeling == nil || store.support == nil
+                        !store.isConnectionOpen || store.isBusy || store.feeling == nil
+                            || store.support == nil
                             || store.note.count > 280)
                 Button("Not now") { dismiss() }
                 Text("Only your assigned connection can read this. Sharing is optional.")
@@ -49,7 +53,7 @@ struct LiveCheckInView: View {
                     Button("I've got you") {
                         Task { await store.encourage(recipientID: partner.user_id) }
                     }
-                    .disabled(store.isBusy)
+                    .disabled(store.isBusy || !store.isConnectionOpen)
                 }
             }
             Section("Encouragement") {

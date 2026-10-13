@@ -54,6 +54,11 @@ struct LiveWarmupAcknowledgment: Decodable, Sendable {
     let requester_id: UUID
     let recipient_id: UUID
 }
+/// Only the caller's opt-outs are readable, including by a captain.
+struct LiveOptOut: Decodable, Sendable {
+    let game_id: UUID
+    let user_id: UUID
+}
 /// Records obtained through caller-scoped RLS, never a captain-wide response feed.
 struct LiveSnapshot: Sendable {
     var teams: [LiveTeam] = []
@@ -61,6 +66,7 @@ struct LiveSnapshot: Sendable {
     var games: [LiveGame] = []
     var connections: [LiveAssignmentMember] = []
     var responses: [LiveCheckIn] = []
+    var optOuts: [LiveOptOut] = []
     var encouragements: [LiveEncouragement] = []
     var photos: [LivePhoto] = []
     var warmupRequests: [LiveWarmupRequest] = []

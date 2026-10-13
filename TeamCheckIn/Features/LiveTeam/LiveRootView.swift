@@ -4,6 +4,7 @@ import SwiftUI
 
 /// Real account mode, clearly separate from the session-only prototype.
 struct LiveRootView: View {
+    @Environment(\.scenePhase) private var scenePhase
     @State private var showsAccountSettings = false
     @Bindable var store: LiveTeamStore
     var body: some View {
@@ -51,7 +52,16 @@ struct LiveRootView: View {
         }
         .sheet(isPresented: $showsAccountSettings) { AccountSettingsView(store: store) }
         .onChange(of: store.userID) { _, id in if id == nil { showsAccountSettings = false } }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { store.refreshPresentation() }
+        }
         .task { await store.restore() }
+        .task {
+            while !Task.isCancelled {
+                store.refreshPresentation()
+                do { try await Task.sleep(for: .seconds(15)) } catch { return }
+            }
+        }
         .onOpenURL { url in
             guard let route = AppRoute.parse(url) else { return }
             Task { await store.receive(route) }

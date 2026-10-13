@@ -54,15 +54,17 @@ struct LivePhotoSection: View {
             .font(.footnote).foregroundStyle(.secondary)
         }
         .task(id: selection) {
-            guard let selection else { return }
+            guard let selection, let assignmentID = store.assignmentID else { return }
             do {
                 guard let bytes = try await selection.loadTransferable(type: Data.self),
                     bytes.count <= 20_000_000, let image = UIImage(data: bytes)
                 else {
                     throw BackendError.invalidResponse
                 }
+                try Task.checkCancellation()
+                guard store.assignmentID == assignmentID, store.isConnectionOpen else { return }
                 draft.select(try PhotoProcessor.prepare(image))
-            } catch {
+            } catch is CancellationError { return } catch {
                 draft.errorMessage =
                     "Couldn't prepare that photo. Choose another or continue without it."
             }
@@ -82,7 +84,9 @@ struct LivePhotoSection: View {
         }
     }
     private func openCamera() async {
+        let assignmentID = store.assignmentID
         let allowed = await AVCaptureDevice.requestAccess(for: .video)
+        guard assignmentID == store.assignmentID, store.isConnectionOpen else { return }
         if allowed {
             showsCamera = true
         } else {

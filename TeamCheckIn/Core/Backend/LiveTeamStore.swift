@@ -26,40 +26,7 @@ final class LiveTeamStore {
     var support: SupportPreference?
     var note = ""
     var draftAssignmentID: UUID?
-    var team: LiveTeam? {
-        snapshot.teams.first(where: { $0.id == selectedTeamID }) ?? snapshot.teams.first
-    }
-    var isCaptain: Bool {
-        snapshot.roster.contains { $0.user_id == userID && $0.role == "captain" }
-    }
-    var game: LiveGame? {
-        if let selectedGameID {
-            return snapshot.games.first { $0.id == selectedGameID && !$0.is_canceled }
-        }
-        return snapshot.games.first { !$0.is_canceled && ($0.start ?? .distantPast) > now() }
-    }
-    var assignmentID: UUID? {
-        snapshot.connections.first { $0.game_id == game?.id && $0.user_id == userID }?.assignment_id
-    }
-    var partners: [LiveMembership] {
-        let ids = snapshot.connections.filter {
-            $0.assignment_id == assignmentID && $0.user_id != userID
-        }.map(\.user_id)
-        return snapshot.roster.filter { ids.contains($0.user_id) }
-    }
-
-    var isGameUpcoming: Bool {
-        guard let game, let start = game.start else { return false }
-        return !game.is_canceled && start > now()
-    }
-    var isGameWindowOpen: Bool {
-        guard isGameUpcoming, let start = game?.start else { return false }
-        return now() >= start.addingTimeInterval(-3600)
-    }
-    var isConnectionOpen: Bool {
-        guard let start = game?.start, assignmentID != nil else { return false }
-        return now() >= start.addingTimeInterval(-3600) && now() < start
-    }
+    private(set) var presentationTime: Date
     init(
         service: any LiveTeamServicing, photos: any PhotoServicing = UnavailablePhotoService(),
         notifications: NotificationRegistrationStore? = nil, now: @escaping () -> Date = Date.init
@@ -68,6 +35,7 @@ final class LiveTeamStore {
         self.photos = photos
         self.notifications = notifications
         self.now = now
+        self.presentationTime = now()
     }
     func restore() async {
         await perform {
@@ -128,6 +96,17 @@ final class LiveTeamStore {
             try await self.service.save(game: game); try await self.reload()
         }
     }
+    func setParticipation(isOptedOut: Bool) async {
+        refreshPresentation()
+        guard canChangeParticipation, let game else {
+            errorMessage = "Connections are already opening. You can still choose not to share."
+            return
+        }
+        await perform {
+            try await self.service.setParticipation(gameID: game.id, isOptedOut: isOptedOut)
+            try await self.reload()
+        }
+    }
     func prepareConnection() async {
         guard let game else { return }
         await perform {
@@ -135,7 +114,9 @@ final class LiveTeamStore {
         }
     }
     func share() async {
-        guard let assignmentID, assignmentID == draftAssignmentID, let feeling, let support,
+        guard let writable = currentWritableAssignment() else { return }
+        guard let assignmentID, assignmentID == writable, assignmentID == draftAssignmentID,
+            let feeling, let support,
             note.count <= 280
         else {
             errorMessage =
@@ -150,21 +131,21 @@ final class LiveTeamStore {
         }
     }
     func encourage(recipientID: UUID) async {
-        guard let assignmentID else { return }
+        guard let assignmentID = currentWritableAssignment() else { return }
         await perform {
             try await self.service.encourage(assignmentID: assignmentID, recipientID: recipientID);
             try await self.reload()
         }
     }
     func requestWarmup() async {
-        guard let assignmentID else { return }
+        guard let assignmentID = currentWritableAssignment() else { return }
         await perform {
             try await self.service.requestWarmup(assignmentID: assignmentID)
             try await self.reload()
         }
     }
     func acknowledgeWarmup(requesterID: UUID) async {
-        guard let assignmentID else { return }
+        guard let assignmentID = currentWritableAssignment() else { return }
         await perform {
             try await self.service.acknowledgeWarmup(
                 assignmentID: assignmentID, requesterID: requesterID)
@@ -206,6 +187,24 @@ final class LiveTeamStore {
         snapshot = try await service.load(teamID: selectedTeamID)
         selectedTeamID = team?.id
         while pendingGameID != nil { try await resolveGameRoute() }
+        refreshPresentation()
+    }
+    /// Advances visible time and clears drafts when the next connection changes, without networking.
+    func refreshPresentation() {
+        presentationTime = now()
+        synchronizeDraft()
+    }
+    private func currentWritableAssignment() -> UUID? {
+        let expected = assignmentID
+        refreshPresentation()
+        guard let expected, expected == assignmentID, isConnectionOpen else {
+            errorMessage =
+                "This connection has changed or closed. Return to the schedule and refresh."
+            return nil
+        }
+        return expected
+    }
+    private func synchronizeDraft() {
         if draftAssignmentID != assignmentID {
             draftAssignmentID = assignmentID
             let own = snapshot.responses.first {

@@ -18,6 +18,7 @@ protocol LiveTeamServicing {
     func invite(teamID: UUID) async throws -> String
     func save(game: LiveGame) async throws
     func generate(gameID: UUID) async throws
+    func setParticipation(gameID: UUID, isOptedOut: Bool) async throws
     func share(assignmentID: UUID, feeling: Feeling, support: SupportPreference, note: String)
         async throws
     func encourage(assignmentID: UUID, recipientID: UUID) async throws
@@ -74,6 +75,7 @@ struct LiveTeamService: LiveTeamServicing {
         value.warmupRequests = try await read("warmup_requests?select=assignment_id,requester_id")
         value.warmupAcknowledgments = try await read(
             "warmup_acknowledgments?select=assignment_id,requester_id,recipient_id")
+        value.optOuts = try await read("game_opt_outs?select=game_id,user_id")
         value.photos = try await read(
             "check_in_photos?select=assignment_id,user_id,photo_id,is_ready")
         return value
@@ -105,6 +107,10 @@ struct LiveTeamService: LiveTeamServicing {
                 p_id: game.id, p_team: game.team_id, p_title: game.title,
                 p_starts_at: game.starts_at, p_location: game.location,
                 p_time_zone_identifier: game.time_zone_identifier, p_is_canceled: game.is_canceled))
+    }
+    func setParticipation(gameID: UUID, isOptedOut: Bool) async throws {
+        struct Payload: Encodable { let p_game: UUID; let p_opt_out: Bool }
+        _ = try await rpc("set_game_opt_out", Payload(p_game: gameID, p_opt_out: isOptedOut))
     }
     func generate(gameID: UUID) async throws {
         _ = try await client.request(

@@ -17,6 +17,7 @@ struct PreviewLiveService: LiveTeamServicing {
     func join(token: String, displayName: String) async throws {}
     func invite(teamID: UUID) async throws -> String { "" }
     func save(game: LiveGame) async throws {}
+    func setParticipation(gameID: UUID, isOptedOut: Bool) async throws {}
     func generate(gameID: UUID) async throws {}
     func share(assignmentID: UUID, feeling: Feeling, support: SupportPreference, note: String)
         async throws
