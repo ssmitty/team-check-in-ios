@@ -1,13 +1,17 @@
 // LocalBackendFixture.swift
 // Purpose: Support opt-in Swift service integration against only the isolated loopback backend.
-#if os(macOS)
+#if os(macOS) || os(iOS)
     import Foundation
     import CoreGraphics
     import ImageIO
     import UniformTypeIdentifiers
-    @testable import TeamCheckInCore
+    #if canImport(TeamCheckIn)
+        @testable import TeamCheckIn
+    #else
+        @testable import TeamCheckInCore
+    #endif
 
-    /// Redirects one reserved test host to loopback; never linked into the iPhone target.
+    /// Redirects one reserved test host only in test bundles; never compiled into the shipped app module.
     @MainActor
     struct LocalBackendTransport: BackendTransport {
         let session = URLSession(configuration: .ephemeral)
@@ -29,15 +33,20 @@
         func write(_ data: Data) throws { bytes = data }
         func clear() throws { bytes = nil }
     }
-    /// Synthetic account and isolated in-memory vault used only in the integration suite.
+    /// Synthetic account with isolated memory storage on Mac and real app Keychain storage on iOS.
     @MainActor
     struct NativeBackendAccount {
         let service: LiveTeamService
         let client: BackendClient
-        let vault: IntegrationSessionVault
+        let vault: any SessionStoring
         let password: String
         static func create(publicKey: String) async throws -> Self {
-            let vault = IntegrationSessionVault()
+            #if os(iOS)
+                let vault: any SessionStoring = SessionVault(
+                    account: "native-backend-test." + UUID().uuidString)
+            #else
+                let vault: any SessionStoring = IntegrationSessionVault()
+            #endif
             let config = try BackendConfiguration(
                 url: URL(string: "https://native-integration.example")!, publicKey: publicKey)
             let client = BackendClient(

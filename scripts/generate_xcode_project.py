@@ -44,7 +44,11 @@ def main() -> None:
         ui_references.append(ref)
         ui_builds.append(add(relative + ":build", f"isa = PBXBuildFile; fileRef = {ref};"))
     native_references, native_builds = [], []
-    for path in sorted((root / "TeamCheckInNativeTests").rglob("*.swift")):
+    native_sources = sorted((root / "TeamCheckInNativeTests").rglob("*.swift")) + [
+        root / "TeamCheckInTests/LocalBackendFixture.swift",
+        root / "TeamCheckInTests/NativeBackendIntegrationTests.swift",
+    ]
+    for path in native_sources:
         relative = path.relative_to(root).as_posix()
         ref = add(relative, f'isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = {json.dumps(relative)}; sourceTree = "<group>";')
         native_references.append(ref)

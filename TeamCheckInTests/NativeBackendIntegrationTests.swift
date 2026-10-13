@@ -1,9 +1,13 @@
 // NativeBackendIntegrationTests.swift
 // Purpose: Verify the shipped Swift account/team/photo services with real isolated Auth, REST, and Storage responses.
-#if os(macOS)
+#if os(macOS) || os(iOS)
     import Foundation
     import Testing
-    @testable import TeamCheckInCore
+    #if canImport(TeamCheckIn)
+        @testable import TeamCheckIn
+    #else
+        @testable import TeamCheckInCore
+    #endif
 
     @MainActor
     struct NativeBackendIntegrationTests {
@@ -14,6 +18,13 @@
             let publicKey = try #require(
                 ProcessInfo.processInfo.environment["TEAM_CHECK_IN_LOCAL_ANON_KEY"])
             var accounts: [NativeBackendAccount] = []
+            defer {
+                for account in accounts {
+                    do { try account.vault.clear() } catch {
+                        Issue.record("Synthetic account vault cleanup failed")
+                    }
+                }
+            }
             for _ in 0..<7 {
                 accounts.append(try await NativeBackendAccount.create(publicKey: publicKey))
             }
@@ -56,7 +67,7 @@
                 member: accounts[5], captain: captain, teamID: team.id)
             try await accounts[5].service.deleteAccount(password: accounts[5].password)
             #expect(accounts[5].client.userID == nil)
-            #expect(accounts[5].vault.bytes == nil)
+            #expect(try accounts[5].vault.read() == nil)
             try await verifyTrio(
                 accounts: Array(accounts[0..<5]), captain: captain, teamID: team.id)
         }

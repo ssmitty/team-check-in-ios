@@ -441,3 +441,15 @@ Implemented and verified:
 Remaining and next:
 - The welcome Dynamic Type audit finding and manual VoiceOver remain open. Native hosted multi-account screens, physical camera/permission/Keychain checks, signed APNs delivery, backend/timer selection, retention/name decisions, and authenticated latest CI inspection are still required. No hosted changes or phase-completion claims were made.
 - Free disk space was about 13 GiB. No personal files or OrbStack volumes were removed. Continue independent verification at the next run; restore daily 2 AM Eastern cadence and deliver the morning report at or after 8 AM Eastern.
+
+## October 13, 2026, overnight: Signed native backend/session integration
+
+Implemented and verified:
+- Reused the real Swift backend suite in the app-hosted iOS test bundle, importing the shipped app module. The loopback transport remains compiled only into test bundles; app networking and HTTPS/ATS configuration were not relaxed.
+- On iOS, each synthetic account uses a unique real Keychain vault. Cleanup is registered before account creation so already-created vaults are cleared if later setup/action fails. Mac integration still uses injected memory storage.
+- Added a bounded opt-in iOS runner that validates the isolated local API address, removes inherited privileged backend/APNs variables, passes only the public client key through XCTest, and explicitly requires an executed passed Swift Testing method. An empty XCTest selection or a skipped integration suite is not accepted as verification.
+- The signed iOS suite passed with seven synthetic accounts and real local Auth, REST, function, and Storage responses. It covered shared schedules and member denial, safe invite retries, pairs private from an outside captain/outsider, JPEG upload/retry/download/removal, restored sessions and private responses, participation choices, confirmed own-member deletion, and trio acknowledgment. Evidence: /tmp/team-check-in-native-build/Logs/Test/Test-TeamCheckIn-2026.10.13_06-28-25--0400.xcresult, one executed Swift Testing test, passed in about 5.3 seconds.
+- The shared Mac integration also passed again; the default 46 portable behaviors passed with the opt-in test disabled (47 discovered). Strict formatting, Python compilation, and diff checks passed.
+
+Remaining:
+- This verifies actual iOS service/session integration with Keychain and a real local backend. It does not verify account-screen gestures, physical-device lock behavior, hosted TLS, camera permissions, APNs delivery, or hosted activation. No migration, production service, or distribution changed; phase acceptance remains qualified by those outstanding checks.
