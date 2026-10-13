@@ -19,13 +19,21 @@ Demo changes remain in the session. Configured account mode is separate and uses
 
 ## Automated native review
 
-The shared scheme includes `TeamCheckInUITests`. Run it on an existing simulator without downloading another runtime:
+The shared scheme includes `TeamCheckInUITests` and app-hosted `TeamCheckInNativeTests`. Run it on an existing simulator without downloading another runtime:
 
 ```sh
-xcodebuild -project TeamCheckIn.xcodeproj -scheme TeamCheckIn -destination 'platform=iOS Simulator,id=YOUR_SIMULATOR_ID' -derivedDataPath build -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO test
+xcodebuild -project TeamCheckIn.xcodeproj -scheme TeamCheckIn -destination 'platform=iOS Simulator,id=YOUR_SIMULATOR_ID' -derivedDataPath /tmp/team-check-in-native-build -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=- test
 ```
 
 Debug-only launch arguments select demonstration data and light/dark or largest text appearances. These flags are absent from Release builds. The tests cover a check-in without a photo, warmup acknowledgment, large-text dark-mode reachability, and Apple's accessibility audit. Audit findings are not suppressed. The full audit currently reports partial Dynamic Type support on a welcome control/heading and fails. It remains a required accessibility follow-up. Flow tests can be run independently with `-skip-testing:TeamCheckInUITests/PrototypeFlowTests/testWelcomeAccessibilityAudit`; this is a focused flow check, not a passing full suite. See BUILD_LOG.md for actual results and remaining findings.
+
+The app-hosted native tests import the shipped app module and exercises real iOS Keychain reads, writes, updates, account isolation, protection attributes, restore through a new client, and cleanup. Use ad-hoc simulator signing and derived data outside the project folder:
+
+```sh
+python3 scripts/run_native_platform_tests.py --simulator-id YOUR_SIMULATOR_ID
+```
+
+The storage test uses only synthetic session values and clears its unique test account. The photo test generates synthetic pixels with GPS/camera tags, confirms the input location metadata exists, and verifies the shipped processor produces a bounded JPEG without those tags. It requires no Apple certificate or provisioning account. Unsigned builds can compile and run the demo but failed this real secure-storage test. The signed test passed; storage behavior on a locked physical phone remains unverified. The CI native step runs these Apple API contracts separately from the still-failing accessibility audit.
 
 The real Swift service integration test uses seven synthetic accounts against the isolated local backend. It verifies private pair/trio access, schedules, retry safety, photos, warmups, session restore with an in-memory vault, and password-confirmed deletion. It does not verify the iPhone UI, Keychain, hosted TLS, or real APNs.
 

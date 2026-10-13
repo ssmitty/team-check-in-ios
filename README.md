@@ -77,7 +77,7 @@ Run portable core tests:
 swift test
 ```
 
-Forty-six tests cover prototype boundaries, invalid invitations, secure session renewal, logout failures, failed-save draft preservation, assignment changes, game cancellation/rollover, photo upload retry/draft cleanup, private state cleanup, strict game routes, queued notification taps, account-scoped event navigation, optional permission, device registration retries, sign-out races, and confirmed/partial account cleanup, private participation choices, and live clock boundaries. The package tests run on macOS; actual Keychain behavior and the complete iPhone account flow need device/simulator verification. The [verified CI run](https://github.com/ssmitty/team-check-in-ios/actions/runs/38334707131) passed the native build, core/pairing tests, and backend integration for repair commit `5867b09`.
+Forty-six tests cover prototype boundaries, invalid invitations, secure session renewal, logout failures, failed-save draft preservation, assignment changes, game cancellation/rollover, photo upload retry/draft cleanup, private state cleanup, strict game routes, queued notification taps, account-scoped event navigation, optional permission, device registration retries, sign-out races, and confirmed/partial account cleanup, private participation choices, and live clock boundaries. The package tests run on macOS. A separate app-hosted simulator test verifies the actual Keychain vault; the full native account flow and physical-device storage remain pending. The [verified CI run](https://github.com/ssmitty/team-check-in-ios/actions/runs/38334707131) passed the native build, core/pairing tests, and backend integration for repair commit `5867b09`.
 
 The server pairing and APNs preparation modules have 22 passing Node tests:
 
@@ -94,6 +94,14 @@ python3 scripts/run_swift_backend_integration.py
 ```
 
 It uses a test-only loopback transport and in-memory session vault, so it does not establish hosted HTTPS, iPhone UI, or Keychain behavior. See [backend setup](docs/BACKEND_SETUP.md). It is skipped by the default unit-test command.
+
+Verify secure storage and photo metadata removal in an ad-hoc signed simulator app using an installed runtime:
+
+```sh
+python3 scripts/run_native_platform_tests.py
+```
+
+The runner keeps generated files outside the project folder, where file-provider attributes caused an ad-hoc signing failure. It uses synthetic data and clears its own isolated Keychain entry. No Apple account is needed for this simulator signature. See [native review](docs/PROTOTYPE_REVIEW.md) for the distinction between passing focused flow checks and the outstanding full accessibility audit.
 
 Swift formatting uses Xcode's bundled `swift-format` and `.swift-format` configuration.
 

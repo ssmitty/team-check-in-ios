@@ -1,5 +1,5 @@
 # ci.yml
-# Purpose: Compile the simulator app and run portable core behavior tests.
+# Purpose: Verify native builds, portable behavior, Apple API contracts, and private backend integration.
 name: Build and test
 on: [push, pull_request]
 permissions:
@@ -7,6 +7,7 @@ permissions:
 jobs:
   swift:
     runs-on: macos-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - name: Core behavior tests
@@ -18,6 +19,8 @@ jobs:
         run: node --test backend/pairing.test.mjs backend/apns.test.mjs backend/apnsDelivery.test.mjs backend/pushWorker.test.mjs
       - name: Simulator app build
         run: xcodebuild -project TeamCheckIn.xcodeproj -scheme TeamCheckIn -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+      - name: Native secure storage and photo contracts
+        run: python3 scripts/run_native_platform_tests.py
   backend:
     runs-on: ubuntu-latest
     timeout-minutes: 15

@@ -418,3 +418,14 @@ Verified:
 Remaining:
 - Resolve the unsuppressed welcome Dynamic Type audit findings and review VoiceOver, native account screens/Keychain, denied permissions, and physical camera/push behavior. Phase 2 is not marked complete. Hosted backend selection, Apple signing/APNs access, retention/name decisions, and authenticated inspection of latest remote CI remain outstanding.
 - Continue independent verification in the next overnight run. Restore the existing automation to daily 2 AM Eastern at or after 8 AM Eastern and provide the requested morning report.
+
+## October 13, 2026, overnight: Native Apple API contracts
+
+Implemented and verified:
+- Added an app-hosted native test bundle importing the shipped app module. Debug exposes testable symbols; Release keeps testability disabled. No copied storage/photo implementation is used.
+- The actual simulator Keychain test verified write/read through a reopened vault, account isolation, update, the system's AfterFirstUnlockThisDeviceOnly protection attribute, restore through a fresh BackendClient without networking, and local session/vault cleanup. Synthetic values use a unique account identifier and are removed.
+- Added a native UIKit/ImageIO photo test with generated pixels and synthetic source GPS/camera tags. It confirms source location metadata exists and verifies JPEG output, one image, a 1600-pixel longest edge, the upload size bound, and absent GPS/camera tags after processing. This does not substitute for physical camera/library permission checks or prove every real-world orientation.
+- Both tests passed through the bounded native runner on the dedicated iOS 26.2 simulator. Evidence: /tmp/team-check-in-native-build/Logs/Test/Test-TeamCheckIn-2026.10.13_05-45-25--0400.xcresult, 2 native tests, zero failures. The Keychain contract also passed in earlier isolated and combined runs.
+- The first unsigned app-hosted Keychain run failed with secureStorage errors. Ad-hoc simulator signing resolved that requirement; it uses no Apple certificate/account. Signing output under the project initially failed because generated bundles acquired Finder/file-provider attributes. Keeping derived data in temporary storage allowed signing and tests to pass. Documents/personal files were not altered.
+- Added the native contract runner to Mac CI using an available installed iOS 17+ iPhone, ad-hoc signing, temporary derived data, and bounded execution. No runtime download is performed. Actual latest CI inspection was attempted again through the GitHub connector and remains blocked by reauthentication; local checks are not remote CI evidence.
+- Further welcome font/range experiments did not clear the partial Dynamic Type audit finding and were reverted. The unsuppressed audit and manual VoiceOver/native multi-account/physical-device checks remain outstanding. No phase acceptance status was advanced.
