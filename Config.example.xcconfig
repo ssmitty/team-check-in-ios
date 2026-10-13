@@ -4,3 +4,6 @@
 SUPABASE_HOST = your-project.supabase.co
 SUPABASE_PUBLISHABLE_KEY = replace_with_project_publishable_key
 // Never supply a service role or secret key to the app.
+
+// Optional after configuring Apple push signing. Use sandbox or production.
+APNS_ENVIRONMENT =

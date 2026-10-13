@@ -8,7 +8,7 @@ struct TeamCheckInApp: App {
     @UIApplicationDelegateAdaptor(NotificationAppDelegate.self) private var delegate
     var body: some Scene {
         WindowGroup {
-            AppEntryView(routes: delegate.routes)
+            AppEntryView(routes: delegate.routes, registration: delegate.registration)
                 .tint(.teal)
         }
     }

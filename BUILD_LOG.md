@@ -303,3 +303,25 @@ Remaining and next:
 - The Mac lock and GitHub connector authentication still prevent interactive accessibility review and fresh remote CI inspection. No phase acceptance status changed.
 - Implement permission and device-token registration/revocation, leased delivery orchestration, and self-service account deletion/captain transfer. The HTTP/2 Node adapter is not wired into the Edge runtime or outbox; runtime compatibility and physical-device delivery need verification.
 - Continue overnight independent work; hosted project choice, Apple credentials, physical-device verification, and retention decisions remain the same known prerequisites.
+
+## October 13, 2026, overnight: Optional alert permission and private devices
+
+Completed:
+- Added private device registrations bound to the verified user and live Auth session, with a seven-day freshness limit. Server recipient lookup excludes expired registrations and deleted sessions; clients cannot read tokens or invoke that lookup.
+- Added authenticated register/revoke RPCs with normalization, token size/type validation, idempotent updates, current-account ownership on revoke, and shared-device/reinstallation replacement. No owner ID is accepted from the app.
+- Added injected native notification state and system/backend service boundaries. A schedule-screen button requests permission at the point of use. Restoration checks existing permission without a prompt; denial preserves in-app check-ins. Settings changes and registration failures are visible without disabling check-ins.
+- Added registration callbacks, memory-only token handling, a non-sensitive installation UUID preference, retry, sign-out race guards, system unregistration, and backend revocation. Failed revocation does not prevent local account/draft cleanup.
+- Added optional APNS_ENVIRONMENT configuration and source preparation. Empty configuration hides the permission UI. Signing entitlements, a physical iPhone, and actual delivery remain unavailable.
+
+Verification:
+- Both new migrations applied locally. The first real registration request exposed PostgreSQL error 2201B because regex repetition bounds cannot exceed 255. Added migration 010 with explicit length checks instead of rewriting the locally applied migration. The complete test then passed, including a 512-character token and oversized/odd-length rejection.
+- All 37 Swift tests passed, including eight new permission, retry, sign-out, and Settings-change checks. The native simulator build passed with the registration service, delegate, and permission section.
+- Both local integration suites passed: the complete private check-in/photo/warmup/job regression and the new device-account/session suite. Thirteen pgTAP access-contract assertions passed.
+- Native mocks establish state behavior and compilation. They do not establish Apple registration, a system permission dialog, entitlement validity, system unregistration effectiveness, or physical push delivery.
+- Generated updated schema inspection into ignored .build/backend. Intended-file/full-history credential-pattern scans, dash style, whitespace checks, and focused diff review passed before synchronization.
+- Disk availability was about 15 GiB. No personal files or OrbStack volumes were changed.
+
+Remaining:
+- Wire leased delivery orchestration to a verified HTTP/2 runtime, with revision/ownership rechecks, retry backoff, and safe stale-token invalidation. Expired device-row cleanup is also pending.
+- Implement self-service account deletion and captain transfer, then complete pilot verification and the retention proposal. Hosted/Apple/device/accessibility dependencies and remote CI access remain unchanged. No phase is marked complete from this preparation.
+- Offline failure of both backend revocation and Auth logout cannot guarantee immediate server exclusion; system unregistration is requested and registration freshness is bounded. Verify this path on an iPhone before pilot readiness.

@@ -147,4 +147,19 @@ struct LiveTeamStoreTests {
         #expect(store.infoMessage?.contains("ended") == true)
     }
 
+    @Test func failedDeviceRevokeDoesNotPreventLocalSignOut() async {
+        let service = ScriptedLiveService(); service.prepare()
+        let deviceService = ScriptedNotificationService(); deviceService.failRevoke = true
+        let notifications = NotificationRegistrationStore(
+            service: deviceService, installationID: UUID())
+        let store = LiveTeamStore(service: service, notifications: notifications)
+        await store.restore()
+        store.note = "Private draft"
+        await store.signOut()
+        #expect(store.userID == nil)
+        #expect(store.note.isEmpty)
+        #expect(store.errorMessage?.contains("Signed out locally") == true)
+        #expect(deviceService.systemStops == 1)
+    }
+
 }

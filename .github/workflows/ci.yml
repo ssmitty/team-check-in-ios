@@ -43,4 +43,4 @@ jobs:
           printf "::error::Pairing worker did not become ready within 120 seconds.\n"
           exit 1
       - name: Exercise accounts and private persistence
-        run: node --test backend/integration.test.mjs
+        run: node --test backend/integration.test.mjs backend/pushDevices.integration.test.mjs

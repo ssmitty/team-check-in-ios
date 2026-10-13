@@ -9,6 +9,7 @@ final class LiveTeamStore {
     private let service: any LiveTeamServicing
     private let now: () -> Date
     let photos: any PhotoServicing
+    let notifications: NotificationRegistrationStore?
     private(set) var snapshot = LiveSnapshot()
     private(set) var userID: UUID?
     private(set) var isBusy = false
@@ -61,10 +62,11 @@ final class LiveTeamStore {
     }
     init(
         service: any LiveTeamServicing, photos: any PhotoServicing = UnavailablePhotoService(),
-        now: @escaping () -> Date = Date.init
+        notifications: NotificationRegistrationStore? = nil, now: @escaping () -> Date = Date.init
     ) {
         self.service = service
         self.photos = photos
+        self.notifications = notifications
         self.now = now
     }
     func restore() async {
@@ -172,7 +174,9 @@ final class LiveTeamStore {
     func signOut() async {
         await perform {
             defer { self.clear() }
+            let revoked = await self.notifications?.disconnect() ?? true
             try await self.service.signOut()
+            if !revoked { throw BackendError.notificationRevoke }
         }
     }
     private func reload() async throws {

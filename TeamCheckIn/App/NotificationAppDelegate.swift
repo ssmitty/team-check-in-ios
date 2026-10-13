@@ -9,6 +9,7 @@ final class NotificationAppDelegate: NSObject, UIApplicationDelegate,
     UNUserNotificationCenterDelegate
 {
     let routes = NotificationRouteInbox()
+    let registration = NotificationRegistrationInbox()
 
     func application(
         _ application: UIApplication,
@@ -16,6 +17,19 @@ final class NotificationAppDelegate: NSObject, UIApplicationDelegate,
     ) -> Bool {
         UNUserNotificationCenter.current().delegate = self
         return true
+    }
+
+    func application(
+        _ application: UIApplication,
+        didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
+    ) {
+        registration.token = deviceToken
+        registration.failureID = nil
+    }
+    func application(
+        _ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error
+    ) {
+        registration.failureID = UUID()
     }
 
     nonisolated func userNotificationCenter(

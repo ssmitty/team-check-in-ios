@@ -33,6 +33,9 @@ struct LiveDashboardView: View {
                     Text("No upcoming game scheduled.")
                 }
             }
+            if store.game != nil, let notifications = store.notifications {
+                LiveNotificationSection(notifications: notifications)
+            }
             Section("Schedule") {
                 ForEach(store.snapshot.games) { game in
                     VStack(alignment: .leading) {

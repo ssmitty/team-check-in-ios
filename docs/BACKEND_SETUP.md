@@ -17,7 +17,7 @@ Keep the function server running in one terminal. In another:
 ```sh
 supabase test db
 node --test backend/pairing.test.mjs
-node --test backend/integration.test.mjs
+node --test backend/integration.test.mjs backend/pushDevices.integration.test.mjs
 ```
 
 The integration test discovers local credentials without printing them. It creates synthetic `example.test` accounts and schedules in this local database only. It tests real Auth and PostgREST calls, unauthorized operations, pair/trio privacy, retry safety, concurrent generation, previous partners, opt-outs, and cancellation. Test fixtures remain in this isolated database; no real athlete data belongs here.

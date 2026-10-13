@@ -2,6 +2,7 @@
 <!-- Purpose: Define the demo app's identity, launch behavior, and sample invite URL. -->
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
+    <key>APNS_ENVIRONMENT</key><string>$(APNS_ENVIRONMENT)</string>
     <key>SUPABASE_HOST</key><string>$(SUPABASE_HOST)</string>
     <key>SUPABASE_PUBLISHABLE_KEY</key><string>$(SUPABASE_PUBLISHABLE_KEY)</string>
     <key>CFBundleDisplayName</key><string>Team Check-in</string>
