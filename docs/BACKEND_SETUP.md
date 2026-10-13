@@ -66,3 +66,15 @@ node --test backend/accountLifecycle.integration.test.mjs
 ```
 
 It creates its own accounts and deletes only those fixtures. Do not point it at a hosted backend. The native settings screen uses password-confirmed caller deletion and explicit captain transfer. See [data lifecycle](DATA_LIFECYCLE.md) for partial cleanup, content preservation, the unactivated retention proposal, and remaining native/hosted checks.
+
+## Real Swift service integration
+
+On macOS with the isolated stack and all functions running:
+
+```sh
+python3 scripts/run_swift_backend_integration.py
+```
+
+This opt-in suite uses the shipped Swift services with actual local Auth, REST, function, and Storage responses. A transport compiled only into tests maps one reserved HTTPS test host to loopback. It cannot target a hosted project and does not change the iPhone's HTTPS/ATS configuration. Only the anonymous client key enters the test process; no service credential is passed to Swift. The suite creates synthetic accounts and deletes one of its own member fixtures.
+
+It verifies seven accounts, shared schedules and member denial, retry-safe invite redemption, pair privacy against an outside captain/outsider, binary JPEG upload/retry/download/removal, a fresh service restoring its session from an in-memory vault, private opt-out/reversal, confirmed deletion/local credential cleanup, and a trio with individual acknowledgment. It verifies Swift transport/model integration, not iPhone UI, Keychain, camera, APNs, hosted HTTPS, or app relaunch on a device. Default `swift test` deliberately skips this suite when its explicit enable flag is absent.

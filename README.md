@@ -87,6 +87,14 @@ node --test backend/pairing.test.mjs backend/apns.test.mjs backend/apnsDelivery.
 
 See [pairing module](backend/README.md) for exact and bounded-search behavior. The worker and database persistence have been exercised locally; hosted deployment remains pending. Mock assignments stay separate from account mode.
 
+A separate opt-in test exercises the shipped Swift account, team, photo, and warmup services against real local APIs using seven synthetic accounts:
+
+```sh
+python3 scripts/run_swift_backend_integration.py
+```
+
+It uses a test-only loopback transport and in-memory session vault, so it does not establish hosted HTTPS, iPhone UI, or Keychain behavior. See [backend setup](docs/BACKEND_SETUP.md). It is skipped by the default unit-test command.
+
 Swift formatting uses Xcode's bundled `swift-format` and `.swift-format` configuration.
 
 ## Roadmap and known limitations

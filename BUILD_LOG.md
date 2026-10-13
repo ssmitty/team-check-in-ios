@@ -389,3 +389,15 @@ Verified:
 Remaining and next:
 - Verify the actual Swift service against the isolated backend with real synthetic Auth/REST/Storage responses, using test-only transport injection while preserving the shipped HTTPS configuration. Continue simulator interaction/accessibility review once UI access is available, then actual hosted/device verification.
 - Remote CI authentication, hosted project selection, Apple signing/APNs/device checks, and retention/name decisions remain unresolved. No phase acceptance status changed from this source review or limited capture.
+
+## October 13, 2026, overnight: Real Swift API verification
+
+Completed and verified:
+- Added an opt-in integration suite using the shipped Swift account/team/photo/warmup services with real local Auth, REST, function, and Storage responses. The test-only transport accepts one reserved HTTPS test host and maps it only to the isolated loopback stack. Shipped HTTPS/ATS configuration is unchanged.
+- The runner validates the project-local stack and passes only its anonymous client key to Swift in process memory. Credentials and generated fixtures are never printed or committed; sessions use a test-only in-memory vault.
+- The suite passed twice with seven synthetic accounts: invite redemption retries, shared schedules, member write denial, RLS-scoped notification game lookup, private pairs against an outside captain/outsider, binary JPEG reserve/upload/retry/download/remove, fresh service/session restoration, private participation reversal, confirmed own-account deletion, and a five-member roster producing a trio with one recipient acknowledgment.
+- Default swift test passed its 46 unit behaviors and intentionally skipped this opt-in suite (47 discovered tests). The explicitly enabled native service integration passed in about three seconds. This is real Swift API/model verification, not mocked responses.
+- Added exact runner instructions and documented that this does not verify iPhone UI, Keychain storage, hosted HTTPS, camera, or APNs delivery. No phase acceptance is marked complete from these transport checks alone.
+
+Next:
+- Continue the newly prepared simulator UI automation and accessibility audit. Fix actual findings and retain honest evidence for any blocked tests. Hosted selection, physical device/signing, retention/name choices, and remote CI authentication still remain.
