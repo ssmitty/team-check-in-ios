@@ -325,3 +325,25 @@ Remaining:
 - Wire leased delivery orchestration to a verified HTTP/2 runtime, with revision/ownership rechecks, retry backoff, and safe stale-token invalidation. Expired device-row cleanup is also pending.
 - Implement self-service account deletion and captain transfer, then complete pilot verification and the retention proposal. Hosted/Apple/device/accessibility dependencies and remote CI access remain unchanged. No phase is marked complete from this preparation.
 - Offline failure of both backend revocation and Auth logout cannot guarantee immediate server exclusion; system unregistration is requested and registration freshness is bounded. Verify this path on an iPhone before pilot readiness.
+
+## October 13, 2026, overnight: Leased delivery orchestration
+
+Completed:
+- Prepared a private per-device attempt queue with immutable APNs retry identifiers, two-minute leases, four-attempt concurrency at the Node boundary, exponential backoff, and a five-attempt ceiling. Claims and all token/context/result RPCs are server-only.
+- Added immediate pre-send membership, assignment, live-session, device ownership/token, schedule revision, cancellation, and game-window revalidation. Same-token refresh preserves valid alerts; rotated tokens can recover pending attempts without resending accepted ones.
+- Added safe invalid-token removal that cannot delete a newer/refreshed/reassigned registration. Operational cleanup removes expired devices and old attempt records in bounded batches, while current device associations are preserved.
+- Wired the Node HTTP/2 adapter into a one-shot server worker with environment-only credentials, fresh provider signing, bounded persistence requests, aggregate outcome reporting, and explicit APNs acceptance versus device-delivery semantics.
+- Added offline worker tests and a real local lease suite using injected APNs outcomes. Extended CI to run the lease suite separately after the account/private-persistence suite. No hosted timer, Node service, Apple key, or push distribution was activated.
+
+Verified:
+- Migrations 011 through 013 applied locally. The real local lease suite passed with concurrent claims, retry backoff/stable IDs, accepted-result deduplication, expired-lease recovery, stale completion rejection, same-token refresh, token rotation, stale invalidation, revoke-before-send, cancellation, five-attempt exhaustion, and cleanup preserving a current registration.
+- An initial rotation test expected immediate reclaim, but the implemented backoff correctly excluded it. Updated the test to assert that exclusion and advance only its synthetic next-attempt timestamp; the full test passed. No production timing was bypassed.
+- The complete existing private-persistence and device-account integration suites passed again. All 22 Node unit tests and 17 pgTAP access-contract assertions passed.
+- No native code changed from the previously verified 37-test simulator build. Actual Apple registration, APNs acceptance, physical delivery/navigation, native account sharing, and accessibility review remain unverified.
+- Updated schema inspection in ignored .build/backend. Intended-file/full-history credential-pattern scans, style/whitespace checks, and a focused review passed before synchronization. Remote CI inspection remains blocked by the known locked Mac/GitHub authentication state.
+- Disk availability was about 15 GiB. No personal files or OrbStack volumes were changed.
+
+Remaining and next:
+- Prepare self-service account deletion/captain transfer and the retention proposal. Verify actual remote CI when authenticated access is available, and complete simulator/device review before marking phase criteria satisfied.
+- Approved Node hosting/timers, a selected HTTPS backend, Apple signing/APNs credentials, a physical iPhone, and retention/name decisions remain required for pilot readiness. No phase acceptance was marked complete.
+- A schedule/account change during an in-flight Apple request cannot recall it; ambiguous acknowledgments may produce retry delivery. Stable IDs and neutral content reduce impact, but the app must not promise exactly-once push delivery.

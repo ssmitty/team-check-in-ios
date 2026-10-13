@@ -11,7 +11,7 @@ const HOSTS = { sandbox: 'https://api.sandbox.push.apple.com', production: 'http
 /** Send once with an injected connection factory and clock. Queue retry policy belongs to the caller. */
 export async function deliverNotification({ deviceToken, providerToken, request, environment,
   connectSession = connect, now = new Date(), timeoutMs = 15_000 }) {
-  if (typeof deviceToken !== 'string' || !/^[a-f0-9]{32,512}$/i.test(deviceToken)) {
+  if (typeof deviceToken !== 'string' || !/^[a-f0-9]{32,512}$/i.test(deviceToken) || deviceToken.length % 2 !== 0) {
     throw new Error('A valid hexadecimal device token is required.');
   }
   if (typeof providerToken !== 'string' || !/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(providerToken)) {

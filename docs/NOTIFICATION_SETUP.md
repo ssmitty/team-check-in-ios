@@ -17,7 +17,8 @@ Serve all prepared functions, then run tests:
 ```sh
 supabase functions serve
 node --test backend/integration.test.mjs backend/pushDevices.integration.test.mjs
-node --test backend/apns.test.mjs backend/apnsDelivery.test.mjs backend/pairing.test.mjs
+node --test backend/apns.test.mjs backend/apnsDelivery.test.mjs backend/pairing.test.mjs backend/pushWorker.test.mjs
+node --test backend/pushDelivery.integration.test.mjs
 ```
 
 Tests discover the isolated local credentials without printing them. Do not use a real hosted database for these fixtures.
@@ -37,7 +38,7 @@ Remaining implementation and access:
 - Verify the prepared account-scoped registration and sign-out flow on a signed iPhone.
 - Verify the prepared schedule-screen permission request, denied-permission flow, and Settings changes on an iPhone.
 - Configure app signing and the push entitlement, matching bundle identifier, Apple team/key identifiers, and server-only APNs key.
-- Connect the HTTP/2 adapter to leased outbox retries and safe expired-token removal. Mark sent only after Apple accepts the request. Network acknowledgment ambiguity can still cause repeated delivery.
+- Configure and verify the prepared Node delivery worker on an approved server runtime. Network acknowledgment ambiguity can still cause repeated delivery.
 - Verify the prepared notification route on a signed physical iPhone, including cold launch and sign-in.
 - Verify background delivery, expiry, navigation, and denied permissions on a physical iPhone.
 
@@ -49,7 +50,7 @@ Use Apple's [request documentation](https://developer.apple.com/documentation/us
 
 `backend/apnsDelivery.mjs` provides a server-only Node HTTP/2 adapter for Apple's sandbox or production endpoint. Offline transport tests verify request headers, neutral payloads, stable identifiers, expiration before connection, bounded timeouts, invalid-token responses, and temporary versus provider-configuration failures. An `accepted` result means APNs accepted a request, not that a player received it. The adapter makes one attempt; the future leased delivery worker must implement bounded backoff, check schedule revisions, and avoid deleting a newly registered token based on an older invalidation timestamp.
 
-No Apple request was made. This Node adapter is not yet connected to the Edge outbox worker; the deployed runtime must support its HTTP/2 transport or use a separately verified provider service. Permission and device-registration source is now prepared below; delivery leasing, Apple signing capabilities, and physical-device tap/delivery checks remain outstanding.
+No Apple request was made. The adapter is now wired to a prepared Node worker through server-only lease RPCs. An approved Node HTTP/2 runtime and timer are still required; it is not an activated Edge delivery function. Permission, device registration, and delivery leasing are prepared below; hosted activation, Apple signing capabilities, and physical-device tap/delivery checks remain outstanding.
 
 Apple references: [Notification response delegate](https://developer.apple.com/documentation/usernotifications/unusernotificationcenterdelegate), [APNs request protocol](https://developer.apple.com/documentation/usernotifications/sending-notification-requests-to-apns).
 
@@ -57,7 +58,7 @@ Apple references: [Notification response delegate](https://developer.apple.com/d
 
 Migration 009 introduces a private, RLS-enabled device table. Players cannot read tokens, and the app never supplies an owner ID. Registration derives both user and session from the verified JWT and requires a live Auth session. One installation belongs to one account; reinstallation or a shared-device sign-in replaces the association. Registration normalizes token case and validates even hexadecimal length without assuming Apple's usual token size. Migration 010 corrects PostgreSQL's bounded-regex limit with separate length checks.
 
-Only the trusted server can list active recipient devices. The lookup excludes expired registrations and deleted Auth sessions. Registrations have a seven-day freshness limit, refreshed when the app receives a registration callback or restores granted permission. This is an operational limit on device associations, not a content retention policy. An eventual delivery worker must use this lookup and recheck ownership immediately before sending. Raw token rows remain inaccessible to players after their registration expires; cleanup of expired rows remains pending.
+Only the trusted server can list active recipient devices. The lookup excludes expired registrations and deleted Auth sessions. Registrations have a seven-day freshness limit, refreshed when the app receives a registration callback or restores granted permission. This is an operational limit on device associations, not a content retention policy. The prepared delivery worker independently rechecks live sessions, membership, assignment, ownership, and token validity immediately before sending. Raw token rows remain inaccessible to players after their registration expires; trusted queue maintenance now removes expired registrations.
 
 The native implementation offers Enable alerts beside a scheduled game, checks current permission without prompting at launch, and leaves all check-ins available after denial. Tokens stay in memory; UserDefaults holds only a random installation UUID. Sign-out requests system unregistration and backend revocation before clearing the account, and clears local state even if backend removal fails. Successful Auth logout also removes the live session used by server recipient lookup. If both backend revocation and logout fail offline, server exclusion cannot be guaranteed immediately; system unregistration is requested and registrations expire after seven days. This path needs physical-device testing.
 
@@ -66,3 +67,21 @@ Set `APNS_ENVIRONMENT` to `sandbox` or `production` in ignored `Config.xcconfig`
 Local tests use synthetic devices and two accounts to verify denial of anonymous writes/raw token reads/client recipient lookups, retry-safe registration, account reassignment, reinstallation deduplication, revoke ownership, variable lengths, expiration, and session logout. Swift mocks verify permission timing, denied permission, retry, Settings changes, sign-out races, and local cleanup after failed revocation.
 
 Apple references: [Remote registration and unregistration](https://developer.apple.com/documentation/uikit/uiapplication/registerforremotenotifications%28%29). PostgreSQL reference: [Regex repetition limits](https://www.postgresql.org/docs/15/functions-matching.html).
+
+## Leased Node delivery worker, not activated
+
+`backend/runPushWorker.mjs` composes the HTTP/2 adapter, fresh provider authorization, and protected database transport. It performs operational cleanup, claims up to four concurrent attempts, revalidates each context, sends once, and records the classified result. Stable attempt IDs survive retries. Only an APNs acceptance is recorded as `accepted`; it is not proof of device delivery. Persistence/lease failures are reported separately using aggregate counts without tokens, account IDs, or private content.
+
+Migrations 011 through 013 prepare private per-device attempts, two-minute leases, bounded exponential backoff, and a five-attempt limit. Concurrent claims do not duplicate attempts. Same-token refresh does not invalidate an otherwise current alert. Rotation/reassignment, canceled or changed schedules, expired games, removed membership/assignments, and deleted sessions are rechecked before sending. Token invalidation only removes the matching registration when it has not been refreshed/reassigned since that attempt was prepared; a 410 timestamp cannot remove a newer registration.
+
+No server can recall a request already accepted by APNs. A cancellation or account change during the network request can race the final recheck, and an ambiguous network acknowledgment can cause retry delivery. Neutral content, short game-start expiration, stable APNs/collapse IDs, and account-scoped navigation reduce the impact; do not describe the system as exactly-once delivery.
+
+Operational housekeeping deletes up to 100 expired device rows and 200 attempt records for games older than 24 hours per invocation. These limits apply to notification infrastructure, not check-in/photo retention. Parent outbox records remain private and are removed by account/game deletion; a broader data-retention decision remains pending.
+
+After selecting and authorizing a development server, supply the names in `backend/.env.example` through its secret manager. Keep the real file ignored and outside the iPhone target. With Node 22 and configured credentials, the prepared one-shot command is:
+
+```sh
+node --env-file=backend/.env backend/runPushWorker.mjs
+```
+
+This command was not run against Apple. Install a server timer only with approved development hosting and credentials, then verify actual APNs acceptance and physical delivery before enabling a pilot. GitHub CI invokes only injected offline transports and synthetic local databases.

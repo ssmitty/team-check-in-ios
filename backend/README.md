@@ -19,3 +19,14 @@ node --test backend/integration.test.mjs
 ```
 
 See [backend setup](../docs/BACKEND_SETUP.md) for requirements, test fixtures, native configuration, and verification limits.
+
+## Prepared push worker
+
+The Node HTTP/2 composition uses server-only environment configuration and protected delivery-lease RPCs. No Apple request or hosted timer has been activated. Run offline adapter/worker tests and the synthetic local lease suite:
+
+```sh
+node --test backend/apns.test.mjs backend/apnsDelivery.test.mjs backend/pushWorker.test.mjs
+node --test backend/pushDelivery.integration.test.mjs
+```
+
+See [notification setup](../docs/NOTIFICATION_SETUP.md) for ownership/revision checks, retry limits, operational cleanup, runtime requirements, and delivery limitations. Apple credentials never belong in the iPhone target.

@@ -83,6 +83,7 @@ test('transport failures and hanging responses end within the configured deadlin
 test('invalid endpoints and oversized responses cannot expose transport details', async () => {
   await assert.rejects(deliverNotification({ ...base, environment: 'https://attacker.test' }));
   await assert.rejects(deliverNotification({ ...base, deviceToken: '../secret' }));
+  await assert.rejects(deliverNotification({ ...base, deviceToken: 'a'.repeat(33) }));
   const fake = fixture(403, 'x'.repeat(4097));
   assert.deepEqual(await deliverNotification({ ...base, connectSession: fake.connectSession }), { outcome: 'retry' });
 });

@@ -15,7 +15,7 @@ jobs:
         with:
           node-version: '22'
       - name: Server pairing and push preparation tests
-        run: node --test backend/pairing.test.mjs backend/apns.test.mjs backend/apnsDelivery.test.mjs
+        run: node --test backend/pairing.test.mjs backend/apns.test.mjs backend/apnsDelivery.test.mjs backend/pushWorker.test.mjs
       - name: Simulator app build
         run: xcodebuild -project TeamCheckIn.xcodeproj -scheme TeamCheckIn -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
   backend:
@@ -44,3 +44,5 @@ jobs:
           exit 1
       - name: Exercise accounts and private persistence
         run: node --test backend/integration.test.mjs backend/pushDevices.integration.test.mjs
+      - name: Exercise leased delivery with mock APNs
+        run: node --test backend/pushDelivery.integration.test.mjs
