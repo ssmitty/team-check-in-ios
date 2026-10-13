@@ -229,3 +229,28 @@ Final verification:
 - Remote evidence: https://github.com/ssmitty/team-check-in-ios/actions/runs/38334707131
 - Fixes 79e72d9 and 5867b09 were pushed through ssmitty, with local/remote heads verified equal before this documentation update. Whitespace/style and changed-file/full-history credential-pattern scans passed; the first history-scan timeout required a successful bounded retry.
 - Remaining work is native interactive/accessibility review and hosted two-account integration, followed by photo/warmup persistence and notifications. No phase is newly marked complete from CI alone.
+
+## October 12, 2026, overnight: Private photos and warmup persistence
+
+Completed:
+- Retried the earliest unfinished simulator UI review; computer-use access to Simulator still timed out. Continued independent first-version implementation as authorized for overnight work.
+- Added persistent Find me at warmups requests and per-recipient I'll find you acknowledgments. Both use assignment-only reads, authoritative open-window checks, foreign keys, and idempotent writes. Native screens show incoming requests and each partner's acknowledgment independently.
+- Added a private 5 MB photo bucket and reserved object paths. Uploaded objects are published explicitly; partner access requires a published photo and a shared check-in. Outside captains and nonmembers have no metadata/download access. Immutable object paths support safe retry checks against existing bytes.
+- Added native optional library selection, JPEG resizing/re-encoding, authenticated photo retrieval with retry, explicit upload/removal, and camera capture with point-of-use permission checks and its usage description. The feeling submission remains independent of photo upload/permission.
+- Added photo draft state that retains bytes/identifier on failed uploads and clears on assignment changes. Injected the live clock and photo service; camera availability gates camera presentation.
+- Updated local/CI backend startup to include Storage. Restarted only this project's local Supabase stack with saved development data; unrelated OrbStack containers/volumes were preserved. Restarted the local worker after the stack restart.
+- Removed the unused generated TypeScript snapshot from version control; schema inspection output now goes to ignored .build/backend, following the project instruction to keep generated output out of commits.
+
+Verified:
+- Both new migrations applied locally. All 21 Swift tests passed, including three new upload retry/size/cleanup tests.
+- The native simulator scheme build passed with photo/camera and warmup screens. This establishes compilation, not successful camera or full native integration.
+- The full local Auth/PostgREST/Storage/worker integration suite passed after restarting the worker. Added checks cover duplicated pair requests/acks, an individual trio acknowledgment, outside-captain/nonmember reads and writes, cancellation, unpublished photo denial, real binary upload/download, MIME/size limits, unauthorized uploads/downloads/public URLs, and removal/retry.
+- Eight pgTAP assertions passed, now covering RLS on all 12 application tables.
+- The first integration attempt after the stack restart failed at the missing worker endpoint. After serving the worker again the complete suite passed; the failure was not bypassed or hidden.
+- Schema type generation completed into ignored output. Photos use a synthetic one-pixel fixture; no real player photo or test credential is committed.
+- Disk availability was about 8 GiB initially and 10 GiB after verification. No personal-file cleanup or simulator runtime download occurred.
+
+Remaining:
+- Simulator interaction, large text, dark mode, and VoiceOver verification remain pending. Hosted project choice and physical iPhone camera/account/photo/push verification are unavailable, so no phase is marked complete.
+- Photo replacement/abandonment may leave inaccessible orphaned storage objects; implement trusted cleanup and account deletion before pilot readiness.
+- Next: verify this change's remote CI, then prepare server scheduling/push behavior and pilot deletion/retention workflows while native/hosted access remains pending.

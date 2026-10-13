@@ -43,6 +43,17 @@ struct LiveEncouragement: Decodable, Sendable {
     let recipient_id: UUID
     let message: String
 }
+/// A persistent request visible only inside its assignment.
+struct LiveWarmupRequest: Decodable, Sendable {
+    let assignment_id: UUID
+    let requester_id: UUID
+}
+/// Each trio member acknowledges independently, without affecting the other member.
+struct LiveWarmupAcknowledgment: Decodable, Sendable {
+    let assignment_id: UUID
+    let requester_id: UUID
+    let recipient_id: UUID
+}
 /// Records obtained through caller-scoped RLS, never a captain-wide response feed.
 struct LiveSnapshot: Sendable {
     var teams: [LiveTeam] = []
@@ -51,6 +62,9 @@ struct LiveSnapshot: Sendable {
     var connections: [LiveAssignmentMember] = []
     var responses: [LiveCheckIn] = []
     var encouragements: [LiveEncouragement] = []
+    var photos: [LivePhoto] = []
+    var warmupRequests: [LiveWarmupRequest] = []
+    var warmupAcknowledgments: [LiveWarmupAcknowledgment] = []
 }
 private extension ISO8601DateFormatter {
     static var fractional: ISO8601DateFormatter {

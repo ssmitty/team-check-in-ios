@@ -59,8 +59,12 @@ final class BackendClient {
         }
     }
 
-    func request(_ path: String, method: String = "GET", body: Data? = nil) async throws -> Data {
-        try await send(path: path, method: method, body: body, token: accessToken())
+    func request(
+        _ path: String, method: String = "GET", body: Data? = nil,
+        contentType: String = "application/json"
+    ) async throws -> Data {
+        try await send(
+            path: path, method: method, body: body, token: accessToken(), contentType: contentType)
     }
 
     private func accept(_ value: AccountSession) throws {
@@ -93,7 +97,10 @@ final class BackendClient {
         }
     }
 
-    private func send(path: String, method: String, body: Data?, token: String?) async throws
+    private func send(
+        path: String, method: String, body: Data?, token: String?,
+        contentType: String = "application/json"
+    ) async throws
         -> Data
     {
         guard let url = URL(string: path, relativeTo: config.url.appendingPathComponent("")) else {
@@ -104,7 +111,7 @@ final class BackendClient {
         request.httpBody = body
         request.timeoutInterval = 20
         request.setValue(config.publicKey, forHTTPHeaderField: "apikey")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(contentType, forHTTPHeaderField: "Content-Type")
         if let token { request.setValue("Bearer " + token, forHTTPHeaderField: "Authorization") }
         let (data, response) = try await network.send(request)
         guard let response = response as? HTTPURLResponse else {

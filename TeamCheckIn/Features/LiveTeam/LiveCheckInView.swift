@@ -28,6 +28,7 @@ struct LiveCheckInView: View {
                 Text("Only your assigned connection can read this. Sharing is optional.")
                     .font(.footnote).foregroundStyle(.secondary)
             }
+            LivePhotoSection(store: store)
             ForEach(store.partners) { partner in
                 Section(partner.display_name) {
                     if let response = store.snapshot.responses.first(where: {
@@ -36,6 +37,12 @@ struct LiveCheckInView: View {
                         Label(response.feeling.rawValue, systemImage: response.feeling.symbol)
                         Text("Would appreciate: " + response.support.rawValue)
                         if !response.note.isEmpty { Text(response.note) }
+                        if let photo = store.snapshot.photos.first(where: {
+                            $0.assignment_id == store.assignmentID && $0.user_id == partner.user_id
+                                && $0.is_ready
+                        }) {
+                            RemotePhotoView(photo: photo, service: store.photos)
+                        }
                     } else {
                         Text("Hasn't checked in yet.").foregroundStyle(.secondary)
                     }
@@ -56,8 +63,7 @@ struct LiveCheckInView: View {
                     Text(message.message)
                 }
             }
-            Text("Private photo sharing and warmup requests are coming in the next phase.")
-                .font(.footnote).foregroundStyle(.secondary)
+            LiveWarmupSection(store: store)
         }.navigationTitle("Your connection")
             .refreshable { await store.refresh() }
     }

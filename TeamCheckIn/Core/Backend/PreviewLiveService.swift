@@ -19,4 +19,6 @@ struct PreviewLiveService: LiveTeamServicing {
         async throws
     {}
     func encourage(assignmentID: UUID, recipientID: UUID) async throws {}
+    func requestWarmup(assignmentID: UUID) async throws {}
+    func acknowledgeWarmup(assignmentID: UUID, requesterID: UUID) async throws {}
 }

@@ -32,6 +32,14 @@ async function rows(table, token, query = '') {
   assert.equal(response.status, 200);
   return response.data;
 }
+async function storage(path, token, body, method = 'GET', contentType = 'image/png') {
+  const response = await fetch(base + '/storage/v1/' + path, {
+    method, signal: AbortSignal.timeout(20000), headers: {
+      apikey: config.ANON_KEY, Authorization: `Bearer ${token}`, 'Content-Type': contentType,
+    }, ...(body === undefined ? {} : { body }),
+  });
+  return { status: response.status, data: Buffer.from(await response.arrayBuffer()) };
+}
 async function account(index) {
   const result = await request('/auth/v1/signup', null, { email: `player-${stamp}-${index}@example.test`, password: randomUUID() + 'Aa9!' });
   assert.ok(result.status < 300, 'Local signup succeeds');
@@ -96,6 +104,46 @@ test('local accounts, captain enforcement, retry safety, and pair privacy', asyn
   await rpc('send_encouragement', partner.token, { p_assignment: assignment, p_recipient: author.id, p_message: "I've got you" });
   assert.equal((await rows('encouragements', author.token)).length, 1);
   assert.equal((await rows('encouragements', captain.token)).length, 0);
+  const photoID = randomUUID();
+  const photoArgs = { p_assignment: assignment, p_photo: photoID };
+  const photoPath = await rpc('prepare_photo', author.token, photoArgs);
+  assert.ok((await request('/rest/v1/rpc/prepare_photo', captain.token, photoArgs)).status >= 400);
+  assert.ok((await request('/rest/v1/rpc/publish_photo', author.token, photoArgs)).status >= 400);
+  const pixel = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jZB0AAAAASUVORK5CYII=', 'base64');
+  const objectPath = 'object/check-in-photos/' + photoPath;
+  const downloadPath = 'object/authenticated/check-in-photos/' + photoPath;
+  assert.ok((await storage(objectPath, partner.token, pixel, 'POST')).status >= 400);
+  assert.ok((await storage(objectPath, author.token, Buffer.from('text'), 'POST', 'text/plain')).status >= 400);
+  assert.ok((await storage(objectPath, author.token, Buffer.alloc(5_000_001), 'POST')).status >= 400);
+  assert.ok((await storage(objectPath, author.token, pixel, 'POST')).status < 300);
+  assert.ok((await storage(downloadPath, partner.token)).status >= 400);
+  await rpc('publish_photo', author.token, photoArgs);
+  await rpc('publish_photo', author.token, photoArgs);
+  const image = await storage(downloadPath, partner.token);
+  assert.equal(image.status, 200);
+  assert.deepEqual(image.data, pixel);
+  assert.ok((await storage(downloadPath, captain.token)).status >= 400);
+  assert.ok((await storage(downloadPath, users[6].token)).status >= 400);
+  assert.ok((await storage('object/public/check-in-photos/' + photoPath, partner.token)).status >= 400);
+  assert.equal((await rows('check_in_photos', captain.token)).length, 0);
+  const removed = await storage('object/check-in-photos', author.token,
+    JSON.stringify({ prefixes: [photoPath] }), 'DELETE', 'application/json');
+  assert.ok(removed.status < 300);
+  await rpc('remove_photo', author.token, { p_assignment: assignment });
+  await rpc('remove_photo', author.token, { p_assignment: assignment });
+  assert.ok((await storage(downloadPath, partner.token)).status >= 400);
+  assert.equal((await rows('check_in_photos', partner.token)).length, 0);
+  await rpc('request_warmup', author.token, { p_assignment: assignment });
+  await rpc('request_warmup', author.token, { p_assignment: assignment });
+  await rpc('acknowledge_warmup', partner.token, { p_assignment: assignment, p_requester: author.id });
+  await rpc('acknowledge_warmup', partner.token, { p_assignment: assignment, p_requester: author.id });
+  assert.equal((await rows('warmup_requests', partner.token)).length, 1);
+  assert.equal((await rows('warmup_acknowledgments', author.token)).length, 1);
+  assert.equal((await rows('warmup_requests', captain.token)).length, 0);
+  assert.equal((await rows('warmup_requests', users[6].token)).length, 0);
+  assert.ok((await request('/rest/v1/rpc/request_warmup', captain.token, { p_assignment: assignment })).status >= 400);
+  assert.ok((await request('/rest/v1/rpc/acknowledge_warmup', author.token,
+    { p_assignment: assignment, p_requester: author.id })).status >= 400);
   assert.ok((await request('/rest/v1/rpc/save_game', captain.token, gameArgs)).status >= 400);
   const refreshed = await request('/auth/v1/token?grant_type=refresh_token', null, { refresh_token: author.refresh });
   assert.equal(refreshed.status, 200);
@@ -122,7 +170,23 @@ test('local accounts, captain enforcement, retry safety, and pair privacy', asyn
   assert.equal(trioMembers.length, 5);
   const sizes = Object.values(trioMembers.reduce((map, member) => { (map[member.assignment_id] ??= []).push(member); return map; }, {})).map(group => group.length).sort();
   assert.deepEqual(sizes, [2, 3]);
+  const trio = Object.values(trioMembers.reduce((map, member) => {
+    (map[member.assignment_id] ??= []).push(member); return map;
+  }, {})).find(group => group.length === 3);
+  const trioRequester = users.find(user => user.id === trio[0].user_id);
+  const trioRecipient = users.find(user => user.id === trio[1].user_id);
+  const otherRecipient = users.find(user => user.id === trio[2].user_id);
+  await rpc('request_warmup', trioRequester.token, { p_assignment: trio[0].assignment_id });
+  await rpc('acknowledge_warmup', trioRecipient.token,
+    { p_assignment: trio[0].assignment_id, p_requester: trioRequester.id });
+  const trioAcks = await rows('warmup_acknowledgments', otherRecipient.token,
+    `&assignment_id=eq.${trio[0].assignment_id}`);
+  assert.equal(trioAcks.length, 1);
+  assert.ok(!trioAcks.some(ack => ack.recipient_id === otherRecipient.id));
   assert.ok((await request('/rest/v1/rpc/set_game_opt_out', author.token, { p_game: future, p_opt_out: true })).status >= 400);
   await rpc('save_game', captain.token, { ...gameArgs, p_is_canceled: true });
   assert.ok((await request('/rest/v1/rpc/submit_check_in', author.token, checkIn)).status >= 400);
+  assert.ok((await request('/rest/v1/rpc/request_warmup', author.token, { p_assignment: assignment })).status >= 400);
+  assert.ok((await request('/rest/v1/rpc/acknowledge_warmup', partner.token,
+    { p_assignment: assignment, p_requester: author.id })).status >= 400);
 });

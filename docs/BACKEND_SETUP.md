@@ -7,7 +7,7 @@ Purpose: Run and verify accounts, schedules, and private check-ins without touch
 Requirements: Docker-compatible runtime (OrbStack works), Supabase CLI 2.20.3 or compatible, Node 22, and `psql`. These instructions use the isolated project ID in `supabase/config.toml`. Do not reuse another project's database.
 
 ```sh
-supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,realtime,storage-api
+supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,realtime
 supabase migration up --local
 supabase functions serve generate-pairings
 ```
@@ -44,4 +44,15 @@ The database controls the inclusive one-hour opening and exclusive game-start cl
 
 Pair generation locks the team and game, compares the eligible-roster/previous-assignment snapshot, validates complete unique pair/trio coverage, and commits all rows together. Retries return the existing assignments. Stale snapshots return PT409/HTTP 409, which the worker retries at most three times. Malformed snapshots fail before taking row locks. Do not use SQLSTATE 40001 for business conflicts, since gateway serialization retries can otherwise loop indefinitely. Eligibility freezes once generated. Game rescheduling after pairing requires a new event; cancellation closes writes. Automatic scheduled generation and push delivery belong to phase 6. For now a player's connection request invokes the worker during the open window.
 
-Photos and warmup persistence belong to phase 5. Retention and account deletion remain pilot prerequisites. No distribution is authorized by this setup guide.
+Private photos and warmup requests are implemented locally. Photos use a private 5 MB bucket with JPEG/PNG restrictions and reserved immutable object paths. Only assigned accounts may download published teammate photos, and captain status adds no access. The author can retry/remove their photo. Uploading a photo is separate from submitting a feeling; partner visibility begins only after publication and a shared check-in. Camera capture is prepared but requires a physical iPhone check.
+
+Warmup requests and per-recipient acknowledgments are protected by the same assignment access/window checks. Duplicate requests and acknowledgments are safe to retry; one acknowledgment in a trio does not acknowledge the other player.
+
+Changing or abandoning a reservation can leave an inaccessible private object. Server cleanup for orphaned objects and account deletion must be completed before the pilot. These policies enforce access; they are not a complete retention/deletion workflow.
+
+Generate schema types for inspection without committing generated output:
+
+```sh
+mkdir -p .build/backend
+supabase gen types typescript --local > .build/backend/database.types.ts
+``` Retention and account deletion remain pilot prerequisites. No distribution is authorized by this setup guide.

@@ -5,7 +5,8 @@ create extension if not exists pgtap with schema extensions;
 select extensions.plan(8);
 select extensions.is((select count(*)::integer from pg_class c join pg_namespace n on n.oid = c.relnamespace
     where n.nspname = 'public' and c.relname in ('teams','team_members','team_invites','games',
-        'game_opt_outs','assignments','assignment_members','check_ins','encouragements') and c.relrowsecurity), 9,
+        'game_opt_outs','assignments','assignment_members','check_ins','encouragements',
+        'warmup_requests','warmup_acknowledgments','check_in_photos') and c.relrowsecurity), 12,
     'Every application table enables RLS');
 select extensions.ok(not has_table_privilege('anon', 'public.check_ins', 'select'), 'Anon cannot read responses');
 select extensions.ok(not has_table_privilege('authenticated', 'public.team_members', 'update'), 'Members cannot promote themselves');

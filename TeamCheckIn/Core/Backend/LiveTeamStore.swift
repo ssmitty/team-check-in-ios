@@ -7,6 +7,8 @@ import Observation
 @MainActor @Observable
 final class LiveTeamStore {
     private let service: any LiveTeamServicing
+    private let now: () -> Date
+    let photos: any PhotoServicing
     private(set) var snapshot = LiveSnapshot()
     private(set) var userID: UUID?
     private(set) var isBusy = false
@@ -27,7 +29,7 @@ final class LiveTeamStore {
         snapshot.roster.contains { $0.user_id == userID && $0.role == "captain" }
     }
     var game: LiveGame? {
-        snapshot.games.first { !$0.is_canceled && ($0.start ?? .distantPast) > .now }
+        snapshot.games.first { !$0.is_canceled && ($0.start ?? .distantPast) > now() }
     }
     var assignmentID: UUID? {
         snapshot.connections.first { $0.game_id == game?.id && $0.user_id == userID }?.assignment_id
@@ -39,7 +41,18 @@ final class LiveTeamStore {
         return snapshot.roster.filter { ids.contains($0.user_id) }
     }
 
-    init(service: any LiveTeamServicing) { self.service = service }
+    var isConnectionOpen: Bool {
+        guard let start = game?.start, assignmentID != nil else { return false }
+        return now() >= start.addingTimeInterval(-3600) && now() < start
+    }
+    init(
+        service: any LiveTeamServicing, photos: any PhotoServicing = UnavailablePhotoService(),
+        now: @escaping () -> Date = Date.init
+    ) {
+        self.service = service
+        self.photos = photos
+        self.now = now
+    }
     func restore() async {
         await perform {
             try await self.service.restore()
@@ -110,6 +123,21 @@ final class LiveTeamStore {
         guard let assignmentID else { return }
         await perform {
             try await self.service.encourage(assignmentID: assignmentID, recipientID: recipientID);
+            try await self.reload()
+        }
+    }
+    func requestWarmup() async {
+        guard let assignmentID else { return }
+        await perform {
+            try await self.service.requestWarmup(assignmentID: assignmentID)
+            try await self.reload()
+        }
+    }
+    func acknowledgeWarmup(requesterID: UUID) async {
+        guard let assignmentID else { return }
+        await perform {
+            try await self.service.acknowledgeWarmup(
+                assignmentID: assignmentID, requesterID: requesterID)
             try await self.reload()
         }
     }

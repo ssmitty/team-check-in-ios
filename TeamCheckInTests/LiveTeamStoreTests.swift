@@ -24,6 +24,8 @@ private final class ScriptedLiveService: LiveTeamServicing {
         if failSave { throw BackendError.rejected(503) }
     }
     func encourage(assignmentID: UUID, recipientID: UUID) async throws {}
+    func requestWarmup(assignmentID: UUID) async throws {}
+    func acknowledgeWarmup(assignmentID: UUID, requesterID: UUID) async throws {}
     func prepare() {
         let team = LiveTeam(id: UUID(), name: "Test team")
         let game = LiveGame(

@@ -18,6 +18,8 @@ protocol LiveTeamServicing {
     func share(assignmentID: UUID, feeling: Feeling, support: SupportPreference, note: String)
         async throws
     func encourage(assignmentID: UUID, recipientID: UUID) async throws
+    func requestWarmup(assignmentID: UUID) async throws
+    func acknowledgeWarmup(assignmentID: UUID, requesterID: UUID) async throws
 }
 
 /// Uses one shared authenticated client; all authorization remains on the server.
@@ -46,6 +48,11 @@ struct LiveTeamService: LiveTeamServicing {
             "check_ins?select=assignment_id,user_id,feeling,support,note")
         value.encouragements = try await read(
             "encouragements?select=assignment_id,sender_id,recipient_id,message")
+        value.warmupRequests = try await read("warmup_requests?select=assignment_id,requester_id")
+        value.warmupAcknowledgments = try await read(
+            "warmup_acknowledgments?select=assignment_id,requester_id,recipient_id")
+        value.photos = try await read(
+            "check_in_photos?select=assignment_id,user_id,photo_id,is_ready")
         return value
     }
     func create(name: String, displayName: String) async throws {
@@ -92,6 +99,17 @@ struct LiveTeamService: LiveTeamServicing {
             [
                 "p_assignment": assignmentID.uuidString,
                 "p_recipient": recipientID.uuidString, "p_message": "I've got you",
+            ])
+    }
+    func requestWarmup(assignmentID: UUID) async throws {
+        _ = try await rpc("request_warmup", ["p_assignment": assignmentID.uuidString])
+    }
+    func acknowledgeWarmup(assignmentID: UUID, requesterID: UUID) async throws {
+        _ = try await rpc(
+            "acknowledge_warmup",
+            [
+                "p_assignment": assignmentID.uuidString,
+                "p_requester": requesterID.uuidString,
             ])
     }
     private func rpc<T: Encodable>(_ name: String, _ payload: T) async throws -> Data {

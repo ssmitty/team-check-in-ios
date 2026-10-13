@@ -2,7 +2,7 @@
 
 Purpose: Build a simple native iPhone app that helps student athletes connect privately before games. One hour before a game, teammates receive an invitation to share how they feel and find each other at warmups.
 
-Current status: The native prototype and configured account mode build. Eighteen Swift behavior tests and eight pairing tests pass. The complete local Supabase integration suite verifies accounts, schedules, pair/trio persistence, and privacy. A malformed-snapshot timeout was traced to an inappropriate serialization error code and fixed with a bounded HTTP conflict response. Eight database access-contract assertions passed. Hosted native integration and full simulator/accessibility review remain pending. Team Check-in is a temporary working title.
+Current status: The native prototype and configured account mode build. Twenty-one Swift behavior tests and eight pairing tests pass. The complete local Supabase integration suite verifies accounts, schedules, pair/trio persistence, and privacy. A malformed-snapshot timeout was traced to an inappropriate serialization error code and fixed with a bounded HTTP conflict response. Eight database access-contract assertions passed. Hosted native integration and full simulator/accessibility review remain pending. Team Check-in is a temporary working title.
 
 ## Features
 
@@ -25,7 +25,7 @@ See [screen flows](docs/SCREEN_FLOWS.md) and [interface conventions](docs/DESIGN
 
 - Swift 6 and SwiftUI, initially targeting iOS 17 or newer.
 - Main-actor view models and protocol-based service injection.
-- Supabase Auth and Postgres for prepared account/team/check-in persistence; private Storage remains a later phase.
+- Supabase Auth and Postgres for prepared account/team/check-in persistence; private Storage for optional assignment photos.
 - Injected mock services for the first local prototype.
 
 ## Getting started
@@ -77,7 +77,7 @@ Run portable core tests:
 swift test
 ```
 
-Eighteen tests cover prototype boundaries, invalid invitations, secure session renewal, logout failures, failed-save draft preservation, assignment changes, game cancellation/rollover, and private state cleanup. The package tests run on macOS; actual Keychain behavior and the complete iPhone account flow need device/simulator verification. The [verified CI run](https://github.com/ssmitty/team-check-in-ios/actions/runs/38334707131) passed the native build, core/pairing tests, and backend integration for repair commit `5867b09`.
+Twenty-one tests cover prototype boundaries, invalid invitations, secure session renewal, logout failures, failed-save draft preservation, assignment changes, game cancellation/rollover, photo upload retry/draft cleanup, and private state cleanup. The package tests run on macOS; actual Keychain behavior and the complete iPhone account flow need device/simulator verification. The [verified CI run](https://github.com/ssmitty/team-check-in-ios/actions/runs/38334707131) passed the native build, core/pairing tests, and backend integration for repair commit `5867b09`.
 
 The prepared server pairing module has eight passing Node tests:
 
@@ -91,9 +91,9 @@ Swift formatting uses Xcode's bundled `swift-format` and `.swift-format` configu
 
 ## Roadmap and known limitations
 
-Next: restore reliable local services, repeat the complete integration suite, select the HTTPS development project, and exercise two accounts through the native screens. Finish simulator flow and accessibility review. Later phases add private photo upload, camera capture, warmup persistence, push notifications, and a small team pilot.
+Next: restore reliable local services, repeat the complete integration suite, select the HTTPS development project, and exercise two accounts through the native screens. Finish simulator flow and accessibility review. Private photo upload and warmup persistence are implemented and tested locally. Camera capture is prepared and builds, but requires physical-device verification. Next are reliable scheduling, push integration, and a small team pilot.
 
-Team and assignment access policies are implemented and tested locally. Hosted sharing, notifications, camera capture, private photo upload, and warmup persistence remain unverified or unimplemented. The Supabase connector is available, but a development project for this app has not been selected. Apple signing/push access, physical-device checks, retention policy, and final naming are needed before a real pilot.
+Team and assignment access policies are implemented and tested locally. Hosted native sharing and photo/warmup integration remain unverified. Push delivery, physical camera checks, and pilot readiness remain outstanding. The Supabase connector is available, but a development project for this app has not been selected. Apple signing/push access, physical-device checks, retention policy, and final naming are needed before a real pilot.
 
 ## Scheduled work
 

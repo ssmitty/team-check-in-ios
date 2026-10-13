@@ -30,7 +30,7 @@ jobs:
         with:
           version: 2.20.3
       - name: Start isolated local backend
-        run: supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,realtime,storage-api > /tmp/backend-start.log 2>&1
+        run: supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,realtime > /tmp/backend-start.log 2>&1
       - name: Check database access contract
         run: supabase test db
       - name: Start pairing worker

@@ -12,7 +12,10 @@ struct AppEntryView: View {
             if let config = try BackendConfiguration.load() {
                 let client = BackendClient(
                     config: config, vault: SessionVault(account: config.url.absoluteString))
-                _live = State(initialValue: LiveTeamStore(service: LiveTeamService(client: client)))
+                _live = State(
+                    initialValue: LiveTeamStore(
+                        service: LiveTeamService(client: client),
+                        photos: PrivatePhotoService(client: client)))
             }
         } catch { _configurationError = State(initialValue: error.localizedDescription) }
     }
