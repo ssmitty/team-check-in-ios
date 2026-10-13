@@ -50,13 +50,16 @@ final class BackendClient {
     /// Clear local secrets first; report remote logout failures separately.
     func signOut() async throws {
         let token = session?.accessToken
-        try vault.clear()
-        session = nil
-        renewal?.cancel()
-        renewal = nil
+        try clearLocalSession()
         if let token {
             _ = try await send(path: "auth/v1/logout", method: "POST", body: nil, token: token)
         }
+    }
+
+    /// Removes local credentials after confirmed deletion, without calling an already deleted account.
+    func clearLocalSession() throws {
+        defer { session = nil; renewal?.cancel(); renewal = nil }
+        try vault.clear()
     }
 
     func request(

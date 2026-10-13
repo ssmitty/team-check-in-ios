@@ -46,3 +46,5 @@ jobs:
         run: node --test backend/integration.test.mjs backend/pushDevices.integration.test.mjs
       - name: Exercise leased delivery with mock APNs
         run: node --test backend/pushDelivery.integration.test.mjs
+      - name: Exercise password-confirmed account lifecycle
+        run: node --test backend/accountLifecycle.integration.test.mjs

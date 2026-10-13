@@ -9,10 +9,16 @@ private final class ScriptedLiveService: LiveTeamServicing {
     var userID: UUID? = UUID()
     var snapshot = LiveSnapshot()
     var failSave = false
+    var deletionCompletes = false
     var onGameLookup: (() async -> Void)?
     func restore() async throws {}
     func authenticate(email: String, password: String, create: Bool) async throws -> Bool { true }
     func signOut() async throws { userID = nil }
+    func deleteAccount(password: String) async throws {
+        guard deletionCompletes else { throw BackendError.deletionPending }
+        userID = nil
+    }
+    func transferCaptain(teamID: UUID, recipientID: UUID) async throws {}
     func load(teamID: UUID?) async throws -> LiveSnapshot { snapshot }
     func teamID(forGame gameID: UUID) async throws -> UUID? {
         if let onGameLookup { await onGameLookup() }
@@ -160,6 +166,29 @@ struct LiveTeamStoreTests {
         #expect(store.note.isEmpty)
         #expect(store.errorMessage?.contains("Signed out locally") == true)
         #expect(deviceService.systemStops == 1)
+    }
+
+    @Test func unfinishedDeletionKeepsAccountAvailableForRetry() async {
+        let service = ScriptedLiveService(); service.prepare()
+        let store = LiveTeamStore(service: service); await store.restore()
+        await store.deleteAccount(password: "fixture")
+        #expect(store.userID != nil)
+        #expect(store.infoMessage == nil)
+        #expect(store.errorMessage?.contains("retry") == true)
+    }
+    @Test func confirmedDeletionClearsAccountDraftAndSystemAlerts() async {
+        let service = ScriptedLiveService(); service.prepare(); service.deletionCompletes = true
+        let device = ScriptedNotificationService()
+        let notifications = NotificationRegistrationStore(service: device, installationID: UUID())
+        let store = LiveTeamStore(service: service, notifications: notifications);
+        await store.restore()
+        store.note = "Private draft"
+        await store.deleteAccount(password: "fixture")
+        #expect(store.userID == nil)
+        #expect(store.note.isEmpty)
+        #expect(store.snapshot.responses.isEmpty)
+        #expect(device.systemStops == 1)
+        #expect(store.infoMessage == "Your account has been deleted.")
     }
 
 }

@@ -8,7 +8,8 @@ export async function serverRpc(baseURL: string, key: string, name: string, body
     headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
-  const value = await response.json();
-  if (!response.ok) throw Object.assign(new Error('Server operation failed'), { code: value.code });
+  const text = await response.text();
+  const value = text ? JSON.parse(text) : null;
+  if (!response.ok) throw Object.assign(new Error('Server operation failed'), { code: value?.code });
   return value;
 }

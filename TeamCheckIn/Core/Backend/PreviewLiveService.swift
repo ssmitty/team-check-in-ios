@@ -9,6 +9,8 @@ struct PreviewLiveService: LiveTeamServicing {
     func restore() async throws {}
     func authenticate(email: String, password: String, create: Bool) async throws -> Bool { false }
     func signOut() async throws {}
+    func deleteAccount(password: String) async throws { throw BackendError.configuration }
+    func transferCaptain(teamID: UUID, recipientID: UUID) async throws {}
     func load(teamID: UUID?) async throws -> LiveSnapshot { LiveSnapshot() }
     func teamID(forGame gameID: UUID) async throws -> UUID? { nil }
     func create(name: String, displayName: String) async throws {}

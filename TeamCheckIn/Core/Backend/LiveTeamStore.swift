@@ -171,6 +171,29 @@ final class LiveTeamStore {
             try await self.reload()
         }
     }
+    func transferCaptain(recipientID: UUID) async {
+        guard let team else { return }
+        await perform {
+            try await self.service.transferCaptain(teamID: team.id, recipientID: recipientID)
+            try await self.reload()
+        }
+    }
+    /// Keeps retry available after partial cleanup and clears all local account state only on completion.
+    func deleteAccount(password: String) async {
+        await perform {
+            do { try await self.service.deleteAccount(password: password) } catch {
+                if self.service.userID == nil {
+                    self.notifications?.clearDeletedAccount(); self.clear()
+                } else {
+                    try await self.reload()
+                }
+                throw error
+            }
+            self.notifications?.clearDeletedAccount()
+            self.clear()
+            self.infoMessage = "Your account has been deleted."
+        }
+    }
     func signOut() async {
         await perform {
             defer { self.clear() }

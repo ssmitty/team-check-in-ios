@@ -4,6 +4,7 @@ import SwiftUI
 
 /// Real account mode, clearly separate from the session-only prototype.
 struct LiveRootView: View {
+    @State private var showsAccountSettings = false
     @Bindable var store: LiveTeamStore
     var body: some View {
         NavigationStack {
@@ -16,6 +17,13 @@ struct LiveRootView: View {
                     LiveTeamEntryView(store: store)
                 } else {
                     LiveDashboardView(store: store)
+                }
+            }
+            .toolbar {
+                if store.userID != nil {
+                    Button("Account settings", systemImage: "person.crop.circle") {
+                        showsAccountSettings = true
+                    }
                 }
             }
             .navigationDestination(isPresented: $store.showsRoutedGame) {
@@ -41,6 +49,8 @@ struct LiveRootView: View {
                 }
             }
         }
+        .sheet(isPresented: $showsAccountSettings) { AccountSettingsView(store: store) }
+        .onChange(of: store.userID) { _, id in if id == nil { showsAccountSettings = false } }
         .task { await store.restore() }
         .onOpenURL { url in
             guard let route = AppRoute.parse(url) else { return }

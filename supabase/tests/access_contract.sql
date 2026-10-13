@@ -2,7 +2,7 @@
 -- Purpose: Check table isolation and privileged RPC grants independently of application code.
 begin;
 create extension if not exists pgtap with schema extensions;
-select extensions.plan(17);
+select extensions.plan(20);
 select extensions.is((select count(*)::integer from pg_class c join pg_namespace n on n.oid = c.relnamespace
     where n.nspname = 'public' and c.relname in ('teams','team_members','team_invites','games',
         'game_opt_outs','assignments','assignment_members','check_ins','encouragements',
@@ -24,5 +24,8 @@ select extensions.ok((select relrowsecurity from pg_class where oid='private.pus
 select extensions.ok(not has_table_privilege('authenticated', 'private.push_deliveries', 'select'), 'Delivery attempts are private');
 select extensions.ok(not has_function_privilege('authenticated', 'public.claim_push_deliveries(integer)', 'execute'), 'Delivery claims are server-only');
 select extensions.ok(not has_function_privilege('authenticated', 'public.cleanup_push_state()', 'execute'), 'Push cleanup is server-only');
+select extensions.ok((select relrowsecurity from pg_class where oid='private.account_deletions'::regclass), 'Deletion state enables RLS');
+select extensions.ok(not has_function_privilege('authenticated', 'public.begin_account_deletion(uuid)', 'execute'), 'Clients cannot delete another account');
+select extensions.ok(not has_function_privilege('authenticated', 'public.account_deletion_photos(uuid)', 'execute'), 'Deletion object listing is server-only');
 select * from extensions.finish();
 rollback;

@@ -56,3 +56,13 @@ Generate schema types for inspection without committing generated output:
 mkdir -p .build/backend
 supabase gen types typescript --local > .build/backend/database.types.ts
 ``` Retention and account deletion remain pilot prerequisites. No distribution is authorized by this setup guide.
+
+## Account lifecycle verification
+
+Serve all functions, including `delete-account`, and run the isolated synthetic deletion suite:
+
+```sh
+node --test backend/accountLifecycle.integration.test.mjs
+```
+
+It creates its own accounts and deletes only those fixtures. Do not point it at a hosted backend. The native settings screen uses password-confirmed caller deletion and explicit captain transfer. See [data lifecycle](DATA_LIFECYCLE.md) for partial cleanup, content preservation, the unactivated retention proposal, and remaining native/hosted checks.

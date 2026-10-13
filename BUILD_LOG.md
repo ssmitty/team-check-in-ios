@@ -347,3 +347,25 @@ Remaining and next:
 - Prepare self-service account deletion/captain transfer and the retention proposal. Verify actual remote CI when authenticated access is available, and complete simulator/device review before marking phase criteria satisfied.
 - Approved Node hosting/timers, a selected HTTPS backend, Apple signing/APNs credentials, a physical iPhone, and retention/name decisions remain required for pilot readiness. No phase acceptance was marked complete.
 - A schedule/account change during an in-flight Apple request cannot recall it; ambiguous acknowledgments may produce retry delivery. Stable IDs and neutral content reduce impact, but the app must not promise exactly-once push delivery.
+
+## October 13, 2026, overnight: Account deletion and captain transfer
+
+Completed:
+- Added explicit captain transfer with team-locked role updates and current-member validation. Last captains must transfer before deleting an account with other players; a sole-member team is removed after physical photo cleanup.
+- Added password-confirmed caller deletion through a dedicated Edge endpoint. It verifies Auth identity, rechecks the password against the verified email, matches the reauthenticated ID, rejects target IDs, and never returns/logs credentials.
+- Added private deletion state, membership/upload freeze, device removal, real Storage object cleanup including orphaned own paths, empty-team finalization, and Auth deletion. Metadata/Auth removal follows actual object deletion. Partial batches/failures remain retryable and are not claimed complete.
+- Added native account settings, confirmation and password fields, captain selection, deletion error/retry states, and cleanup of Keychain session, drafts/routes, and local notification state after confirmed deletion. Settings remain reachable without membership after partial cleanup.
+- Added a separate data lifecycle document with an unactivated 30-day content/90-day minimal-history retention proposal. No automatic player-content retention policy, hosted change, or real-player deletion was activated.
+
+Verified:
+- Migrations 014 and 015 applied locally. Four lifecycle integration tests passed with synthetic accounts, real Storage upload/removal and Auth deletion, wrong password/target-ID denial, captain/member/outsider permissions, transfer, preserved partner response/photo, paused cleanup and resume, stale JWT denial, empty teams, and concurrent transfer/deletion.
+- The first lifecycle run exposed empty 204 responses from a void RPC. Fixed the shared server RPC transport to handle empty successful responses; all lifecycle and existing backend suites then passed. The object-before-metadata finalization was added in a new migration rather than rewriting locally applied history.
+- All 42 Swift tests passed, including confirmed versus partial deletion, retained retry credentials, local/system cleanup, and captain conflict handling. The simulator app build passed with account settings and lifecycle services.
+- Existing account/private-persistence, device-registration, and leased mock-delivery suites passed again. All 22 Node unit tests and 20 pgTAP access checks passed. Updated schema inspection remains in ignored .build/backend.
+- Actual native confirmation/Keychain behavior, hosted deletion, interrupted uploads on devices, and the existing accessibility/push checks remain unverified. No phase status was marked complete.
+- Intended-file/full-history credential-pattern scans, style/whitespace checks, and a focused diff review passed before synchronization. Remote CI inspection remains unavailable under the known Mac lock/GitHub authentication constraint.
+- Disk availability was about 14 GiB. No personal files or OrbStack volumes were changed.
+
+Next:
+- Review actual remote CI when authenticated access becomes available. Finish simulator accessibility/account checks and physical camera/push/deletion checks; confirm the retention/name and hosting decisions before a pilot.
+- Verify deletion response-loss ambiguity on a device: server completion can precede a lost response, and retry may find the Auth account already unavailable. The app must not claim complete provider-backup deletion or recall of already downloaded images.

@@ -1,5 +1,5 @@
 // BackendClientTests.swift
-// Purpose: Verify secure session restoration, renewal, failure handling, and invite parsing.
+// Purpose: Verify secure session restoration, renewal, failure handling, deletion responses, and invite parsing.
 import Foundation
 import Testing
 @testable import TeamCheckInCore
@@ -108,4 +108,47 @@ struct BackendClientTests {
                 url: URL(string: "http://test.example")!, publicKey: "sb_publishable_fixture")
         }
     }
+    @Test func pendingDeletionDoesNotDiscardRetryCredentials() async throws {
+        let vault = MemoryVault(); vault.data = try session(expiry: 10000)
+        let transport = ScriptedTransport();
+        transport.results = [(202, Data("{\"deleted\":false,\"needs_retry\":true}".utf8))]
+        let client = BackendClient(
+            config: try config(), network: transport, vault: vault,
+            now: { Date(timeIntervalSince1970: 2000) })
+        try await client.restore()
+        do {
+            try await LiveTeamService(client: client).deleteAccount(password: "fixture");
+            Issue.record("Partial cleanup was reported as complete")
+        } catch BackendError.deletionPending {}
+        #expect(client.userID != nil)
+        #expect(vault.data != nil)
+    }
+    @Test func completedDeletionClearsVaultWithoutLoggingOutDeletedUser() async throws {
+        let vault = MemoryVault(); vault.data = try session(expiry: 10000)
+        let transport = ScriptedTransport();
+        transport.results = [(200, Data("{\"deleted\":true}".utf8))]
+        let client = BackendClient(
+            config: try config(), network: transport, vault: vault,
+            now: { Date(timeIntervalSince1970: 2000) })
+        try await client.restore()
+        try await LiveTeamService(client: client).deleteAccount(password: "fixture")
+        #expect(client.userID == nil)
+        #expect(vault.data == nil)
+        #expect(transport.requests.count == 1)
+        #expect(transport.requests[0].url?.path == "/functions/v1/delete-account")
+    }
+    @Test func captainDeletionConflictHasAnActionableMessage() async throws {
+        let vault = MemoryVault(); vault.data = try session(expiry: 10000)
+        let transport = ScriptedTransport(); transport.results = [(409, Data())]
+        let client = BackendClient(
+            config: try config(), network: transport, vault: vault,
+            now: { Date(timeIntervalSince1970: 2000) })
+        try await client.restore()
+        do {
+            try await LiveTeamService(client: client).deleteAccount(password: "fixture");
+            Issue.record("Captain deletion should be blocked")
+        } catch BackendError.captainTransferRequired {}
+        #expect(client.userID != nil)
+    }
+
 }

@@ -91,6 +91,13 @@ final class NotificationRegistrationStore {
         }
     }
 
+    /// Confirmed Auth deletion cascades server registrations, so only system/local cleanup remains.
+    func clearDeletedAccount() {
+        service.unregisterFromSystem()
+        token = nil; accountID = nil
+        message = "Alerts are off for this account."
+    }
+
     private func saveToken() async {
         guard permission == .allowed, let token, let userID = accountID,
             userID == service.userID

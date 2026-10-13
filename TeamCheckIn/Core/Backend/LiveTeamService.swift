@@ -9,6 +9,8 @@ protocol LiveTeamServicing {
     func restore() async throws
     func authenticate(email: String, password: String, create: Bool) async throws -> Bool
     func signOut() async throws
+    func deleteAccount(password: String) async throws
+    func transferCaptain(teamID: UUID, recipientID: UUID) async throws
     func load(teamID: UUID?) async throws -> LiveSnapshot
     func teamID(forGame gameID: UUID) async throws -> UUID?
     func create(name: String, displayName: String) async throws
@@ -33,6 +35,26 @@ struct LiveTeamService: LiveTeamServicing {
         try await client.authenticate(email: email, password: password, create: create)
     }
     func signOut() async throws { try await client.signOut() }
+    func deleteAccount(password: String) async throws {
+        struct Result: Decodable { let deleted: Bool }
+        let data: Data
+        do {
+            data = try await client.request(
+                "functions/v1/delete-account", method: "POST",
+                body: JSONEncoder().encode(["password": password, "confirmation": "DELETE"]))
+        } catch BackendError.rejected(409) {
+            throw BackendError.captainTransferRequired
+        } catch BackendError.rejected(403) { throw BackendError.passwordConfirmation }
+        guard try JSONDecoder().decode(Result.self, from: data).deleted else {
+            throw BackendError.deletionPending
+        }
+        try client.clearLocalSession()
+    }
+    func transferCaptain(teamID: UUID, recipientID: UUID) async throws {
+        _ = try await rpc(
+            "transfer_captain",
+            ["p_team": teamID.uuidString, "p_recipient": recipientID.uuidString])
+    }
     func load(teamID: UUID?) async throws -> LiveSnapshot {
         let teams: [LiveTeam] = try await read("teams?select=id,name")
         guard let team = teams.first(where: { $0.id == teamID }) ?? teams.first else {

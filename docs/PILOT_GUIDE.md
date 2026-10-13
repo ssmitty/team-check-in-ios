@@ -21,14 +21,14 @@ Use synthetic captain, two members, and outsider accounts in a dedicated develop
 
 A trusted cleanup function removes unreferenced photo objects older than 24 hours through Storage's API. Current references, including pending reservations, are retained. This is upload housekeeping, not a check-in retention policy or account deletion implementation.
 
-Before inviting real athletes, choose the retention period and implement/test self-service account deletion. The workflow must delete actual photo objects before removing their metadata/Auth account, clear device-token associations and local sessions, handle captain transfer/sole-member teams, and verify that a deleted account cannot access its old connection. Do not remove another player's independent response when deleting one user's account unless the agreed retention policy requires it.
+Password-confirmed self-service deletion and explicit captain transfer are now implemented and tested locally, including actual photo/Auth deletion and preservation of partner content. Native confirmation, Keychain cleanup, hosted behavior, and failure recovery still need review. Choose the content retention period before activating a retention worker or inviting real athletes. See [data lifecycle](DATA_LIFECYCLE.md) for the implemented order, irreversible/partial states, and the unactivated proposal.
 
 ## Decisions and access needed
 
 - Dedicated HTTPS Supabase development project and email configuration.
 - Apple signing/APNs credentials and a physical iPhone.
 - Final app name and retention period.
-- Captain-transfer behavior for account deletion, reviewed with the implemented permissions.
+- Review the implemented explicit captain-transfer behavior and proposed retention durations.
 - Explicit user approval before TestFlight distribution or any external pilot invitation.
 
 Keep a review record with device/OS, test accounts' roles, expected/actual result, and any unresolved limitation. Finish the account lifecycle, push integration, and device checks before proposing a pilot build for approval.
