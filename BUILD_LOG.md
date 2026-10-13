@@ -192,3 +192,24 @@ Verified:
 
 Next action:
 - Complete simulator interaction/accessibility review when UI automation is responsive. Restore local backend health and repeat integration checks, then verify native account mode against the user-selected HTTPS development project. Phases 2, 3, and 4 remain in progress.
+
+## October 12, 2026, evening: Backend CI startup failure identified
+
+Completed:
+- Continued the outstanding CI failure investigation while Phase 2 simulator/accessibility verification remains pending.
+- Read the actual GitHub backend job for run 38238323873. The failure occurred in Start pairing worker, where the runner reported `rg: command not found` repeatedly. The account/persistence test step was skipped. This corrects the earlier preliminary description that the integration test itself failed.
+- Replaced the startup log probe with standard grep, allowed 120 seconds for a cold worker start, and added a clear bounded-timeout annotation.
+- Attached the user-created pull request #1 to this chat. Changes remain on its feature/swiftui-prototype branch.
+
+Verified:
+- Bash syntax and both readiness success/failure behavior passed using a minimal PATH containing grep, seq, and sleep, with no rg installed.
+- Diff review and whitespace checks passed. No Swift, database policy, or application behavior changed, so native build and schema tests were not repeated for this workflow-only repair.
+- The inspected GitHub run's Swift job succeeded and database access-contract step completed before the startup failure.
+- Evidence: https://github.com/ssmitty/team-check-in-ios/actions/runs/38238323873/job/114774397123
+
+Remaining:
+- A new remote run must verify the real worker startup and complete integration suite. The local fixture check alone does not establish backend integration success.
+- Hosted Supabase project choice, native multi-account verification, and full simulator/accessibility review remain outstanding. Phase acceptance status is unchanged.
+
+Next action:
+- Push this focused repair through ssmitty, inspect the new PR checks, and address any newly exposed backend failure before progressing scope.

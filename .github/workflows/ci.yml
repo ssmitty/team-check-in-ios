@@ -36,10 +36,11 @@ jobs:
       - name: Start pairing worker
         run: |
           supabase functions serve generate-pairings > /tmp/pairing-worker.log 2>&1 &
-          for attempt in $(seq 1 30); do
-            if rg -q 'Serving functions' /tmp/pairing-worker.log; then exit 0; fi
+          for attempt in $(seq 1 120); do
+            if grep -q 'Serving functions' /tmp/pairing-worker.log; then exit 0; fi
             sleep 1
           done
+          printf "::error::Pairing worker did not become ready within 120 seconds.\n"
           exit 1
       - name: Exercise accounts and private persistence
         run: node --test backend/integration.test.mjs
