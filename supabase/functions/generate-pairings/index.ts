@@ -42,7 +42,7 @@ Deno.serve(async (request: Request) => {
         await rpc('commit_pairings', { p_game: game_id, p_user: user.id, p_context: context, p_groups: groups });
         return Response.json({ ready: true });
       } catch (error) {
-        if (!(error instanceof Error) || (error as Error & { code?: string }).code !== '40001') throw error;
+        if (!(error instanceof Error) || (error as Error & { code?: string }).code !== 'PT409') throw error;
       }
     }
     return Response.json({ error: 'Roster changed. Try again.' }, { status: 409 });

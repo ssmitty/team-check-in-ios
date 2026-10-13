@@ -213,3 +213,13 @@ Remaining:
 
 Next action:
 - Push this focused repair through ssmitty, inspect the new PR checks, and address any newly exposed backend failure before progressing scope.
+
+Further investigation and repair in the same run:
+- The grep repair allowed worker startup to pass in 14 seconds in PR run 38334232380. The integration suite then exposed a separate reproducible timeout at commit_pairings with a malformed snapshot.
+- The RPC used SQLSTATE 40001 for a business snapshot mismatch. PostgREST interprets that as a serialization failure and can retry it indefinitely. Supabase documents this behavior; it explains the repeated malformed-snapshot request timeout rather than establishing a general backend connectivity failure.
+- Added migration 20261012000400_pairing_conflict_errors.sql instead of rewriting the applied migration. Malformed payloads fail before row locking; stale snapshots return PT409/HTTP 409. Updated the worker to handle that conflict with its existing three-attempt bound.
+- Strengthened integration assertions for exact malformed/stale status codes and zero assignments after rejected commits.
+- The new migration applied locally. The complete local Auth/PostgREST/worker integration suite now passed in about three seconds, including the previously failing request. All eight pgTAP access-contract assertions passed.
+- No active local commit_pairings request needed termination. No hosted project or production service was modified.
+- Source reference: https://supabase.com/docs/guides/troubleshooting/high-cpu-and-infinite-transaction-retries-when-using-custom-error-codes-in-rpc-functions-77326b
+- Fresh remote CI for the RPC repair still needs verification. Simulator UI review remains blocked by a computer-use timeout; native flow/accessibility acceptance is unchanged.

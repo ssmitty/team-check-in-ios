@@ -2,7 +2,7 @@
 
 Purpose: Build a simple native iPhone app that helps student athletes connect privately before games. One hour before a game, teammates receive an invitation to share how they feel and find each other at warmups.
 
-Current status: The native prototype and configured account mode build. Eighteen Swift behavior tests and eight pairing tests pass. A local Supabase integration run verified accounts, schedules, pair/trio persistence, and privacy; later rechecks timed out when local services became unavailable. Eight database access-contract assertions passed. Hosted native integration and full simulator/accessibility review remain pending. Team Check-in is a temporary working title.
+Current status: The native prototype and configured account mode build. Eighteen Swift behavior tests and eight pairing tests pass. The complete local Supabase integration suite verifies accounts, schedules, pair/trio persistence, and privacy. A malformed-snapshot timeout was traced to an inappropriate serialization error code and fixed with a bounded HTTP conflict response. Eight database access-contract assertions passed. Hosted native integration and full simulator/accessibility review remain pending. Team Check-in is a temporary working title.
 
 ## Features
 

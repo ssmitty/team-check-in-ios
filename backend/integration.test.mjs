@@ -65,8 +65,14 @@ test('local accounts, captain enforcement, retry safety, and pair privacy', asyn
   assert.ok((await request('/rest/v1/rpc/redeem_invite', users[6].token, { p_token: revocable, p_display_name: 'Outsider' })).status >= 400);
   assert.ok((await request('/rest/v1/rpc/pairing_context', captain.token, { p_game: game, p_user: captain.id })).status >= 400);
   const context = await rpc('pairing_context', config.SERVICE_ROLE_KEY, { p_game: game, p_user: captain.id });
-  assert.ok((await request('/rest/v1/rpc/commit_pairings', config.SERVICE_ROLE_KEY,
-    { p_game: game, p_user: captain.id, p_context: null, p_groups: null })).status >= 400);
+  const malformed = await request('/rest/v1/rpc/commit_pairings', config.SERVICE_ROLE_KEY,
+    { p_game: game, p_user: captain.id, p_context: null, p_groups: null });
+  assert.equal(malformed.status, 400);
+  const stale = await request('/rest/v1/rpc/commit_pairings', config.SERVICE_ROLE_KEY,
+    { p_game: game, p_user: captain.id, p_context: { ...context, players: [] }, p_groups: [] });
+  assert.equal(stale.status, 409);
+  assert.equal(stale.data.code, 'PT409');
+  assert.equal((await rows('assignment_members', config.SERVICE_ROLE_KEY, `&game_id=eq.${game}`)).length, 0);
   const groups = makeAssignments(context.players).groups;
   const args = { p_game: game, p_user: captain.id, p_context: context, p_groups: groups };
   const commits = await Promise.all([rpc('commit_pairings', config.SERVICE_ROLE_KEY, args), rpc('commit_pairings', config.SERVICE_ROLE_KEY, args)]);
