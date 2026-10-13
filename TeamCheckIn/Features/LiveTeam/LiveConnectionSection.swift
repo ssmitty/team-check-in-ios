@@ -5,7 +5,7 @@ import SwiftUI
 struct LiveConnectionSection: View {
     @Bindable var store: LiveTeamStore
     var body: some View {
-        Section("Your teammate connection") {
+        TitledSection("Your teammate connection") {
             switch store.connectionState {
             case .noGame: Text("Your captain can schedule the next game.")
             case .closed: Text("This game's check-in has closed.")

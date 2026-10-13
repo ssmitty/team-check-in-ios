@@ -9,12 +9,12 @@ struct TeamView: View {
     @State private var cancelingGame: Game?
     var body: some View {
         List {
-            Section("Roster") {
+            TitledSection("Roster") {
                 Text("You" + (store.isCaptain ? " (captain demo)" : ""))
                 Text("Jordan")
                 Text("Alex")
             }
-            Section("Schedule") {
+            TitledSection("Schedule") {
                 ForEach(store.games) { game in
                     VStack(alignment: .leading, spacing: 8) {
                         Text(game.title).font(.headline)
@@ -40,7 +40,7 @@ struct TeamView: View {
                     }
                 }
             }
-            Section("Prototype controls") {
+            TitledSection("Prototype controls") {
                 Toggle("Captain demo", isOn: $store.isCaptain)
                 Button("Leave demo team", role: .destructive) { store.leave() }
                 Text("Captain controls manage the schedule, not private teammate responses.").font(

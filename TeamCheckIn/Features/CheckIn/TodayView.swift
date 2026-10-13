@@ -12,18 +12,18 @@ struct TodayView: View {
                 Text("You don't have to go into it alone.").foregroundStyle(.secondary)
             }
             if let game = store.game {
-                Section("Next game") {
+                TitledSection("Next game") {
                     Text(game.title).font(.headline)
                     Text(game.startsAt, format: .dateTime.weekday().hour().minute().timeZone())
                     Label(game.location, systemImage: "mappin.and.ellipse")
                 }
-                Section("Your teammate connection") { checkInContent(game: game) }
+                TitledSection("Your teammate connection") { checkInContent(game: game) }
             } else {
                 ContentUnavailableView(
                     "No game scheduled yet", systemImage: "calendar",
                     description: Text("Your captain can add the next game from Team."))
             }
-            Section("Prototype controls") {
+            TitledSection("Prototype controls") {
                 Picker(
                     "Demo scenario",
                     selection: Binding(get: { store.scenario }, set: { store.loadScenario($0) })

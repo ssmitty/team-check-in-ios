@@ -8,7 +8,7 @@ struct LiveDashboardView: View {
     @State private var editing: LiveGame?
     var body: some View {
         List {
-            Section("Your next game") {
+            TitledSection("Your next game") {
                 if let game = store.game {
                     Text(game.title).font(.headline)
                     if let start = game.start {
@@ -24,7 +24,7 @@ struct LiveDashboardView: View {
             if store.game != nil, let notifications = store.notifications {
                 LiveNotificationSection(notifications: notifications)
             }
-            Section("Schedule") {
+            TitledSection("Schedule") {
                 ForEach(store.snapshot.games) { game in
                     VStack(alignment: .leading) {
                         Text(game.title)
@@ -53,7 +53,7 @@ struct LiveDashboardView: View {
                     }
                 }
             }
-            Section("Roster") {
+            TitledSection("Roster") {
                 ForEach(store.snapshot.roster) { member in
                     Text(member.display_name + (member.role == "captain" ? " (captain)" : ""))
                 }

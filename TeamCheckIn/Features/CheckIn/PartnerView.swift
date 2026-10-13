@@ -8,7 +8,7 @@ struct PartnerView: View {
     var body: some View {
         List {
             ForEach(store.teammates) { teammate in
-                Section(teammate.name) {
+                TitledSection(teammate.name) {
                     if let feeling = teammate.feeling, let support = teammate.support {
                         Label(feeling.rawValue, systemImage: feeling.symbol).font(.headline)
                         Text("Would appreciate: " + support.rawValue)
@@ -25,7 +25,7 @@ struct PartnerView: View {
                     }
                 }
             }
-            Section("Connect in person") {
+            TitledSection("Connect in person") {
                 if store.warmupRequested {
                     Label("Warmup request sent in demo", systemImage: "person.wave.2")
                     ForEach(store.teammates) { teammate in
@@ -44,7 +44,7 @@ struct PartnerView: View {
                         .secondary)
             }
             if store.warmupRequested {
-                Section("Prototype controls") {
+                TitledSection("Prototype controls") {
                     ForEach(store.teammates) { teammate in
                         Button("Simulate \(teammate.name): I'll find you") {
                             store.simulateAcknowledgment(id: teammate.id)

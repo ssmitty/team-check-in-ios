@@ -16,6 +16,9 @@ struct AppEntryView: View {
     ) {
         self.routes = routes
         self.registration = registration
+        #if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("--demo-ui-test") { return }
+        #endif
         do {
             if let config = try BackendConfiguration.load() {
                 let client = BackendClient(

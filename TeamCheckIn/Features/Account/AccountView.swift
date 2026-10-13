@@ -14,7 +14,7 @@ struct AccountView: View {
                 Text("Go into the game together").font(.title).bold()
                 Text("Sign in to join your team and share a private pregame check-in.")
             }
-            Section("Your account") {
+            TitledSection("Your account") {
                 TextField("Email", text: $email).keyboardType(.emailAddress)
                     .textContentType(.emailAddress).textInputAutocapitalization(.never)
                     .autocorrectionDisabled()

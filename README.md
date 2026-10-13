@@ -2,7 +2,7 @@
 
 Purpose: Build a simple native iPhone app that helps student athletes connect privately before games. One hour before a game, teammates receive an invitation to share how they feel and find each other at warmups.
 
-Current status: The native prototype and configured account mode build. Twenty-one Swift behavior tests and eight pairing tests pass. The complete local Supabase integration suite verifies accounts, schedules, pair/trio persistence, and privacy. A malformed-snapshot timeout was traced to an inappropriate serialization error code and fixed with a bounded HTTP conflict response. Ten database access-contract assertions passed. Hosted native integration and full simulator/accessibility review remain pending. Team Check-in is a temporary working title.
+Current status: The native demo and configured account mode build. Forty-six portable behavior tests pass, alongside real local Swift service integration, 22 Node unit tests, backend integration, and 20 database access assertions. Private photos, warmup acknowledgment, scheduling/push preparation, captain transfer, and account deletion are implemented locally. Two simulator UI flows pass, including largest-text dark mode. The full accessibility audit still reports partial Dynamic Type support; VoiceOver/manual review remains pending. Hosted setup, physical-device checks, and Apple push delivery remain pending. Team Check-in is a temporary working title.
 
 ## Features
 
@@ -47,7 +47,7 @@ Build from the project directory:
 xcodebuild -project TeamCheckIn.xcodeproj -scheme TeamCheckIn -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
 ```
 
-This build passed locally. The app also installed and launched on the dedicated iOS 26.2 simulator, where welcome and sample-team entry were inspected. Component installation subsequently interrupted simulator responsiveness, so complete flow and accessibility checks are still pending.
+This build passed locally. The shared scheme also includes simulator UI tests; see [native review](docs/PROTOTYPE_REVIEW.md) for commands and review boundaries. Full VoiceOver and device checks remain pending.
 
 The sample invitation is `teamcheckin://join/demo`. Today includes reproducible demo scenarios; Team includes a Captain demo toggle. Warmup acknowledgments can be simulated explicitly. Photos stay in memory, and session data resets when the app relaunches.
 

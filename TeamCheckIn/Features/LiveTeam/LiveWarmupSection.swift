@@ -12,7 +12,7 @@ struct LiveWarmupSection: View {
         store.snapshot.warmupAcknowledgments.filter { $0.assignment_id == store.assignmentID }
     }
     var body: some View {
-        Section("Find each other at warmups") {
+        TitledSection("Find each other at warmups") {
             if requests.contains(where: { $0.requester_id == store.userID }) {
                 Label("Your warmup request is sent", systemImage: "person.wave.2")
                 ForEach(store.partners) { partner in

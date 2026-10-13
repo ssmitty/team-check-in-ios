@@ -6,7 +6,7 @@ import SwiftUI
 struct DemoBanner: View {
     var body: some View {
         Label("Demo mode: changes stay in this session", systemImage: "info.circle")
-            .font(.footnote).foregroundStyle(.secondary)
+            .font(.footnote).foregroundStyle(.primary)
             .padding(12).frame(maxWidth: .infinity)
             .background(.thinMaterial)
     }

@@ -19,7 +19,7 @@ struct PhotoAttachmentView: View {
         PhotosPicker(selection: $selection, matching: .images) {
             Label("Choose photo", systemImage: "photo")
         }
-        Text("Demo photos stay in memory. Camera capture and private upload will be added later.")
+        Text("Demo photos stay in memory. Configured account mode supports private uploads.")
             .font(.footnote).foregroundStyle(.secondary)
     }
 }

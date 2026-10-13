@@ -9,7 +9,7 @@ struct CheckInView: View {
     @State private var photo: PhotosPickerItem?
     var body: some View {
         Form {
-            Section("How are you heading into today's game?") {
+            TitledSection("How are you heading into today's game?") {
                 ForEach(Feeling.allCases) { value in
                     Button {
                         store.feeling = value
@@ -20,21 +20,23 @@ struct CheckInView: View {
                             if store.feeling == value { Image(systemName: "checkmark") }
                         }
                     }
+                    .accessibilityLabel(value.rawValue)
+                    .accessibilityIdentifier("feeling." + value.rawValue)
                     .accessibilityAddTraits(store.feeling == value ? .isSelected : [])
                 }
             }
-            Section("What would help from your teammate?") {
+            TitledSection("What would help from your teammate?") {
                 Picker("Support preference", selection: $store.support) {
                     Text("Choose support").tag(Optional<SupportPreference>.none)
                     ForEach(SupportPreference.allCases) { Text($0.rawValue).tag(Optional($0)) }
                 }.pickerStyle(.inline)
             }
-            Section("Anything you want them to know? (optional)") {
+            TitledSection("Anything you want them to know? (optional)") {
                 TextField("A brief note", text: $store.note, axis: .vertical).lineLimit(3...6)
                 Text("\(store.note.count) / 280 characters").font(.footnote)
                     .foregroundStyle(store.note.count > 280 ? .red : .secondary)
             }
-            Section("Pregame photo (optional)") {
+            TitledSection("Pregame photo (optional)") {
                 PhotoAttachmentView(store: store, selection: $photo)
             }
             Section {

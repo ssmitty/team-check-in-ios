@@ -16,16 +16,23 @@ struct WelcomeView: View {
                         .accessibilityHidden(true)
                     Text("Go into the game together").font(.title).bold()
                     Text("A small check-in with a teammate before you play.").foregroundStyle(
-                        .secondary)
+                        .primary)
                 }
-                Section("Join a sample team") {
+                TitledSection("Join a sample team") {
                     TextField("Invitation link", text: $invite).textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                     Text("Demo team: Delaware Athletics").font(.footnote)
-                    Button("Join demo team") { Task { await store.join(invite: invite) } }
-                        .disabled(store.isBusy)
+                    Button {
+                        Task { await store.join(invite: invite) }
+                    } label: {
+                        Text("Join demo team").frame(
+                            maxWidth: .infinity, minHeight: 44, alignment: .leading
+                        )
+                        .contentShape(Rectangle())
+                    }
+                    .disabled(store.isBusy)
                 }
-                Section("Create a team as captain") {
+                TitledSection("Create a team as captain") {
                     TextField("Team name", text: $name)
                     Button("Create demo team") { store.createTeam(name: name) }
                 }

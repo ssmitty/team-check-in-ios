@@ -19,6 +19,8 @@ def main():
     if target.scheme != "http" or target.hostname != "127.0.0.1" or target.port != 54321:
         raise RuntimeError("Integration requires the isolated loopback stack.")
     environment = os.environ.copy()
+    for name in ("SUPABASE_SERVICE_ROLE_KEY", "SUPABASE_SECRET_KEY", "SUPABASE_ACCESS_TOKEN", "APNS_PRIVATE_KEY"):
+        environment.pop(name, None)
     environment["TEAM_CHECK_IN_LOCAL_INTEGRATION"] = "1"
     environment["TEAM_CHECK_IN_LOCAL_ANON_KEY"] = config["ANON_KEY"]
     subprocess.run(["swift", "test", "--filter", "NativeBackendIntegrationTests"], cwd=root, env=environment, timeout=180, check=True)

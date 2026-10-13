@@ -12,7 +12,7 @@ struct AccountSettingsView: View {
         NavigationStack {
             Form {
                 if store.isCaptain {
-                    Section("Captain duties") {
+                    TitledSection("Captain duties") {
                         Picker("Next captain", selection: $recipientID) {
                             Text("Choose a teammate").tag(Optional<UUID>.none)
                             ForEach(store.snapshot.roster.filter { $0.user_id != store.userID }) {
@@ -31,7 +31,7 @@ struct AccountSettingsView: View {
                         .font(.footnote)
                     }
                 }
-                Section("Delete account") {
+                TitledSection("Delete account") {
                     Text(
                         "This permanently removes your account, responses, photos, and device registrations. Your teammates keep their own responses. Cleanup may need a retry if the connection fails."
                     )

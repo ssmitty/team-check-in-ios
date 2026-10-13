@@ -401,3 +401,20 @@ Completed and verified:
 
 Next:
 - Continue the newly prepared simulator UI automation and accessibility audit. Fix actual findings and retain honest evidence for any blocked tests. Hosted selection, physical device/signing, retention/name choices, and remote CI authentication still remain.
+
+## October 13, 2026, overnight: Simulator flow and accessibility evidence
+
+Implemented:
+- Added a native UI test target to the deterministic project generator and shared scheme. Debug-only arguments isolate the demo and select light, dark, or largest accessibility text; Release keeps normal configuration and ignores these flags.
+- Added explicit feeling labels/identifiers, a full-row join target, a contrast-adjusted semantic teal tint, clearer demo text, and shared scalable native section headings. Configured screens use the same heading component. Updated the stale prototype review document to describe actual account mode and the existing private PR.
+- Restricted the opt-in Swift API runner's inherited environment by removing privileged backend/APNs variables. It still receives only the local anonymous key.
+
+Verified:
+- XCUITest interacted with the installed iOS 26.2 simulator even while desktop GUI control was unavailable. The final focused flow run passed both tests: join/select feeling/support/share without a photo, view partner/send warmup request/acknowledge; and reach/share a check-in in dark mode at accessibility5 text size. Result: build/Logs/Test/Test-TeamCheckIn-2026.10.13_05-22-07--0400.xcresult, 2 tests, 0 failures, about 111 seconds. The large-text screenshot was exported into ignored .build/ui-review and visually inspected; the form scrolls, and the demo banner consumes substantial space at this size.
+- The full Apple accessibility audit was run repeatedly without suppressing findings. It exposed welcome contrast issues, which were addressed, and then reported partial Dynamic Type support on welcome headings/controls. The full audit still fails; focused flow success is not a passing accessibility suite. A heading-row experiment reduced navigation reachability and was reverted to native section headers. One earlier UI runner launch crashed before app testing; later runs completed. No product crash or complete VoiceOver result is claimed.
+- Default Swift tests passed 46 behaviors with the one opt-in integration intentionally skipped (47 discovered). The opt-in shipped-service test passed again against real local Auth/REST/Storage/function responses with synthetic accounts. Strict Swift formatting, Python script compilation, diff whitespace, and intended-file/full-history secret scans passed.
+- The Debug app and UI runner compiled successfully for actual simulator tests. The Release simulator build also passed, with test flags compiled out. No hosted project, push timer, distribution, production data, or personal/OrbStack files were changed. Free disk space remained about 13 GiB.
+
+Remaining:
+- Resolve the unsuppressed welcome Dynamic Type audit findings and review VoiceOver, native account screens/Keychain, denied permissions, and physical camera/push behavior. Phase 2 is not marked complete. Hosted backend selection, Apple signing/APNs access, retention/name decisions, and authenticated inspection of latest remote CI remain outstanding.
+- Continue independent verification in the next overnight run. Restore the existing automation to daily 2 AM Eastern at or after 8 AM Eastern and provide the requested morning report.

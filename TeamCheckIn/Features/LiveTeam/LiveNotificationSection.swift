@@ -5,7 +5,7 @@ import SwiftUI
 struct LiveNotificationSection: View {
     @Bindable var notifications: NotificationRegistrationStore
     var body: some View {
-        Section("Pregame alerts") {
+        TitledSection("Pregame alerts") {
             Text(notifications.message).font(.footnote)
             Button("Enable alerts") { Task { await notifications.enable() } }
                 .disabled(notifications.isBusy)

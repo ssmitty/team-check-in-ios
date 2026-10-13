@@ -9,16 +9,16 @@ struct LiveTeamEntryView: View {
     @State private var teamName = ""
     var body: some View {
         Form {
-            Section("What should teammates call you?") {
+            TitledSection("What should teammates call you?") {
                 TextField("Your name", text: $displayName)
             }
-            Section("Join your team") {
+            TitledSection("Join your team") {
                 TextField("Invitation link", text: $store.pendingInvite)
                     .textInputAutocapitalization(.never).autocorrectionDisabled()
                 Button("Join team") { Task { await store.join(displayName: displayName) } }
                     .disabled(store.isBusy || displayName.isEmpty)
             }
-            Section("Create a team as captain") {
+            TitledSection("Create a team as captain") {
                 TextField("Team name", text: $teamName)
                 Button("Create team") {
                     Task { await store.create(name: teamName, displayName: displayName) }

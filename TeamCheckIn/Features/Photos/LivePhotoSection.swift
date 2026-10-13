@@ -21,7 +21,7 @@ struct LivePhotoSection: View {
         }
     }
     var body: some View {
-        Section("Photo (optional)") {
+        TitledSection("Photo (optional)") {
             if draft.data != nil {
                 PhotoDraftPreview(store: store, draft: draft, selection: $selection)
             } else if let existing, existing.is_ready {

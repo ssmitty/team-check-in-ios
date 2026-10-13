@@ -11,7 +11,7 @@ struct LiveCheckInView: View {
             if !store.isConnectionOpen {
                 Section { Text("This check-in is closed. Return to your team's schedule.") }
             }
-            Section("How are you feeling?") {
+            TitledSection("How are you feeling?") {
                 Picker("Feeling", selection: $store.feeling) {
                     Text("Choose a feeling").tag(Optional<Feeling>.none)
                     ForEach(Feeling.allCases) { Text($0.rawValue).tag(Optional($0)) }
@@ -34,7 +34,7 @@ struct LiveCheckInView: View {
             }
             LivePhotoSection(store: store)
             ForEach(store.partners) { partner in
-                Section(partner.display_name) {
+                TitledSection(partner.display_name) {
                     if let response = store.snapshot.responses.first(where: {
                         $0.assignment_id == store.assignmentID && $0.user_id == partner.user_id
                     }) {
@@ -56,7 +56,7 @@ struct LiveCheckInView: View {
                     .disabled(store.isBusy || !store.isConnectionOpen)
                 }
             }
-            Section("Encouragement") {
+            TitledSection("Encouragement") {
                 ForEach(
                     Array(
                         store.snapshot.encouragements.filter {
