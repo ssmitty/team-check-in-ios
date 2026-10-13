@@ -223,3 +223,9 @@ Further investigation and repair in the same run:
 - No active local commit_pairings request needed termination. No hosted project or production service was modified.
 - Source reference: https://supabase.com/docs/guides/troubleshooting/high-cpu-and-infinite-transaction-retries-when-using-custom-error-codes-in-rpc-functions-77326b
 - Fresh remote CI for the RPC repair still needs verification. Simulator UI review remains blocked by a computer-use timeout; native flow/accessibility acceptance is unchanged.
+
+Final verification:
+- Both Swift and backend jobs passed in PR run 38334707131 for repair commit 5867b09. The fresh Linux runner applied the full migration sequence, passed the access-contract checks, started the worker, and completed the account/private-persistence suite. The macOS job passed core tests, pairing tests, and the simulator build.
+- Remote evidence: https://github.com/ssmitty/team-check-in-ios/actions/runs/38334707131
+- Fixes 79e72d9 and 5867b09 were pushed through ssmitty, with local/remote heads verified equal before this documentation update. Whitespace/style and changed-file/full-history credential-pattern scans passed; the first history-scan timeout required a successful bounded retry.
+- Remaining work is native interactive/accessibility review and hosted two-account integration, followed by photo/warmup persistence and notifications. No phase is newly marked complete from CI alone.

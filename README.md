@@ -77,7 +77,7 @@ Run portable core tests:
 swift test
 ```
 
-Eighteen tests cover prototype boundaries, invalid invitations, secure session renewal, logout failures, failed-save draft preservation, assignment changes, game cancellation/rollover, and private state cleanup. The package tests run on macOS; actual Keychain behavior and the complete iPhone account flow need device/simulator verification. A GitHub Actions workflow is included; remote CI results must be checked separately.
+Eighteen tests cover prototype boundaries, invalid invitations, secure session renewal, logout failures, failed-save draft preservation, assignment changes, game cancellation/rollover, and private state cleanup. The package tests run on macOS; actual Keychain behavior and the complete iPhone account flow need device/simulator verification. The [verified CI run](https://github.com/ssmitty/team-check-in-ios/actions/runs/38334707131) passed the native build, core/pairing tests, and backend integration for repair commit `5867b09`.
 
 The prepared server pairing module has eight passing Node tests:
 
