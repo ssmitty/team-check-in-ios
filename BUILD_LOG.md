@@ -486,3 +486,11 @@ Verification:
 
 Next:
 - At or after 8 AM Eastern, restore this same automation to daily 2 AM Eastern and provide the requested morning report. Continue remaining manual/native and hosted/device verification when its dependencies become available. GitHub connector reauthentication, approved backend/worker selection, Apple signing/APNs and a physical iPhone, retention, and naming remain outstanding.
+
+## October 13, 2026, morning: Overnight handoff and schedule restored
+
+- Restored the existing build automation to daily 2 AM America/New_York using the app automation tool. Verified its saved daily schedule, ACTIVE status, original target thread, and standard continue-the-plan instructions. No duplicate automation was created.
+- The simulator demo is ready for user review. Local native services cover accounts, invitations, captain schedules, private pairs/trios, optional photo storage, persisted warmup acknowledgments, and confirmed account deletion. Server opening and push delivery code is prepared; hosted timers and Apple delivery are not activated or verified.
+- Overnight verification includes a passing Release simulator build, 46 portable Swift behaviors, six combined simulator/Apple API checks with an unsuppressed welcome audit, and the separately executed signed iOS backend integration with seven synthetic accounts. Earlier backend evidence includes 22 Node unit tests and 20 database access assertions. No unchanged app tests were repeated during the schedule-only handoff.
+- Outstanding: manual VoiceOver and native account-screen interaction/relaunch; approved HTTPS backend and worker/timer hosting; Apple signing/APNs credentials and a physical iPhone for camera, permissions, lock-state storage, push delivery/navigation; retention/name choices; GitHub connector reauthentication for latest CI inspection. No incomplete phase was marked complete.
+- Morning report points to the existing private PR and pilot verification record. Further scheduled work follows the remaining acceptance criteria without expanding version-one scope or distributing the app.
