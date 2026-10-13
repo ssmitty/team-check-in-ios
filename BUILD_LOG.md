@@ -429,3 +429,15 @@ Implemented and verified:
 - The first unsigned app-hosted Keychain run failed with secureStorage errors. Ad-hoc simulator signing resolved that requirement; it uses no Apple certificate/account. Signing output under the project initially failed because generated bundles acquired Finder/file-provider attributes. Keeping derived data in temporary storage allowed signing and tests to pass. Documents/personal files were not altered.
 - Added the native contract runner to Mac CI using an available installed iOS 17+ iPhone, ad-hoc signing, temporary derived data, and bounded execution. No runtime download is performed. Actual latest CI inspection was attempted again through the GitHub connector and remains blocked by reauthentication; local checks are not remote CI evidence.
 - Further welcome font/range experiments did not clear the partial Dynamic Type audit finding and were reverted. The unsuppressed audit and manual VoiceOver/native multi-account/physical-device checks remain outstanding. No phase acceptance status was advanced.
+
+## October 13, 2026, overnight: Captain schedule simulator review
+
+Implemented and verified:
+- Extended the native demo review to captain scheduling. The test selects the inner system switch rather than tapping the surrounding label, adds a game, edits its meeting location, reopens it to confirm the saved value, and confirms cancellation and the resulting Canceled state.
+- The first attempts exposed unreliable cancellation presentation with the smaller controls. Increased Edit/Cancel labels to at least 44 points and provided the selected game as captured confirmation data. The final native UI test passed in about 68 seconds: /tmp/team-check-in-native-build/Logs/Test/Test-TeamCheckIn-2026.10.13_05-57-58--0400.xcresult.
+- Made the large-text test scroll to the lazy shared-status row before asserting it. A preceding focused signed run passed the large-text/dark and normal warmup flows; its captain test failed before the targeted controls/confirmation fix. The later captain-only run passed the final add/edit/cancel behavior. These are three passing focused flows, not a passing full accessibility suite.
+- The Release simulator app build passed after the control and project changes. Strict formatting, Python compilation, diff review, and credential-pattern/history checks passed. Generated bundles and screenshots remain outside Git.
+
+Remaining and next:
+- The welcome Dynamic Type audit finding and manual VoiceOver remain open. Native hosted multi-account screens, physical camera/permission/Keychain checks, signed APNs delivery, backend/timer selection, retention/name decisions, and authenticated latest CI inspection are still required. No hosted changes or phase-completion claims were made.
+- Free disk space was about 13 GiB. No personal files or OrbStack volumes were removed. Continue independent verification at the next run; restore daily 2 AM Eastern cadence and deliver the morning report at or after 8 AM Eastern.

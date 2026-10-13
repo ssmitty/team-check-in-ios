@@ -2,7 +2,7 @@
 
 Purpose: Build a simple native iPhone app that helps student athletes connect privately before games. One hour before a game, teammates receive an invitation to share how they feel and find each other at warmups.
 
-Current status: The native demo and configured account mode build. Forty-six portable behavior tests pass, alongside real local Swift service integration, 22 Node unit tests, backend integration, and 20 database access assertions. Private photos, warmup acknowledgment, scheduling/push preparation, captain transfer, and account deletion are implemented locally. Two simulator UI flows pass, including largest-text dark mode. The full accessibility audit still reports partial Dynamic Type support; VoiceOver/manual review remains pending. Hosted setup, physical-device checks, and Apple push delivery remain pending. Team Check-in is a temporary working title.
+Current status: The native demo and configured account mode build. Forty-six portable behavior tests pass, alongside real local Swift service integration, 22 Node unit tests, backend integration, and 20 database access assertions. Private photos, warmup acknowledgment, scheduling/push preparation, captain transfer, and account deletion are implemented locally. Three focused simulator UI flows pass, including largest-text dark mode and captain add/edit/cancel. The full accessibility audit still reports partial Dynamic Type support; VoiceOver/manual review remains pending. Hosted setup, physical-device checks, and Apple push delivery remain pending. Team Check-in is a temporary working title.
 
 ## Features
 

@@ -23,8 +23,16 @@ struct TeamView: View {
                             Text("Canceled").foregroundStyle(.secondary)
                         } else if store.isCaptain {
                             HStack {
-                                Button("Edit") { editingGame = game }
-                                Button("Cancel", role: .destructive) { cancelingGame = game }
+                                Button {
+                                    editingGame = game
+                                } label: {
+                                    Text("Edit").frame(minHeight: 44).contentShape(Rectangle())
+                                }
+                                Button(role: .destructive) {
+                                    cancelingGame = game
+                                } label: {
+                                    Text("Cancel").frame(minHeight: 44).contentShape(Rectangle())
+                                }
                             }.buttonStyle(.bordered)
                         }
                     }
@@ -53,10 +61,10 @@ struct TeamView: View {
             "Cancel this game?",
             isPresented: Binding(
                 get: { cancelingGame != nil }, set: { if !$0 { cancelingGame = nil } }
-            )
-        ) {
+            ), presenting: cancelingGame
+        ) { game in
             Button("Cancel game", role: .destructive) {
-                if let game = cancelingGame { store.cancelGame(id: game.id) }
+                store.cancelGame(id: game.id)
                 cancelingGame = nil
             }
         }

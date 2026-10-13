@@ -16,6 +16,37 @@ final class PrototypeFlowTests: XCTestCase {
     }
 
     @MainActor
+    func testCaptainCanAddEditAndCancelDemoGame() throws {
+        continueAfterFailure = false
+        let app = demoApp()
+        tap(app.buttons["Join demo team"], in: app)
+        tap(app.tabBars.buttons["Team"], in: app)
+        let captain = app.switches["Captain demo"]
+        tap(captain.switches.firstMatch, in: app)
+        XCTAssertEqual(captain.value as? String, "1")
+        app.collectionViews.firstMatch.swipeDown()
+        app.collectionViews.firstMatch.swipeDown()
+        tap(app.buttons["Add game"], in: app)
+        let title = app.textFields["Opponent or game title"]
+        tap(title, in: app)
+        title.typeText("Review match")
+        tap(app.buttons["Save"], in: app)
+        XCTAssertTrue(app.staticTexts["Review match"].waitForExistence(timeout: 5))
+        let row = app.cells.containing(.staticText, identifier: "Review match").firstMatch
+        tap(row.buttons["Edit"], in: app)
+        let location = app.textFields["Meeting location (optional)"]
+        tap(location, in: app)
+        location.typeText("North entrance")
+        tap(app.buttons["Save"], in: app)
+        tap(row.buttons["Edit"], in: app)
+        XCTAssertEqual(location.value as? String, "North entrance")
+        tap(app.buttons["Close"], in: app)
+        tap(row.buttons["Cancel"], in: app)
+        tap(app.buttons["Cancel game"], in: app)
+        XCTAssertTrue(row.staticTexts["Canceled"].waitForExistence(timeout: 5))
+    }
+
+    @MainActor
     func testWelcomeAccessibilityAudit() throws {
         continueAfterFailure = false
         let app = demoApp()
@@ -48,7 +79,12 @@ final class PrototypeFlowTests: XCTestCase {
                 NSPredicate(format: "label == %@", "Encouragement")
             ).firstMatch, in: app)
         tap(app.buttons["Share check-in"], in: app)
-        XCTAssertTrue(app.staticTexts["Check-in shared in demo"].waitForExistence(timeout: 5))
+        let shared = app.staticTexts["Check-in shared in demo"]
+        for _ in 0..<5 {
+            if shared.exists { break }
+            app.collectionViews.firstMatch.swipeUp()
+        }
+        XCTAssertTrue(shared.waitForExistence(timeout: 5))
     }
 
     @MainActor
