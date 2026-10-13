@@ -103,7 +103,7 @@ Verify secure storage and photo metadata removal in an ad-hoc signed simulator a
 python3 scripts/run_native_platform_tests.py
 ```
 
-The runner keeps generated files outside the project folder, where file-provider attributes caused an ad-hoc signing failure. It uses synthetic data and clears its own isolated Keychain entry. No Apple account is needed for this simulator signature. See [native review](docs/PROTOTYPE_REVIEW.md) for the distinction between passing focused flow checks and the outstanding full accessibility audit.
+The runner keeps generated files outside the project folder, where file-provider attributes caused an ad-hoc signing failure. It uses synthetic data and clears its own isolated Keychain entry. No Apple account is needed for this simulator signature. See [native review](docs/PROTOTYPE_REVIEW.md) for the passing welcome accessibility audit and the remaining manual VoiceOver and additional-screen review.
 
 Run the same real API suite inside a signed iOS simulator app with actual Keychain storage:
 
@@ -117,7 +117,7 @@ Swift formatting uses Xcode's bundled `swift-format` and `.swift-format` configu
 
 ## Roadmap and known limitations
 
-Next: select the HTTPS development project, and exercise two accounts through the native screens. Finish simulator flow and accessibility review. Private photo upload and warmup persistence are implemented and tested locally. Camera capture is prepared and builds, but requires physical-device verification. Leased server opening jobs and orphan photo cleanup are prepared and tested locally. Optional notification permission and private device registration are prepared and tested with mocks/local accounts. Leased delivery orchestration is prepared with a Node HTTP/2 worker and verified against mock APNs responses. Password-confirmed deletion and captain transfer are implemented and tested locally. Next are hosted activation, actual device delivery, retention selection, and full pilot/device review.
+Next: select the HTTPS development project and exercise two accounts through the native screens. The simulator demo flow, largest-text dark mode, captain schedule controls, and welcome accessibility audit pass. Manual VoiceOver and account-screen review remain. Private photo upload and warmup persistence are implemented and tested locally. Camera capture is prepared and builds, but requires physical-device verification. Leased server opening jobs and orphan photo cleanup are prepared and tested locally. Optional notification permission and private device registration are prepared and tested with mocks/local accounts. Leased delivery orchestration is prepared with a Node HTTP/2 worker and verified against mock APNs responses. Password-confirmed deletion and captain transfer are implemented and tested locally. Hosted activation, actual device delivery, retention selection, and full pilot/device review remain; see the [pilot verification record](docs/PILOT_GUIDE.md).
 
 Team and assignment access policies are implemented and tested locally. Hosted native sharing and photo/warmup integration remain unverified. Push delivery, physical camera checks, and pilot readiness remain outstanding. The Supabase connector is available, but a development project for this app has not been selected. Apple signing/push access, physical-device checks, retention policy, and final naming are needed before a real pilot.
 

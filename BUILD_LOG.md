@@ -470,3 +470,19 @@ Verified:
 Remaining:
 - Automated welcome audit success does not prove all screens or VoiceOver gestures on a device. Manual VoiceOver/native account screens, physical camera/permissions/lock-state behavior, hosted HTTPS/backend/timers, signed APNs delivery, retention/name selection, and authenticated inspection of newest CI remain required. No phase was marked complete by substituting these automated checks for outstanding acceptance.
 - Disk availability was about 11 GiB near the end of review. No runtime downloads, personal file deletion, OrbStack volume changes, hosted activation, distribution, or PR merge occurred. Restore the same automation to daily 2 AM Eastern and deliver the concise morning report at or after 8 AM Eastern.
+
+## October 13, 2026, overnight: Consolidated pilot verification handoff
+
+Completed:
+- Consolidated implemented, locally verified, and outstanding acceptance work into the pilot guide. Added an ordered review path for native account screens, approved hosted setup, physical-device checks, and eventual distribution review.
+- Corrected stale README and lifecycle wording that still described the welcome audit and native Keychain cleanup as wholly unverified. Kept manual VoiceOver, other account screens, hosted HTTPS, physical camera/push, and deletion failure recovery explicitly outstanding.
+- Preserved phase acceptance statuses. The simulator demo is reviewable; a hosted pilot or distributed build is not ready. No feature, schema, hosted service, timer, or app distribution changed.
+
+Verification:
+- Reopened the final combined xcresult summary: six passed XCTest checks, zero failures, one intentionally skipped opt-in backend test, iPhone 16e simulator on iOS 26.2. Its retained result is /tmp/team-check-in-native-build/Logs/Test/Test-TeamCheckIn-2026.10.13_06-54-19--0400.xcresult.
+- The earlier iOS backend result bundle has been rotated out of derived-data test logs. Its retained text log, /tmp/team-check-in-ios-backend-integration.log, confirms one executed Swift Testing integration passed in 5.280 seconds and TEST SUCCEEDED. This is prior verified evidence, not a new integration run.
+- Reviewed the documentation diff, checked local Markdown link targets, punctuation, whitespace, and intended-file/full-history credential patterns. No app tests were repeated for documentation-only changes.
+- About 11 GiB remains free. No personal files, OrbStack volumes, runtimes, credentials, or generated output were staged.
+
+Next:
+- At or after 8 AM Eastern, restore this same automation to daily 2 AM Eastern and provide the requested morning report. Continue remaining manual/native and hosted/device verification when its dependencies become available. GitHub connector reauthentication, approved backend/worker selection, Apple signing/APNs and a physical iPhone, retention, and naming remain outstanding.
