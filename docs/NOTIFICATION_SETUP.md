@@ -23,11 +23,11 @@ node --test backend/pushDelivery.integration.test.mjs
 
 Tests discover the isolated local credentials without printing them. Do not use a real hosted database for these fixtures.
 
-## Hosted timer, not activated
+## Hosted opening and cleanup timers
 
-After choosing a development project, deploy the worker and configure a server-owned recurring timer to POST to its endpoint every minute. Keep its authorization in a server secret store or Supabase Vault. Check job backlog, retries, and cancellation in that development environment before calling timing reliable. Do not schedule work with privileged credentials embedded in app configuration.
+Opening and cleanup timers are active in the authorized development project. See [hosted deployment](HOSTED_DEVELOPMENT.md) for verified HTTP responses, Vault-backed scoped authorization, and exact limits. The opening worker is invoked every minute. Check backlog, retry, cancellation, and an actual test game before calling event timing fully verified. No privileged credential belongs in app configuration.
 
-No hosted timer, deployment, or production configuration has been changed.
+The Node APNs delivery timer remains unconfigured. These hosted jobs queue the outbox and perform housekeeping; they do not prove Apple delivery. No unrelated production project was changed.
 
 ## Apple delivery, still outstanding
 
@@ -63,6 +63,23 @@ Only the trusted server can list active recipient devices. The lookup excludes e
 The native implementation offers Enable alerts beside a scheduled game, checks current permission without prompting at launch, and leaves all check-ins available after denial. Tokens stay in memory; UserDefaults holds only a random installation UUID. Sign-out requests system unregistration and backend revocation before clearing the account, and clears local state even if backend removal fails. Successful Auth logout also removes the live session used by server recipient lookup. If both backend revocation and logout fail offline, server exclusion cannot be guaranteed immediately; system unregistration is requested and registrations expire after seven days. This path needs physical-device testing.
 
 Set `APNS_ENVIRONMENT` to `sandbox` or `production` in ignored `Config.xcconfig` only after configuring matching Apple signing and the push entitlement. Leaving it empty keeps the permission UI hidden while server/device setup is unavailable. This setting alone does not grant an entitlement or activate delivery. No signing profile or Apple key has been supplied.
+
+### Configure a physical development iPhone
+
+The optional entitlement files are committed, but remain disabled by default. `BuildConfig.xcconfig` applies the selected file only to the physical iPhone SDK, so simulator signing does not request APNs privileges. The Apple profile, signed entitlement, client registration environment, and worker endpoint must agree.
+
+| Signing use | PUSH_ENTITLEMENTS_FILE | APNS_ENVIRONMENT | Signed aps-environment |
+| --- | --- | --- | --- |
+| Development iPhone | TeamCheckIn/Resources/PushDevelopment.entitlements | sandbox | development |
+| Approved distribution build | TeamCheckIn/Resources/PushProduction.entitlements | production | production |
+
+1. Connect and unlock the iPhone, trust the Mac, and enable Developer Mode if requested by Xcode. Add the authorized Apple account in Xcode Settings, then choose its development team under Signing & Capabilities. A paid Developer Program membership and an App ID enabled for push are required for APNs provisioning.
+2. In ignored `Config.xcconfig`, select the development row above and the approved HTTPS backend/public key. Keep the server APNs key out of the app. `.p8` keys are ignored by Git alongside provisioning profiles and signing certificates.
+3. Let Xcode create or select the matching development provisioning profile, then run the app on the connected iPhone. This can require user interaction with Apple authentication; no credentials or agreement acceptance are automated by these templates.
+4. Inspect the signed app's entitlements with `codesign -d --entitlements :- /path/to/TeamCheckIn.app`. Verify the bundle identifier, Apple team, and `aps-environment` before testing registration. A successful unsigned compile or simulator signature is insufficient.
+5. Exercise Enable alerts at a useful moment, denial, Settings changes, account switching/sign-out, cold-launch navigation, cancellation, and expiry. Verify actual APNs acceptance and receipt on the iPhone against the selected backend. Use neutral synthetic check-ins during setup.
+
+The entitlement values follow Apple's [APS environment reference](https://developer.apple.com/documentation/bundleresources/entitlements/aps-environment). These setup instructions do not authorize distribution or establish that registration/delivery works. The current Mac inspection found no valid code-signing identity and no connected physical device.
 
 Local tests use synthetic devices and two accounts to verify denial of anonymous writes/raw token reads/client recipient lookups, retry-safe registration, account reassignment, reinstallation deduplication, revoke ownership, variable lengths, expiration, and session logout. Swift mocks verify permission timing, denied permission, retry, Settings changes, sign-out races, and local cleanup after failed revocation.
 

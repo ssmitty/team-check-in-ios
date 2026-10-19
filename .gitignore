@@ -32,6 +32,7 @@ Carthage/Build/
 !.env.example
 Config.xcconfig
 *.p12
+*.p8
 *.mobileprovision
 *.pem
 *.key

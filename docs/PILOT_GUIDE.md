@@ -2,7 +2,7 @@
 
 Purpose: Provide a concrete verification sequence and record prerequisites before inviting athletes.
 
-The app is not ready for distribution. The simulator demo is available for review, and the shipped native services have passed real local backend integration with Keychain-backed sessions. Hosted account-screen and physical-device checks remain outstanding. Prepared source and local checks do not establish that a deployed app or push delivery works.
+The app is not ready for distribution. The simulator demo is available for review, and the shipped native services have passed real local backend integration with Keychain-backed sessions. The [hosted development backend](HOSTED_DEVELOPMENT.md) now has verified scheduled worker invocations and unauthorized-access smoke checks. The account-screen audit and largest-text secure-entry test also pass. Successful hosted multi-account and physical-device checks remain outstanding; these results do not establish that push delivery works.
 
 ## Verification record, October 13, 2026
 

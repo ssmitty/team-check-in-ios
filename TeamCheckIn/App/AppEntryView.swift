@@ -18,6 +18,10 @@ struct AppEntryView: View {
         self.registration = registration
         #if DEBUG
             if ProcessInfo.processInfo.arguments.contains("--demo-ui-test") { return }
+            if ProcessInfo.processInfo.arguments.contains("--account-ui-test") {
+                _live = State(initialValue: LiveTeamStore(service: PreviewLiveService()))
+                return
+            }
         #endif
         do {
             if let config = try BackendConfiguration.load() {

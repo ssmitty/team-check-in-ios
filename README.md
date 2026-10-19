@@ -2,7 +2,7 @@
 
 Purpose: Build a simple native iPhone app that helps student athletes connect privately before games. One hour before a game, teammates receive an invitation to share how they feel and find each other at warmups.
 
-Current status: The native demo and configured account mode build. Forty-six portable behavior tests pass, alongside real local Swift service integration, 22 Node unit tests, backend integration, and 20 database access assertions. Private photos, warmup acknowledgment, scheduling/push preparation, captain transfer, and account deletion are implemented locally. Three focused simulator UI flows pass, including largest-text dark mode and captain add/edit/cancel. The welcome accessibility audit and all six native simulator checks pass; manual VoiceOver review remains pending. Hosted setup, physical-device checks, and Apple push delivery remain pending. Team Check-in is a temporary working title.
+Current status: The native demo and configured account mode build. Forty-six portable behavior tests passed previously, alongside real local Swift service integration. Current backend checks pass 26 Node tests and 24 database access assertions. The development backend and recurring opening/cleanup jobs are deployed with verified empty HTTP invocations. Earlier simulator demo flows and Apple API contracts pass; two additional account-screen checks now pass, including the full accessibility audit and largest-text dark-mode secure entry. Successful hosted multi-account flows, manual VoiceOver, physical-device checks, email sender setup, and Apple push delivery remain pending. Team Check-in is a temporary working title.
 
 ## Features
 
@@ -81,10 +81,10 @@ swift test
 
 Forty-six tests cover prototype boundaries, invalid invitations, secure session renewal, logout failures, failed-save draft preservation, assignment changes, game cancellation/rollover, photo upload retry/draft cleanup, private state cleanup, strict game routes, queued notification taps, account-scoped event navigation, optional permission, device registration retries, sign-out races, and confirmed/partial account cleanup, private participation choices, and live clock boundaries. The package tests run on macOS. A separate app-hosted simulator test verifies the actual Keychain vault; the full native account flow and physical-device storage remain pending. The [verified CI run](https://github.com/ssmitty/team-check-in-ios/actions/runs/38334707131) passed the native build, core/pairing tests, and backend integration for repair commit `5867b09`.
 
-The server pairing and APNs preparation modules have 22 passing Node tests:
+The server pairing, scheduler authorization, and APNs preparation modules have 26 passing Node tests:
 
 ```sh
-node --test backend/pairing.test.mjs backend/apns.test.mjs backend/apnsDelivery.test.mjs backend/pushWorker.test.mjs
+node --test backend/pairing.test.mjs backend/apns.test.mjs backend/apnsDelivery.test.mjs backend/pushWorker.test.mjs backend/schedulerAuthorization.test.mjs
 ```
 
 See [pairing module](backend/README.md) for exact and bounded-search behavior. The worker and database persistence have been exercised locally; hosted deployment remains pending. Mock assignments stay separate from account mode.
