@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: '22'
       - name: Server pairing and push preparation tests
-        run: node --test backend/pairing.test.mjs backend/apns.test.mjs backend/apnsDelivery.test.mjs backend/pushWorker.test.mjs
+        run: node --test backend/pairing.test.mjs backend/apns.test.mjs backend/apnsDelivery.test.mjs backend/pushWorker.test.mjs backend/schedulerAuthorization.test.mjs
       - name: Simulator app build
         run: xcodebuild -project TeamCheckIn.xcodeproj -scheme TeamCheckIn -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
       - name: Native contracts, demo flows, and accessibility audit

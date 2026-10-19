@@ -1,9 +1,10 @@
 /**
  * index.ts
  * Purpose: Process leased pregame jobs independently of a player's app being open.
- * Notes: Only the exact server credential can invoke this worker. Push records are queued, not delivered.
+ * Notes: Server or scoped scheduler authorization is required. Push records are queued, not delivered.
  */
 import { serverRpc } from '../_shared/serverRpc.ts';
+import { authorizeWorker } from '../_shared/workerAuthorization.mjs';
 import { makeAssignments } from '../_shared/pairing.mjs';
 const baseURL = Deno.env.get('SUPABASE_URL');
 const serverKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
@@ -34,7 +35,7 @@ async function process(job: { game_id: string; acting_user: string | null; revis
 Deno.serve(async (request: Request) => {
   if (request.method !== 'POST') return new Response(null, { status: 405 });
   if (!baseURL || !serverKey) return Response.json({ error: 'Service unavailable' }, { status: 503 });
-  if (request.headers.get('Authorization') !== `Bearer ${serverKey}`) {
+  if (!await authorizeWorker(request, serverKey, rpc)) {
     return Response.json({ error: 'Server authorization required' }, { status: 403 });
   }
   try {

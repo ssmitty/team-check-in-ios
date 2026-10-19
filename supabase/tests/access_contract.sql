@@ -2,7 +2,7 @@
 -- Purpose: Check table isolation and privileged RPC grants independently of application code.
 begin;
 create extension if not exists pgtap with schema extensions;
-select extensions.plan(20);
+select extensions.plan(24);
 select extensions.is((select count(*)::integer from pg_class c join pg_namespace n on n.oid = c.relnamespace
     where n.nspname = 'public' and c.relname in ('teams','team_members','team_invites','games',
         'game_opt_outs','assignments','assignment_members','check_ins','encouragements',
@@ -27,5 +27,9 @@ select extensions.ok(not has_function_privilege('authenticated', 'public.cleanup
 select extensions.ok((select relrowsecurity from pg_class where oid='private.account_deletions'::regclass), 'Deletion state enables RLS');
 select extensions.ok(not has_function_privilege('authenticated', 'public.begin_account_deletion(uuid)', 'execute'), 'Clients cannot delete another account');
 select extensions.ok(not has_function_privilege('authenticated', 'public.account_deletion_photos(uuid)', 'execute'), 'Deletion object listing is server-only');
+select extensions.ok(not has_function_privilege('anon', 'public.authorize_scheduled_worker(text)', 'execute'), 'Anon cannot validate scheduler tokens');
+select extensions.ok(not has_function_privilege('authenticated', 'public.authorize_scheduled_worker(text)', 'execute'), 'Players cannot validate scheduler tokens');
+select extensions.ok(has_function_privilege('service_role', 'public.authorize_scheduled_worker(text)', 'execute'), 'Trusted workers may validate scoped scheduler tokens');
+select extensions.ok(not public.authorize_scheduled_worker('malformed'), 'Malformed scheduler credentials fail closed');
 select * from extensions.finish();
 rollback;

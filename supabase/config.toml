@@ -308,3 +308,14 @@ s3_region = "env(S3_REGION)"
 s3_access_key = "env(S3_ACCESS_KEY)"
 # Configures AWS_SECRET_ACCESS_KEY for S3 bucket
 s3_secret_key = "env(S3_SECRET_KEY)"
+
+# Each function authenticates inside its handler. This supports current Auth JWTs
+# and the scoped Vault scheduler credential without relying on legacy gateway JWTs.
+[functions.generate-pairings]
+verify_jwt = false
+[functions.process-due-events]
+verify_jwt = false
+[functions.cleanup-orphan-photos]
+verify_jwt = false
+[functions.delete-account]
+verify_jwt = false

@@ -32,9 +32,13 @@ Without configuration, the app opens its labeled demo. Invalid configuration pro
 
 Email/password account creation and sign-in use Auth endpoints. Sessions live in the device-only Keychain, renew before expiry, and clear locally on sign-out even if remote logout fails. A confirmation-required signup asks the user to confirm email and then sign in. The client is injected through a transport and session storage boundary for behavior tests.
 
-## Hosted development, pending project selection
+## Hosted development
 
-After the user selects the development project and any costs are confirmed, review and apply tracked migrations to that project and deploy `generate-pairings`. Never apply these migrations to one of the older projects by assumption. Configure email confirmation, then use two synthetic accounts and an outsider to verify the native flow and access policies again. No hosted changes or deployment have occurred yet.
+The user-selected new development project is deployed and its opening/cleanup schedules are active. See [hosted deployment](HOSTED_DEVELOPMENT.md) for the project, exact verification, migration-ledger mapping, and remaining native/device checks. The account configuration is supplied through ignored `Config.xcconfig`.
+
+The following is the deployment review procedure for an additional target; it is not a claim that its account-screen and physical-device checks have passed:
+
+After the user selects a development project and any costs are confirmed, review and apply tracked migrations and deploy all four functions. Never apply these migrations to an older project by assumption. Keep email confirmation enabled, then use two synthetic accounts and an outsider to verify the native flow and access policies again. Preserve each handler's authentication when configuring gateway JWT verification.
 
 The service role is available only to the Edge Function through the environment. It verifies the caller with Auth, computes assignments from a server snapshot, and commits through restricted RPCs. The client receives only readiness, then reads its own assignment through RLS.
 
@@ -50,7 +54,7 @@ Warmup requests and per-recipient acknowledgments are protected by the same assi
 
 Changing or abandoning a reservation can leave an inaccessible private object. Trusted orphan cleanup is implemented and tested locally; account deletion and retention decisions remain pilot prerequisites. Cleanup removes only unreferenced objects older than 24 hours and retains current/pending photo references. This is not a complete account retention/deletion workflow.
 
-Generate schema types for inspection without committing generated output:
+Generate local schema types for inspection without committing generated output:
 
 ```sh
 mkdir -p .build/backend

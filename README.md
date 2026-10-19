@@ -59,7 +59,7 @@ Regenerate the project after adding Swift app files:
 python3 scripts/generate_xcode_project.py
 ```
 
-Configured account mode uses a Supabase host and publishable key from ignored `Config.xcconfig`. See [backend setup](docs/BACKEND_SETUP.md) for local services, migrations, tests, and the pending hosted configuration. Privileged credentials belong only in trusted server configuration; never put them in the app or repository.
+Configured account mode uses a Supabase host and publishable key from ignored `Config.xcconfig`. See [backend setup](docs/BACKEND_SETUP.md) for local services and [hosted development](docs/HOSTED_DEVELOPMENT.md) for the deployed project and remaining integration checks. Privileged credentials belong only in trusted server configuration; never put them in the app or repository.
 
 ## Architecture and project files
 
@@ -116,6 +116,8 @@ This opt-in suite passed using seven synthetic accounts, private pair/trio data,
 Swift formatting uses Xcode's bundled `swift-format` and `.swift-format` configuration.
 
 ## Roadmap and known limitations
+
+The authorized [hosted development backend](docs/HOSTED_DEVELOPMENT.md) is now deployed, with a verified recurring opening-worker HTTP invocation and a private photo bucket. Its public client configuration is supplied locally. Actual multi-account native testing and Apple device delivery remain pending. Earlier local-verification notes below do not establish those remaining checks.
 
 Next: select the HTTPS development project and exercise two accounts through the native screens. The simulator demo flow, largest-text dark mode, captain schedule controls, and welcome accessibility audit pass. Manual VoiceOver and account-screen review remain. Private photo upload and warmup persistence are implemented and tested locally. Camera capture is prepared and builds, but requires physical-device verification. Leased server opening jobs and orphan photo cleanup are prepared and tested locally. Optional notification permission and private device registration are prepared and tested with mocks/local accounts. Leased delivery orchestration is prepared with a Node HTTP/2 worker and verified against mock APNs responses. Password-confirmed deletion and captain transfer are implemented and tested locally. Hosted activation, actual device delivery, retention selection, and full pilot/device review remain; see the [pilot verification record](docs/PILOT_GUIDE.md).
 
