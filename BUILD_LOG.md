@@ -529,3 +529,11 @@ Implemented and verified:
 Remaining and next:
 - Connect/unlock a physical iPhone and establish the user's authorized Apple signing team and APNs provider key. Then verify real alert registration, denial/Settings changes, background receipt and game navigation, physical camera/library behavior, lock-state storage, and manual VoiceOver. Node delivery-worker hosting/credentials and email sender configuration remain necessary.
 - Verify successful hosted sign-up/email confirmation and native multi-account team/pair/trio/relaunch flows. The hosted timer has verified empty invocations, not a complete hosted test event. Retention/name choices remain open. No phase acceptance was advanced past an unverified requirement, and no app distribution or PR merge occurred.
+
+## October 22, 2026: Low-storage recovery
+
+- Observed free space fall to 2.18 GiB. Confirmed no xcodebuild or Swift frontend process was running before cleanup.
+- Removed only this project's regenerable compiled products, intermediate build data, module/index caches, and portable Swift build products from the known project build folders and prior temporary native build directories. Preserved Logs, xcresult bundles, screenshots/ui-review, source/configuration, all Git recovery originals, personal files, OrbStack volumes, and simulator runtimes.
+- Filesystem free space increased by about 0.62 GiB to 2.79 GiB. Shared/compressed storage means directory sizes did not translate directly into equivalent reclaimed disk space. Storage remains very low; future builds will need to regenerate removed products/caches. The installed simulator app was not removed.
+- Git status remained clean after generated-output cleanup. No app behavior, database object, hosted job, phase acceptance status, or distribution changed. No unchanged app tests were rerun for this cleanup record.
+- No physical iPhone was detected. Apple access, email sender configuration, hosted successful multi-account verification, and the remaining physical-device checks are unchanged. Continue those checks when dependencies become available and avoid unnecessary builds/downloads while storage is constrained.
