@@ -9,10 +9,10 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Core behavior tests
         run: swift test
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: '22'
       - name: Server pairing and push preparation tests
@@ -22,11 +22,11 @@ jobs:
       - name: Native contracts, demo flows, and accessibility audit
         run: python3 scripts/run_native_platform_tests.py --include-ui
   backend:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: '22'
       - uses: supabase/setup-cli@v3

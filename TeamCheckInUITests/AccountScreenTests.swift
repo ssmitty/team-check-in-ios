@@ -16,6 +16,10 @@ final class AccountScreenTests: XCTestCase {
         XCTAssertFalse(app.buttons["Sign in"].isEnabled)
         email.tap()
         email.typeText("screen-review@example.test")
+        // At the largest text size, the keyboard can cover a hittable part of the next field.
+        // Dismiss it before revealing Password so the tap reaches the actual secure entry.
+        app.toolbars.buttons["Done"].tap()
+        XCTAssertTrue(app.keyboards.firstMatch.waitForNonExistence(timeout: 5))
         let password = app.secureTextFields["Password"]
         reveal(password, in: app)
         password.tap()
