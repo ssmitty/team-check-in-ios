@@ -22,16 +22,31 @@ struct AccountView: View {
                 }
                 GroupBox {
                     VStack(alignment: .leading, spacing: 16) {
-                        TextField("Email", text: $email).keyboardType(.emailAddress)
-                            .textContentType(.emailAddress).textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-                            .focused($focusedField, equals: .email).submitLabel(.done)
-                        SecureField("Password", text: $password)
-                            .textContentType(createAccount ? .newPassword : .password)
-                            .focused($focusedField, equals: .password).submitLabel(.done)
-                        Toggle(isOn: $createAccount) {
-                            Text("Create a new account")
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Email").font(.body).foregroundStyle(.primary)
                                 .fixedSize(horizontal: false, vertical: true)
+                            TextField("", text: $email).keyboardType(.emailAddress)
+                                .accessibilityLabel("Email")
+                                .textContentType(.emailAddress).textInputAutocapitalization(.never)
+                                .autocorrectionDisabled()
+                                .focused($focusedField, equals: .email).submitLabel(.done)
+                        }
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Password").font(.body).foregroundStyle(.primary)
+                                .fixedSize(horizontal: false, vertical: true)
+                            SecureField("", text: $password)
+                                .accessibilityLabel("Password")
+                                .textContentType(createAccount ? .newPassword : .password)
+                                .focused($focusedField, equals: .password).submitLabel(.done)
+                        }
+                        HStack(alignment: .top, spacing: 16) {
+                            Text("Create a new account")
+                                .font(.body)
+                                .fixedSize(horizontal: false, vertical: true)
+                            Spacer(minLength: 0)
+                            Toggle("Create a new account", isOn: $createAccount)
+                                .labelsHidden()
+                                .accessibilityLabel("Create a new account")
                         }
                         Button {
                             Task {

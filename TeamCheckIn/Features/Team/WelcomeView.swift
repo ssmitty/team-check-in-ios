@@ -40,7 +40,7 @@ struct WelcomeView: View {
                             }
                             .disabled(store.isBusy)
                             .buttonStyle(.plain)
-                            .foregroundStyle(AppAccent.color)
+                            .foregroundStyle(Color(uiColor: .label))
                         }
                     } label: {
                         Text("Join a sample team").font(.headline).accessibilityAddTraits(.isHeader)
@@ -54,7 +54,7 @@ struct WelcomeView: View {
                                 Text("Create demo team").frame(
                                     maxWidth: .infinity, minHeight: 44, alignment: .leading
                                 ).contentShape(Rectangle())
-                            }.buttonStyle(.plain).foregroundStyle(AppAccent.color)
+                            }.buttonStyle(.plain).foregroundStyle(Color(uiColor: .label))
                         }
                     } label: {
                         Text("Create a team as captain").font(.headline).accessibilityAddTraits(
