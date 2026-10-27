@@ -87,7 +87,7 @@ The server pairing, scheduler authorization, and APNs preparation modules have 2
 node --test backend/pairing.test.mjs backend/apns.test.mjs backend/apnsDelivery.test.mjs backend/pushWorker.test.mjs backend/schedulerAuthorization.test.mjs
 ```
 
-See [pairing module](backend/README.md) for exact and bounded-search behavior. The worker and database persistence have been exercised locally; hosted deployment remains pending. Mock assignments stay separate from account mode.
+See [pairing module](backend/README.md) for exact and bounded-search behavior. The worker and database persistence have been exercised locally and on the authorized development host; see [hosted verification](docs/HOSTED_VERIFICATION.md). Mock assignments stay separate from account mode.
 
 A separate opt-in test exercises the shipped Swift account, team, photo, and warmup services against real local APIs using seven synthetic accounts:
 
@@ -111,17 +111,17 @@ Run the same real API suite inside a signed iOS simulator app with actual Keycha
 python3 scripts/run_ios_backend_integration.py --simulator-id YOUR_SIMULATOR_ID
 ```
 
-This opt-in suite passed using seven synthetic accounts, private pair/trio data, binary photos, warmups, restored native sessions, and own-account deletion. The test-only loopback adapter does not change the shipped app's HTTPS/ATS settings. Native account screens, hosted TLS, and physical-device behavior remain separate checks.
+This opt-in suite passed using seven synthetic accounts, private pair/trio data, binary photos, warmups, restored native sessions, and own-account deletion. The test-only loopback adapter does not change the shipped app's HTTPS/ATS settings. Native account screens and physical-device behavior remain separate checks. A separate hosted run now verifies the same Swift services over real TLS using provisioned synthetic identities; see [hosted verification](docs/HOSTED_VERIFICATION.md).
 
 Swift formatting uses Xcode's bundled `swift-format` and `.swift-format` configuration.
 
 ## Roadmap and known limitations
 
-The authorized [hosted development backend](docs/HOSTED_DEVELOPMENT.md) is now deployed, with a verified recurring opening-worker HTTP invocation and a private photo bucket. Its public client configuration is supplied locally. Actual multi-account native testing and Apple device delivery remain pending. Earlier local-verification notes below do not establish those remaining checks.
+The authorized [hosted development backend](docs/HOSTED_DEVELOPMENT.md) is now deployed, with a verified recurring opening-worker HTTP invocation and a private photo bucket. Its public client configuration is supplied locally. Hosted multi-account Swift service tests and a real scheduled game opening passed. Successful account controls, app relaunch, email confirmation, and Apple device delivery remain pending. Earlier local-verification notes below do not establish those remaining checks.
 
 Next: select the HTTPS development project and exercise two accounts through the native screens. The simulator demo flow, largest-text dark mode, captain schedule controls, and welcome accessibility audit pass. Manual VoiceOver and account-screen review remain. Private photo upload and warmup persistence are implemented and tested locally. Camera capture is prepared and builds, but requires physical-device verification. Leased server opening jobs and orphan photo cleanup are prepared and tested locally. Optional notification permission and private device registration are prepared and tested with mocks/local accounts. Leased delivery orchestration is prepared with a Node HTTP/2 worker and verified against mock APNs responses. Password-confirmed deletion and captain transfer are implemented and tested locally. Hosted activation, actual device delivery, retention selection, and full pilot/device review remain; see the [pilot verification record](docs/PILOT_GUIDE.md).
 
-Team and assignment access policies are implemented and tested locally. Hosted native sharing and photo/warmup integration remain unverified. Push delivery, physical camera checks, and pilot readiness remain outstanding. The Supabase connector is available, but a development project for this app has not been selected. Apple signing/push access, physical-device checks, retention policy, and final naming are needed before a real pilot.
+Team and assignment access policies are implemented and tested locally and through hosted Swift services, including private photo/warmup integration. Push delivery, physical camera checks, email confirmation, native account controls, and pilot readiness remain outstanding. The dedicated development project is deployed in ssmitty Org. Apple signing/push access, physical-device checks, retention policy, and final naming are needed before a real pilot.
 
 ## Scheduled work
 

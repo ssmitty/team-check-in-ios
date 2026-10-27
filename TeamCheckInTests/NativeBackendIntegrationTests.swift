@@ -1,5 +1,5 @@
 // NativeBackendIntegrationTests.swift
-// Purpose: Verify the shipped Swift account/team/photo services with real isolated Auth, REST, and Storage responses.
+// Purpose: Verify shipped Swift services with local or explicitly provisioned development Auth, REST, and Storage.
 #if os(macOS) || os(iOS)
     import Foundation
     import Testing
@@ -13,7 +13,8 @@
     struct NativeBackendIntegrationTests {
         @Test(
             .enabled(
-                if: ProcessInfo.processInfo.environment["TEAM_CHECK_IN_LOCAL_INTEGRATION"] == "1"))
+                if: ProcessInfo.processInfo.environment["TEAM_CHECK_IN_LOCAL_INTEGRATION"] == "1"
+                    || ProcessInfo.processInfo.environment["TEAM_CHECK_IN_HOSTED_FIXTURE"] != nil))
         func liveServicesPreserveAccountPairPhotoAndWarmupPrivacy() async throws {
             let publicKey = try #require(
                 ProcessInfo.processInfo.environment["TEAM_CHECK_IN_LOCAL_ANON_KEY"])
@@ -25,8 +26,9 @@
                     }
                 }
             }
-            for _ in 0..<7 {
-                accounts.append(try await NativeBackendAccount.create(publicKey: publicKey))
+            for index in 0..<7 {
+                accounts.append(
+                    try await NativeBackendAccount.create(publicKey: publicKey, index: index))
             }
             let captain = accounts[0], outsider = accounts[6]
             try await captain.service.create(name: "Synthetic native team", displayName: "Captain")

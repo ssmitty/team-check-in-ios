@@ -2,7 +2,11 @@
 
 Purpose: Identify what is verified locally, what still requires access or a decision, and what can proceed independently.
 
-## Current setup
+## Current verification
+
+For the October 26 hosted account/privacy and real scheduled-game evidence, see [hosted verification](HOSTED_VERIFICATION.md). The development backend is deployed. Successful native account controls/email confirmation, Apple signing/APNs, delivery-worker hosting, and physical-device checks remain separate requirements. Earlier setup observations below are historical, not the latest readiness status.
+
+## Original setup
 
 Checked October 11, 2026, America/New_York:
 
@@ -34,7 +38,7 @@ Checked October 11, 2026, America/New_York:
 - Protocol-based service injection lets the same flows use a demo backend and a real backend later.
 - Time and network behavior are injectable so window boundaries and failures are testable.
 - Production assignments and access control live on the server. The prototype consumes predefined assignments through the mock service.
-- No hosted changes, purchases, publishing, or distribution are authorized by this local scheduled build.
+- The user later authorized changes to the dedicated development project jdwrtscsjilmnurmhrez and its app jobs. Older/unrelated projects, purchases, publishing/distribution, and PR merge remain outside that authorization.
 
 ## Proposed app layout for Phase 2
 

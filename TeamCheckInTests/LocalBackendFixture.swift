@@ -1,5 +1,5 @@
 // LocalBackendFixture.swift
-// Purpose: Support opt-in Swift service integration against only the isolated loopback backend.
+// Purpose: Support opt-in Swift service integration with isolated local or provisioned development accounts.
 #if os(macOS) || os(iOS)
     import Foundation
     import CoreGraphics
@@ -40,33 +40,45 @@
         let client: BackendClient
         let vault: any SessionStoring
         let password: String
-        static func create(publicKey: String) async throws -> Self {
+        let config: BackendConfiguration
+        let network: any BackendTransport
+        static func create(publicKey: String, index: Int = 0) async throws -> Self {
             #if os(iOS)
                 let vault: any SessionStoring = SessionVault(
                     account: "native-backend-test." + UUID().uuidString)
             #else
                 let vault: any SessionStoring = IntegrationSessionVault()
             #endif
+            let fixture = try HostedBackendFixture.load()
             let config = try BackendConfiguration(
-                url: URL(string: "https://native-integration.example")!, publicKey: publicKey)
+                url: fixture?.url ?? URL(string: "https://native-integration.example")!,
+                publicKey: publicKey)
+            let network: any BackendTransport =
+                fixture == nil
+                ? LocalBackendTransport()
+                : SessionTransport(session: URLSession(configuration: .ephemeral))
             let client = BackendClient(
-                config: config, network: LocalBackendTransport(), vault: vault)
+                config: config, network: network, vault: vault)
             let service = LiveTeamService(client: client)
-            let password = UUID().uuidString + "Aa9!"
+            let password = fixture?.accounts[index].password ?? UUID().uuidString + "Aa9!"
+            let email = fixture?.accounts[index].email ?? "native-\(UUID())@example.test"
             guard
                 try await service.authenticate(
-                    email: "native-\(UUID())@example.test", password: password, create: true)
+                    email: email, password: password, create: fixture == nil)
             else {
                 throw BackendError.invalidResponse
             }
-            return Self(service: service, client: client, vault: vault, password: password)
+            if let fixture, client.userID != fixture.accounts[index].id {
+                throw BackendError.invalidResponse
+            }
+            return Self(
+                service: service, client: client, vault: vault, password: password,
+                config: config, network: network)
         }
         func restoredService(publicKey: String) async throws -> LiveTeamService {
-            let config = try BackendConfiguration(
-                url: URL(string: "https://native-integration.example")!, publicKey: publicKey)
             let fresh = LiveTeamService(
                 client: BackendClient(
-                    config: config, network: LocalBackendTransport(), vault: vault))
+                    config: config, network: network, vault: vault))
             try await fresh.restore()
             return fresh
         }

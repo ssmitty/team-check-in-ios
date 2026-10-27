@@ -46,6 +46,7 @@ def main() -> None:
     native_references, native_builds = [], []
     native_sources = sorted((root / "TeamCheckInNativeTests").rglob("*.swift")) + [
         root / "TeamCheckInTests/LocalBackendFixture.swift",
+        root / "TeamCheckInTests/HostedBackendFixture.swift",
         root / "TeamCheckInTests/NativeBackendIntegrationTests.swift",
     ]
     for path in native_sources:
