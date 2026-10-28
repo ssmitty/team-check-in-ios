@@ -1,0 +1,6 @@
+// BuildConfig.xcconfig
+// Purpose: Include optional local backend configuration without committing credentials.
+// Keep push signing opt-in, and never request device push entitlements on Simulator.
+PUSH_ENTITLEMENTS_FILE =
+CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*] = $(PUSH_ENTITLEMENTS_FILE)
+#include? "Config.xcconfig"

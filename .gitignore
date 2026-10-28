@@ -31,7 +31,9 @@ Carthage/Build/
 .env.*
 !.env.example
 Config.xcconfig
+hosted-fixture*.json
 *.p12
+*.p8
 *.mobileprovision
 *.pem
 *.key

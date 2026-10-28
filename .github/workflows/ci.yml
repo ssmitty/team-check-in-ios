@@ -1,0 +1,60 @@
+# ci.yml
+# Purpose: Verify native builds, portable behavior, Apple API contracts, and private backend integration.
+name: Build and test
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  swift:
+    runs-on: macos-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - name: Core behavior tests
+        run: swift test
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+      - name: Server pairing and push preparation tests
+        run: node --test backend/pairing.test.mjs backend/apns.test.mjs backend/apnsDelivery.test.mjs backend/pushWorker.test.mjs backend/schedulerAuthorization.test.mjs
+      - name: Simulator app build
+        run: xcodebuild -project TeamCheckIn.xcodeproj -scheme TeamCheckIn -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+      - name: Native contracts, demo flows, and accessibility audit
+        run: python3 scripts/run_native_platform_tests.py --include-ui --derived-data build/native-tests
+      - name: Preserve failed native test results
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: native-test-results
+          path: build/native-tests/Logs/Test/
+          retention-days: 3
+  backend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.20.3
+      - name: Start isolated local backend
+        run: supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,realtime > /tmp/backend-start.log 2>&1
+      - name: Check database access contract
+        run: supabase test db
+      - name: Start pairing worker
+        run: |
+          supabase functions serve > /tmp/pairing-worker.log 2>&1 &
+          for attempt in $(seq 1 120); do
+            if grep -q 'Serving functions' /tmp/pairing-worker.log; then exit 0; fi
+            sleep 1
+          done
+          printf "::error::Pairing worker did not become ready within 120 seconds.\n"
+          exit 1
+      - name: Exercise accounts and private persistence
+        run: node --test backend/integration.test.mjs backend/pushDevices.integration.test.mjs
+      - name: Exercise leased delivery with mock APNs
+        run: node --test backend/pushDelivery.integration.test.mjs
+      - name: Exercise password-confirmed account lifecycle
+        run: node --test backend/accountLifecycle.integration.test.mjs

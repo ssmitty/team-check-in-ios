@@ -1,0 +1,92 @@
+{
+  "purpose": "Map canonical migration sources to the authorized hosted development deployment.",
+  "project_ref": "jdwrtscsjilmnurmhrez",
+  "region": "us-east-1",
+  "app_migrations": [
+    {
+      "file": "20261012000100_teams_and_schedules.sql",
+      "name": "teams_and_schedules",
+      "hosted_version": "20261019012755"
+    },
+    {
+      "file": "20261012000200_private_check_ins.sql",
+      "name": "private_check_ins",
+      "hosted_version": "20261019012806"
+    },
+    {
+      "file": "20261012000300_atomic_pairing.sql",
+      "name": "atomic_pairing",
+      "hosted_version": "20261019012808"
+    },
+    {
+      "file": "20261012000400_pairing_conflict_errors.sql",
+      "name": "pairing_conflict_errors",
+      "hosted_version": "20261019012810"
+    },
+    {
+      "file": "20261012000500_warmup_requests.sql",
+      "name": "warmup_requests",
+      "hosted_version": "20261019012812"
+    },
+    {
+      "file": "20261012000600_private_photos.sql",
+      "name": "private_photos",
+      "hosted_version": "20261019012814"
+    },
+    {
+      "file": "20261012000700_check_in_jobs.sql",
+      "name": "check_in_jobs",
+      "hosted_version": "20261019012816"
+    },
+    {
+      "file": "20261012000800_orphan_photo_cleanup.sql",
+      "name": "orphan_photo_cleanup",
+      "hosted_version": "20261019012818"
+    },
+    {
+      "file": "20261013000900_push_devices.sql",
+      "name": "push_devices",
+      "hosted_version": "20261019012820"
+    },
+    {
+      "file": "20261013001000_push_token_validation.sql",
+      "name": "push_token_validation",
+      "hosted_version": "20261019012822"
+    },
+    {
+      "file": "20261013001100_push_delivery_leases.sql",
+      "name": "push_delivery_leases",
+      "hosted_version": "20261019012824"
+    },
+    {
+      "file": "20261013001200_refresh_delivery_devices.sql",
+      "name": "refresh_delivery_devices",
+      "hosted_version": "20261019012826"
+    },
+    {
+      "file": "20261013001300_push_queue_maintenance.sql",
+      "name": "push_queue_maintenance",
+      "hosted_version": "20261019012828"
+    },
+    {
+      "file": "20261013001400_account_lifecycle.sql",
+      "name": "account_lifecycle",
+      "hosted_version": "20261019012830"
+    },
+    {
+      "file": "20261013001500_finalize_empty_teams.sql",
+      "name": "finalize_empty_teams",
+      "hosted_version": "20261019012832"
+    },
+    {
+      "file": "20261019012916_scheduled_worker_authorization.sql",
+      "name": "scheduled_worker_authorization",
+      "hosted_version": "20261019013110"
+    }
+  ],
+  "deployment_script": {
+    "file": "supabase/deployment/schedule_workers.sql",
+    "project_ref_placeholder": "__PROJECT_REF__",
+    "hosted_version": "20261019013137"
+  }
+}

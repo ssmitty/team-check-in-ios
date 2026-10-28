@@ -1,9 +1,13 @@
 // Config.example.xcconfig
-// Purpose: Document planned public backend configuration without credentials.
-// Notes: The app is not scaffolded yet, so these fields are not wired to a target.
-
+// Purpose: Configure HTTPS account mode with a public client key only.
+// Copy to Config.xcconfig. Without that file the app runs its labeled local demo.
 SUPABASE_HOST = your-project.supabase.co
 SUPABASE_PUBLISHABLE_KEY = replace_with_project_publishable_key
+// Never supply a service role or secret key to the app.
 
-// Copy to Config.xcconfig when integration starts. That file is ignored by Git.
-// Privileged service credentials and Apple signing keys belong outside the app.
+// Optional after configuring Apple push signing. Use sandbox or production.
+APNS_ENVIRONMENT =
+// For a development-signed physical iPhone, pair sandbox above with:
+// PUSH_ENTITLEMENTS_FILE = TeamCheckIn/Resources/PushDevelopment.entitlements
+// Distribution signing instead pairs production with PushProduction.entitlements.
+PUSH_ENTITLEMENTS_FILE =
