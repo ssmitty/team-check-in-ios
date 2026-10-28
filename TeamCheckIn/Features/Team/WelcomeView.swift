@@ -33,14 +33,10 @@ struct WelcomeView: View {
                             Button {
                                 Task { await store.join(invite: invite) }
                             } label: {
-                                Text("Join demo team").frame(
-                                    maxWidth: .infinity, minHeight: 44, alignment: .leading
-                                )
-                                .contentShape(Rectangle())
+                                Text("Join demo team")
                             }
                             .disabled(store.isBusy)
-                            .buttonStyle(.plain)
-                            .foregroundStyle(Color(uiColor: .label))
+                            .buttonStyle(HighContrastActionStyle())
                         }
                     } label: {
                         Text("Join a sample team").font(.headline).accessibilityAddTraits(.isHeader)
@@ -51,10 +47,8 @@ struct WelcomeView: View {
                             Button {
                                 store.createTeam(name: name)
                             } label: {
-                                Text("Create demo team").frame(
-                                    maxWidth: .infinity, minHeight: 44, alignment: .leading
-                                ).contentShape(Rectangle())
-                            }.buttonStyle(.plain).foregroundStyle(Color(uiColor: .label))
+                                Text("Create demo team")
+                            }.buttonStyle(HighContrastActionStyle())
                         }
                     } label: {
                         Text("Create a team as captain").font(.headline).accessibilityAddTraits(
