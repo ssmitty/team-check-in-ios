@@ -1,7 +1,14 @@
 # ci.yml
 # Purpose: Verify native builds, portable behavior, Apple API contracts, and private backend integration.
 name: Build and test
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
