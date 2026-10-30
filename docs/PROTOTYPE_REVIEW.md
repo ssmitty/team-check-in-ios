@@ -43,6 +43,12 @@ The storage test uses only synthetic session values and clears its unique test a
 
 The real Swift service integration test uses seven synthetic accounts against the isolated local backend. It verifies private pair/trio access, schedules, retry safety, photos, warmups, session restore with an in-memory vault, and password-confirmed deletion. The same opt-in suite also passed inside the signed iOS test bundle with actual Keychain-backed accounts. Both transports remain test-only. Neither verifies the account UI, hosted TLS, or real APNs.
 
+## October 30 local simulator verification
+
+After storage recovered, a byte-verified copy of all 171 tracked files outside iCloud Documents passed the combined native runner on the installed iOS 26.3 iPhone 16e. Xcode completed with exit code zero and TEST SUCCEEDED. All six UI tests passed with zero failures, including the account and welcome audits, largest-text dark-mode checks, captain schedule editing, optional check-in, and warmup acknowledgment. Both actual Keychain and photo metadata-removal contracts also passed. The opt-in real-backend test was skipped as intended and is not counted as a hosted account UI test.
+
+Local evidence: `/tmp/team-check-in-oct30-native.log` and `/tmp/team-check-in-oct30-native/Logs/Test/Test-TeamCheckIn-2026.10.30_02-04-31--0400.xcresult`. The runner used temporary simulator signing and bounded sleep prevention, with no Apple account or new runtime download. Browser control remained unavailable while the Mac was locked; this automated result does not establish manual VoiceOver, physical camera/permissions, successful native hosted account controls/relaunch, or actual Apple push receipt.
+
 ## Remaining pilot requirements
 
 Complete VoiceOver/manual gesture review, successful native hosted multi-account screens/relaunch, physical Keychain/camera and permission recovery, and signed push delivery/navigation. Confirm retention and final naming before a pilot. The dedicated development backend and cron opening are deployed and verified with a real game; hosted Swift service integration also passed using preconfirmed synthetic identities. Neither establishes email ownership, native account controls, or Apple delivery. The latest inspected green source run is [40622887220](https://github.com/ssmitty/team-check-in-ios/actions/runs/40622887220) on `3264697`. The later main-branch run [40624391817](https://github.com/ssmitty/team-check-in-ios/actions/runs/40624391817) did not start its jobs because GitHub reported account-payment/spending restrictions.
