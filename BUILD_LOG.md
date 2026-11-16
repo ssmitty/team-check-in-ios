@@ -628,3 +628,60 @@ Cleanup PR outcome:
 - The simulator booted and the runner completed with exit code zero and TEST SUCCEEDED. All six UI tests passed with zero failures in 192.090 seconds: both account/welcome accessibility audits, largest-text account/dark-mode behavior, captain schedule add/edit/cancel, and no-photo check-in/warmup acknowledgment. Both native Apple API contracts passed in 0.144 seconds, covering real Keychain session isolation/restore/cleanup and bounded JPEG metadata stripping. The opt-in backend integration was intentionally skipped and is not counted as hosted UI evidence.
 - Evidence: /tmp/team-check-in-oct30-native.log and /tmp/team-check-in-oct30-native/Logs/Test/Test-TeamCheckIn-2026.10.30_02-04-31--0400.xcresult. Retained results and compiled app for review; free storage remains about 9.3 GiB. Bounded sleep prevention ended when the successful subprocess exited. No personal files, OrbStack volumes, runtimes, or Git recovery originals were deleted.
 - Updated the native review record. Phase statuses remain unchanged because successful native hosted controls/relaunch, manual VoiceOver, email confirmation, physical camera/permission/push and approved Node worker hosting remain outstanding. Source and prior hosted service/real timer evidence are ready for prototype review. Review documentation diff, check links/whitespace and scan intended files/full Git history before a focused ssmitty push to the existing cleanup PR. Do not rerun quota-blocked cloud jobs automatically or equate this local result with cloud execution.
+
+## November 1, 2026: Scheduled dependency check
+
+- Working tree was clean at a8cc33a before this check; free storage is about 13 GiB. No physical device or valid signing identity is available. The GitHub connector still requires reauthentication, so latest-head CI remains unverified. No blocked workflow was rerun.
+- The October 30 combined native result remains the latest evidence: six UI tests and two native contracts passed with zero failures. No source or dependency change justifies repeating those tests. Native hosted controls/relaunch, manual VoiceOver, email confirmation, physical camera/permission/push and approved delivery-worker hosting remain outstanding.
+- No source, backend, phase status, or hosted job was changed. Keep this unchanged-dependency record local without a documentation-only CI trigger. Next action remains native hosted/manual review when the relevant access is available, followed by the physical-device checks.
+
+## November 2, 2026: Unchanged verification dependencies
+
+- Preserved the existing local log and source at a8cc33a. Free storage is about 8.5 GiB; no physical device or valid signing identity was found. GitHub workflow inspection still returns reauthentication required. Latest-head CI is unverified; no rerun was requested.
+- No source or acceptance criteria changed, and previously passing tests were not repeated. Native hosted controls/relaunch and manual accessibility review remain next, followed by email, worker-hosting and physical-device dependencies recorded above. No hosted changes, cleanup, or documentation-only push was made.
+
+## November 3, 2026: Scheduled dependency check
+
+- Preserved existing work; only the prior local dependency records were modified before this run. Free storage is about 6.5 GiB. No physical device or valid signing identity is available, and GitHub workflow inspection still requires reauthentication. Latest-head cloud checks remain unverified.
+- No source/dependency change warrants repeating the passing October 30 simulator tests. Native hosted controls/relaunch and manual accessibility review remain next, with email, worker-hosting and physical-device requirements unchanged. No hosted mutation, cleanup, rerun, phase advancement, or documentation-only push was performed. Whitespace validation passed for the local log update.
+
+## November 4, 2026: Scheduled access check
+
+- Preserved source and existing local log updates. Free storage is about 7.2 GiB. No physical device or valid signing identity was found. Computer-use access reports the Mac locked, so native hosted/manual review cannot proceed in this session. GitHub workflow inspection still requires reauthentication; latest-head cloud results remain unverified.
+- No relevant source or dependency change warrants repeating the passing simulator suite. Native hosted controls/relaunch, manual VoiceOver, email confirmation, delivery-worker hosting and physical-device verification remain outstanding. No hosted changes, cleanup, phase advancement, CI rerun, or documentation-only push occurred. Next action remains native account/manual review when available, then Apple/device verification. Local log whitespace check passed.
+
+## November 5, 2026: Scheduled dependency check
+
+- Preserved source and the existing uncommitted dependency records. Free storage is about 4.4 GiB; no physical iPhone or valid signing identity was found. GitHub workflow inspection still requires reauthentication, so latest-head CI remains unverified. No redundant build, cloud rerun, or cleanup was attempted.
+- Native hosted controls/relaunch and manual accessibility review remain next, followed by the recorded email, worker-hosting and Apple/device requirements. No source, backend, or phase acceptance changed. Retained this record locally without triggering CI; whitespace validation passed.
+
+## November 6, 2026: Scheduled dependency check
+
+- Preserved source and existing local records. Free storage is about 2.9 GiB. No physical device or valid signing identity is available. GitHub workflow inspection still requires reauthentication, so latest-head CI remains unverified. Avoided additional build output and redundant workflow runs.
+- No source or acceptance criteria changed. The recorded passing simulator evidence remains current for unchanged source. Native hosted controls/relaunch and manual accessibility review remain next, with email, worker-hosting and physical-device dependencies outstanding. No hosted mutation, cleanup, or documentation-only push occurred. Local log whitespace validation passed.
+
+## November 7, 2026: Scheduled dependency check
+
+- Preserved source and prior local log updates. Free storage is about 3.3 GiB. No physical device or valid signing identity was found. GitHub workflow inspection still requires reauthentication; latest-head CI remains unverified. No source change warrants repeating the previously passing simulator suite.
+- Native hosted controls/relaunch and manual accessibility review remain next, followed by email, worker-hosting and Apple/device requirements. No hosted change, cleanup, phase advancement, redundant build, CI rerun, or documentation-only push occurred. Recorded this unchanged state locally; whitespace validation passed.
+
+## November 8, 2026: Scheduled dependency check
+
+- Preserved source and existing local dependency records. Free storage is about 4.2 GiB. No physical device or valid signing identity was found. GitHub workflow inspection still requires reauthentication, leaving latest-head CI unverified.
+- No source or relevant dependency change warrants another simulator suite or workflow run. Native hosted controls/relaunch and manual accessibility review remain next; email, worker hosting and physical-device checks remain outstanding. No source, backend, phase status, or hosted job changed. Retained this check locally without a documentation-only push; whitespace validation passed.
+
+## November 9, 2026: Scheduled dependency check
+
+- Preserved source and existing local dependency records. Free storage is about 5.2 GiB. No physical device or valid signing identity was found. GitHub workflow inspection still requires reauthentication, so latest-head CI remains unverified.
+- No source or relevant dependency change warrants repeating the passing simulator suite. Native hosted controls/relaunch and manual accessibility review remain next; email, worker hosting and physical-device verification remain outstanding. No backend, source, phase status, or hosted job changed. Kept this record local without another CI trigger; whitespace validation passed.
+
+## November 10, 2026: Scheduled dependency check
+
+- Preserved source and prior local log records. Free storage is about 3.1 GiB. No physical device or valid signing identity was found. GitHub workflow inspection still requires reauthentication; latest-head CI remains unverified.
+- No relevant source or dependency change warrants repeating passing simulator tests. Native hosted controls/relaunch and manual accessibility review remain next, with email, worker hosting and Apple/device requirements outstanding. No source, backend, phase status, hosted job, or remote Git state changed. Retained this check locally without redundant builds or CI triggers; whitespace validation passed.
+
+## November 15, 2026: Visible simulator demo review
+
+- Read project guidance and coding, repository and Swift skills. Preserved prior local records and source. Storage recovered to about 12 GiB. No connected physical device or signing identity is available. GitHub connector still requires reauthentication; Chrome browser control is unavailable. SSH read-only remote-ref inspection found main at 4352e38 and the cleanup branch at a8cc33a. No cloud rerun or merge occurred.
+- Simulator computer-use access is now available. Launched the installed app with Debug demo arguments on iOS 26.3 iPhone 16e and verified rendered controls/screens. Joined the sample team, selected feeling/support, shared without a photo, opened teammate responses, sent a warmup request, and used the explicitly labeled acknowledgment simulation. Observed Check-in shared in demo, the pending Jordan state, then Jordan will find you. No camera permission, hosted mutation, or new build was needed. Left the app open for review.
+- Corrected stale review instructions that still described PR #1 as unmerged and directed review to the old feature branch. Added the visible demo evidence and its limits. This is not hosted account, manual VoiceOver, persisted acknowledgment, photo permission, or actual push evidence. Phase acceptance remains unchanged. Next action is successful native hosted accounts/relaunch with synthetic fixtures, then manual accessibility and Apple/device requirements. Review documentation links, whitespace and intended-file/full-history scans before a focused ssmitty commit/push to PR #2; latest cloud outcome remains unverified.

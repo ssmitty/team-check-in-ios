@@ -4,7 +4,7 @@ Purpose: Describe the review path, evidence, and remaining checks for the first 
 
 ## Where to review
 
-The private repository is `ssmitty/team-check-in-ios`, branch `feature/swiftui-prototype`, with [pull request 1](https://github.com/ssmitty/team-check-in-ios/pull/1). Commits and pushes use the personal `ssmitty` account. The pull request has not been merged and the app has not been distributed.
+The private repository is `ssmitty/team-check-in-ios`. The prototype was merged through [pull request 1](https://github.com/ssmitty/team-check-in-ios/pull/1), as observed October 28. Subsequent CI cleanup and verification records are on `chore/reduce-ci-duplication` in [pull request 2](https://github.com/ssmitty/team-check-in-ios/pull/2). The November 15 remote-ref check found main at `4352e38` and the cleanup branch at `a8cc33a`; current PR checks could not be retrieved because the GitHub connector requires reauthentication. Commits and pushes use the personal `ssmitty` account. The app has not been distributed.
 
 ## Try the demo
 
@@ -48,6 +48,12 @@ The real Swift service integration test uses seven synthetic accounts against th
 After storage recovered, a byte-verified copy of all 171 tracked files outside iCloud Documents passed the combined native runner on the installed iOS 26.3 iPhone 16e. Xcode completed with exit code zero and TEST SUCCEEDED. All six UI tests passed with zero failures, including the account and welcome audits, largest-text dark-mode checks, captain schedule editing, optional check-in, and warmup acknowledgment. Both actual Keychain and photo metadata-removal contracts also passed. The opt-in real-backend test was skipped as intended and is not counted as a hosted account UI test.
 
 Local evidence: `/tmp/team-check-in-oct30-native.log` and `/tmp/team-check-in-oct30-native/Logs/Test/Test-TeamCheckIn-2026.10.30_02-04-31--0400.xcresult`. The runner used temporary simulator signing and bounded sleep prevention, with no Apple account or new runtime download. Browser control remained unavailable while the Mac was locked; this automated result does not establish manual VoiceOver, physical camera/permissions, successful native hosted account controls/relaunch, or actual Apple push receipt.
+
+## November 15 visible demo review
+
+With the simulator accessible, manually exercised the installed app on iOS 26.3 iPhone 16e using the Debug demo launch arguments. The app rendered its explicit demo banner and sample-team entry. Joined Delaware Athletics, opened the pregame form, selected a feeling and support preference, and shared without a photo or camera permission. The UI displayed Check-in shared in demo. Teammate responses opened, Find me at warmups displayed its pending state, and the explicitly labeled simulation changed it to Jordan will find you.
+
+This confirms visible demo rendering and those interactions through computer-use accessibility controls and screenshots. It does not establish hosted account authentication, persisted backend submission, manual VoiceOver navigation, photo/camera permissions, or real teammate acknowledgment. No app code or backend settings changed. The installed app remains open for review; this is not a newly built artifact.
 
 ## Remaining pilot requirements
 
