@@ -38,6 +38,42 @@ final class AccountScreenTests: XCTestCase {
         add(screenshot)
     }
 
+    /// Preview Auth returns confirmation pending without creating an account or sending email.
+    @MainActor
+    func testConfirmationPendingClearsPassword() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments = ["--account-ui-test", "--light-ui-test"]
+        app.launch()
+        let email = app.textFields["Email"]
+        XCTAssertTrue(email.waitForExistence(timeout: 10))
+        email.tap()
+        if !app.keyboards.firstMatch.waitForExistence(timeout: 5) { email.tap() }
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 5))
+        email.typeText("confirmation-review@example.test")
+        app.toolbars.buttons["Done"].tap()
+        let password = app.secureTextFields["Password"]
+        reveal(password, in: app)
+        password.tap()
+        password.typeText("Synthetic-UI-only-2026")
+        app.toolbars.buttons["Done"].tap()
+        let choice = app.switches["Create a new account"]
+        reveal(choice, in: app)
+        let innerSwitch = choice.switches.firstMatch
+        if innerSwitch.exists { innerSwitch.tap() } else { choice.tap() }
+        let submit = app.buttons["Create account"]
+        reveal(submit, in: app)
+        submit.tap()
+        XCTAssertTrue(
+            app.staticTexts[
+                "Check your email to confirm your account, then sign in."
+            ].waitForExistence(timeout: 5))
+        reveal(password, in: app)
+        XCTAssertEqual(password.value as? String, "")
+        reveal(submit, in: app)
+        XCTAssertFalse(submit.isEnabled)
+    }
+
     @MainActor
     private func reveal(_ element: XCUIElement, in app: XCUIApplication) {
         XCTAssertTrue(scrollView(in: app).waitForExistence(timeout: 10))

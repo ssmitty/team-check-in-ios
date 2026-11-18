@@ -10,17 +10,26 @@ private final class ScriptedLiveService: LiveTeamServicing {
     var snapshot = LiveSnapshot()
     var participationWrites = 0
     var failSave = false
+    var authenticationResult = true
+    var failAuthentication = false
+    var failLoad = false
     var deletionCompletes = false
     var onGameLookup: (() async -> Void)?
     func restore() async throws {}
-    func authenticate(email: String, password: String, create: Bool) async throws -> Bool { true }
+    func authenticate(email: String, password: String, create: Bool) async throws -> Bool {
+        if failAuthentication { throw BackendError.rejected(401) }
+        return authenticationResult
+    }
     func signOut() async throws { userID = nil }
     func deleteAccount(password: String) async throws {
         guard deletionCompletes else { throw BackendError.deletionPending }
         userID = nil
     }
     func transferCaptain(teamID: UUID, recipientID: UUID) async throws {}
-    func load(teamID: UUID?) async throws -> LiveSnapshot { snapshot }
+    func load(teamID: UUID?) async throws -> LiveSnapshot {
+        if failLoad { throw BackendError.rejected(503) }
+        return snapshot
+    }
     func teamID(forGame gameID: UUID) async throws -> UUID? {
         if let onGameLookup { await onGameLookup() }
         return snapshot.games.first { $0.id == gameID }?.team_id
@@ -59,6 +68,43 @@ private final class ScriptedLiveService: LiveTeamServicing {
 }
 @MainActor
 struct LiveTeamStoreTests {
+    @Test func confirmationPendingAcceptsCredentialsWithoutSigningIn() async {
+        let service = ScriptedLiveService()
+        service.userID = nil
+        service.authenticationResult = false
+        let store = LiveTeamStore(service: service)
+        let accepted = await store.authenticate(
+            email: "confirmation@example.test", password: "Synthetic-only", create: true)
+        #expect(accepted)
+        #expect(store.userID == nil)
+        #expect(store.infoMessage?.contains("confirm") == true)
+        #expect(store.errorMessage == nil)
+    }
+
+    @Test func rejectedCredentialsRemainUnaccepted() async {
+        let service = ScriptedLiveService()
+        service.userID = nil
+        service.failAuthentication = true
+        let store = LiveTeamStore(service: service)
+        let accepted = await store.authenticate(
+            email: "rejected@example.test", password: "Synthetic-only", create: false)
+        #expect(!accepted)
+        #expect(store.userID == nil)
+        #expect(store.errorMessage != nil)
+    }
+
+    @Test func teamRefreshFailureDoesNotInvalidateAcceptedCredentials() async {
+        let service = ScriptedLiveService()
+        service.failLoad = true
+        let store = LiveTeamStore(service: service)
+        let accepted = await store.authenticate(
+            email: "accepted@example.test", password: "Synthetic-only", create: false)
+        #expect(accepted)
+        #expect(store.userID == service.userID)
+        #expect(store.errorMessage != nil)
+        #expect(!store.isBusy)
+    }
+
     @Test func failedSubmissionPreservesDraftWithoutSuccessMessage() async {
         let service = ScriptedLiveService(); service.prepare(); service.failSave = true
         let store = LiveTeamStore(service: service)

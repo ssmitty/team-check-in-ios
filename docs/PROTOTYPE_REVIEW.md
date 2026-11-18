@@ -55,6 +55,12 @@ With the simulator accessible, manually exercised the installed app on iOS 26.3 
 
 This confirms visible demo rendering and those interactions through computer-use accessibility controls and screenshots. It does not establish hosted account authentication, persisted backend submission, manual VoiceOver navigation, photo/camera permissions, or real teammate acknowledgment. No app code or backend settings changed. The installed app remains open for review; this is not a newly built artifact.
 
+## November 18 account submission regression
+
+Account submission now clears the password after a successful Auth response even when email confirmation is pending and no signed-in session exists. A later team-refresh error does not keep that password in the form; rejected authentication retains retry behavior. The custom account action style also defines its full expanded label as the tap area. A native regression initially exposed a center tap that did not submit, and passed after that hit-area correction.
+
+The focused simulator regression verified the confirmation message, empty secure field and disabled resubmission using the side-effect-free preview service. The complete account accessibility audit and largest-text dark-mode test subsequently passed with the final action style. Portable state tests cover confirmation pending, rejection and refresh failure. These checks do not create accounts, send email, or establish hosted account integration.
+
 ## Remaining pilot requirements
 
 Complete VoiceOver/manual gesture review, successful native hosted multi-account screens/relaunch, physical Keychain/camera and permission recovery, and signed push delivery/navigation. Confirm retention and final naming before a pilot. The dedicated development backend and cron opening are deployed and verified with a real game; hosted Swift service integration also passed using preconfirmed synthetic identities. Neither establishes email ownership, native account controls, or Apple delivery. The latest inspected green source run is [40622887220](https://github.com/ssmitty/team-check-in-ios/actions/runs/40622887220) on `3264697`. The later main-branch run [40624391817](https://github.com/ssmitty/team-check-in-ios/actions/runs/40624391817) did not start its jobs because GitHub reported account-payment/spending restrictions.

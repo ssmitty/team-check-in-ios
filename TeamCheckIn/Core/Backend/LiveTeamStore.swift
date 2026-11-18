@@ -45,11 +45,16 @@ final class LiveTeamStore {
         }
         hasRestored = true
     }
-    func authenticate(email: String, password: String, create: Bool) async {
+    /// Reports a successful Auth response even when confirmation or a later team refresh is pending.
+    /// The account form uses this result to discard its password after Auth succeeds.
+    @discardableResult
+    func authenticate(email: String, password: String, create: Bool) async -> Bool {
+        var accepted = false
         await perform {
             let signedIn = try await self.service.authenticate(
                 email: email.trimmingCharacters(in: .whitespacesAndNewlines), password: password,
                 create: create)
+            accepted = true
             self.userID = self.service.userID
             if signedIn {
                 try await self.reload()
@@ -57,6 +62,7 @@ final class LiveTeamStore {
                 self.infoMessage = "Check your email to confirm your account, then sign in."
             }
         }
+        return accepted
     }
     func refresh() async { await perform { try await self.reload() } }
     /// Keeps a game route through sign-in and validates membership during the next load.
