@@ -4,7 +4,7 @@ Purpose: Describe the review path, evidence, and remaining checks for the first 
 
 ## Where to review
 
-The private repository is `ssmitty/team-check-in-ios`, branch `feature/swiftui-prototype`, with [pull request 1](https://github.com/ssmitty/team-check-in-ios/pull/1). Commits and pushes use the personal `ssmitty` account. The pull request has not been merged and the app has not been distributed.
+The private repository is `ssmitty/team-check-in-ios`. The prototype was merged through [pull request 1](https://github.com/ssmitty/team-check-in-ios/pull/1), as observed October 28. Subsequent CI cleanup and verification records are on `chore/reduce-ci-duplication` in [pull request 2](https://github.com/ssmitty/team-check-in-ios/pull/2). The November 15 remote-ref check found main at `4352e38` and the cleanup branch at `a8cc33a`; current PR checks could not be retrieved because the GitHub connector requires reauthentication. Commits and pushes use the personal `ssmitty` account. The app has not been distributed.
 
 ## Try the demo
 
@@ -27,7 +27,7 @@ xcodebuild -project TeamCheckIn.xcodeproj -scheme TeamCheckIn -destination 'plat
 
 Debug-only launch arguments select demonstration data and light/dark or largest text appearances. These flags are absent from Release builds. An earlier combined native run passed four UI tests (no-photo check-in/warmup acknowledgment, largest-text dark mode, captain add/edit/cancel, and welcome accessibility audit) plus two Apple API contracts. The shared backend integration suite is intentionally disabled in this default run. The welcome audit uses all audit categories and suppresses no findings. This is automated simulator evidence; manual VoiceOver and additional screen/device review remain required.
 
-Two additional account-screen tests passed in a separate focused run after fixing contrast, text scaling, and keyboard access. They check secure entry, account choice, and keyboard dismissal at the largest accessibility text size in dark mode, plus a full unsuppressed account-screen audit. The Debug-only `--account-ui-test` argument injects a side-effect-free preview service; it cannot establish successful hosted authentication. The final Release simulator build also passed. The earlier six checks and these two were not rerun as a single eight-check session. The configured hosted screen was separately exercised with an invalid synthetic account and recovered from its error alert; successful hosted sign-up/multi-account sharing remain pending.
+Two additional account-screen tests passed in a separate focused run after fixing contrast, text scaling, and keyboard access. They check secure entry, account choice, and keyboard dismissal at the largest accessibility text size in dark mode, plus a full unsuppressed account-screen audit. The Debug-only `--account-ui-test` argument injects a side-effect-free preview service; it cannot establish successful hosted authentication. The final Release simulator build also passed. The October 27 cloud run on source commit 3264697 subsequently ran all six UI checks and both native API contracts together with zero failures. The configured hosted screen was separately exercised with an invalid synthetic account and recovered from its error alert; successful hosted sign-up/multi-account sharing remain pending.
 
 ```sh
 python3 scripts/run_native_platform_tests.py --include-ui --simulator-id YOUR_SIMULATOR_ID
@@ -43,6 +43,24 @@ The storage test uses only synthetic session values and clears its unique test a
 
 The real Swift service integration test uses seven synthetic accounts against the isolated local backend. It verifies private pair/trio access, schedules, retry safety, photos, warmups, session restore with an in-memory vault, and password-confirmed deletion. The same opt-in suite also passed inside the signed iOS test bundle with actual Keychain-backed accounts. Both transports remain test-only. Neither verifies the account UI, hosted TLS, or real APNs.
 
+## October 30 local simulator verification
+
+After storage recovered, a byte-verified copy of all 171 tracked files outside iCloud Documents passed the combined native runner on the installed iOS 26.3 iPhone 16e. Xcode completed with exit code zero and TEST SUCCEEDED. All six UI tests passed with zero failures, including the account and welcome audits, largest-text dark-mode checks, captain schedule editing, optional check-in, and warmup acknowledgment. Both actual Keychain and photo metadata-removal contracts also passed. The opt-in real-backend test was skipped as intended and is not counted as a hosted account UI test.
+
+Local evidence: `/tmp/team-check-in-oct30-native.log` and `/tmp/team-check-in-oct30-native/Logs/Test/Test-TeamCheckIn-2026.10.30_02-04-31--0400.xcresult`. The runner used temporary simulator signing and bounded sleep prevention, with no Apple account or new runtime download. Browser control remained unavailable while the Mac was locked; this automated result does not establish manual VoiceOver, physical camera/permissions, successful native hosted account controls/relaunch, or actual Apple push receipt.
+
+## November 15 visible demo review
+
+With the simulator accessible, manually exercised the installed app on iOS 26.3 iPhone 16e using the Debug demo launch arguments. The app rendered its explicit demo banner and sample-team entry. Joined Delaware Athletics, opened the pregame form, selected a feeling and support preference, and shared without a photo or camera permission. The UI displayed Check-in shared in demo. Teammate responses opened, Find me at warmups displayed its pending state, and the explicitly labeled simulation changed it to Jordan will find you.
+
+This confirms visible demo rendering and those interactions through computer-use accessibility controls and screenshots. It does not establish hosted account authentication, persisted backend submission, manual VoiceOver navigation, photo/camera permissions, or real teammate acknowledgment. No app code or backend settings changed. The installed app remains open for review; this is not a newly built artifact.
+
+## November 18 account submission regression
+
+Account submission now clears the password after a successful Auth response even when email confirmation is pending and no signed-in session exists. A later team-refresh error does not keep that password in the form; rejected authentication retains retry behavior. The custom account action style also defines its full expanded label as the tap area. A native regression initially exposed a center tap that did not submit, and passed after that hit-area correction.
+
+The focused simulator regression verified the confirmation message, empty secure field and disabled resubmission using the side-effect-free preview service. The complete account accessibility audit and largest-text dark-mode test subsequently passed with the final action style. Portable state tests cover confirmation pending, rejection and refresh failure. These checks do not create accounts, send email, or establish hosted account integration.
+
 ## Remaining pilot requirements
 
-Complete VoiceOver/manual gesture review, native multi-account screens and physical Keychain checks, physical camera and denied-permission checks, signed push delivery/navigation, and hosted development setup. Confirm retention and final naming before a pilot. Node delivery orchestration and backend jobs are prepared locally but no hosted timer or Apple delivery has been activated. CI for the latest branch head still needs authenticated inspection; the last inspected green run was for commit `5867b09`.
+Complete VoiceOver/manual gesture review, successful native hosted multi-account screens/relaunch, physical Keychain/camera and permission recovery, and signed push delivery/navigation. Confirm retention and final naming before a pilot. The dedicated development backend and cron opening are deployed and verified with a real game; hosted Swift service integration also passed using preconfirmed synthetic identities. Neither establishes email ownership, native account controls, or Apple delivery. The latest inspected green source run is [40622887220](https://github.com/ssmitty/team-check-in-ios/actions/runs/40622887220) on `3264697`. The later main-branch run [40624391817](https://github.com/ssmitty/team-check-in-ios/actions/runs/40624391817) did not start its jobs because GitHub reported account-payment/spending restrictions.

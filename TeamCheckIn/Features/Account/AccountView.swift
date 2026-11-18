@@ -50,9 +50,9 @@ struct AccountView: View {
                         }
                         Button {
                             Task {
-                                await store.authenticate(
+                                let accepted = await store.authenticate(
                                     email: email, password: password, create: createAccount)
-                                if store.userID != nil { password = "" }
+                                if accepted { password = "" }
                             }
                         } label: {
                             Text(createAccount ? "Create account" : "Sign in")
